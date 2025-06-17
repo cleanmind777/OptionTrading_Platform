@@ -71,7 +71,7 @@ export function RegisterPage() {
     const userData = {
       email: formData.email,
       password: formData.password,
-      fist_name: formData.firstName,
+      first_name: formData.firstName,
       last_name: formData.lastName,
       phone_number: formData.phone,
     }

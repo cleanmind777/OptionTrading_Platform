@@ -10,7 +10,9 @@ def create_user(db: Session, user_create: UserCreate):
     db_user = User(
         username=user_create.username,
         email=user_create.email,
-        full_name=user_create.full_name,
+        first_name=user_create.first_name,
+        last_name=user_create.first_name,
+        phone_number=user_create.phone_number,
         hashed_password=hash_password(user_create.password),
         disabled=False,
     )

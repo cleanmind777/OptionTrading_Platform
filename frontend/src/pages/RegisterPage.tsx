@@ -80,7 +80,7 @@ export function RegisterPage() {
       console.log('Registration successful:', response.data)
       // Handle successful registration, e.g., redirect to login page
     } catch (error) {
-      console.log("111111111111111111")
+      console.log("error")
     }
   }
   const handleSubmit = (e: React.FormEvent) => {

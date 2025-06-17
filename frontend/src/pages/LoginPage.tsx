@@ -35,7 +35,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       // Here you would typically make an API call to authenticate
       // For now, we'll just simulate a successful login
       console.log("Logging in with:", { email, password, rememberMe });
-
+      login(email, password);
       // Call the onLogin prop to update the global login state
       onLogin();
 

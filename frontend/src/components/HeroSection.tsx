@@ -24,7 +24,7 @@ export function HeroSection({ onLogin }: HeroSectionProps) {
       console.log('Login successful:', response.data)
       // navigate("/login");
       // Handle successful registration, e.g., redirect to login page
-      return true
+      return response.data
     } catch (error) {
       console.log("error")
       return false
@@ -46,12 +46,14 @@ export function HeroSection({ onLogin }: HeroSectionProps) {
       console.log("Logging in with:", { email, password, rememberMe });
       const result = await login(email, password);
       // Call the onLogin prop to update the global login state
-      if (result == true) {
-        onLogin();
-        navigate("/account-stats");
+      if (result == false) {
+        console.log("Login failed")
       }
       else {
-        console.log("Login failed")
+        onLogin();
+        sessionStorage.setItem('access_token', result.access_token);
+        sessionStorage.setItem('token_type', result.token_type);
+        navigate("/account-stats");
       }
     } catch (error) {
       console.error("Login failed:", error);

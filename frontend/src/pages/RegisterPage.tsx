@@ -68,12 +68,19 @@ export function RegisterPage() {
   }
 
   const registerUser = async () => {
+    const userData = {
+      email: formData.email,
+      password: formData.password,
+      fist_name: formData.firstName,
+      last_name: formData.lastName,
+      phone_number: formData.phone,
+    }
     try {
-      const response = await axios.post(`${BACKEND_URL}/auth/signup`, formData)
+      const response = await axios.post(`${BACKEND_URL}/auth/signup`, userData)
       console.log('Registration successful:', response.data)
       // Handle successful registration, e.g., redirect to login page
     } catch (error) {
-      console.error
+      console.log("111111111111111111")
     }
   }
   const handleSubmit = (e: React.FormEvent) => {

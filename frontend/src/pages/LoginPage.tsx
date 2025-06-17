@@ -19,7 +19,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       password: password,
     }
     try {
-      const response = await axios.post(`${BACKEND_URL}/auth/login`, userData)
+      const response = await axios.post(`${BACKEND_URL}/auth/token`, userData)
       console.log('Login successful:', response.data)
       // navigate("/login");
       // Handle successful registration, e.g., redirect to login page

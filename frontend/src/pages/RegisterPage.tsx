@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import client from '../api/client'
 import axios from 'axios';
 
@@ -18,7 +18,7 @@ export function RegisterPage() {
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
-
+  const navigate = useNavigate();
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
     setFormData(prev => ({
@@ -78,6 +78,7 @@ export function RegisterPage() {
     try {
       const response = await axios.post(`${BACKEND_URL}/auth/signup`, userData)
       console.log('Registration successful:', response.data)
+      navigate("/login");
       // Handle successful registration, e.g., redirect to login page
     } catch (error) {
       console.log("error")

@@ -3,8 +3,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
 
-from app.schemas.user import UpdateUserPhoneNumber, UpdateUserEmailPreferences, UpdateAccountAccessSettings, UpdateSocialAccount
-from app.services.user_service import update_phone_number, update_email_preferences, update_account_access_settings, update_social_account
+from app.schemas.user import UpdateUserPhoneNumber, UpdateUserEmailPreferences, UpdateAccountAccessSettings, UpdateSocialAccount, UpdateUserPreferences, UpdateBotPreferences
+from app.services.user_service import update_phone_number, update_email_preferences, update_account_access_settings, update_social_account, update_user_preferences, update_bot_preferences
 from app.dependencies.database import get_db
 from app.core.config import settings
 
@@ -29,3 +29,13 @@ def update_Account_access_settings(email_account_access_settings: UpdateAccountA
 def update_Social_account(email_social_account: UpdateSocialAccount, db: Session = Depends(get_db)):
     update_social_account(db, email_social_account.email, email_social_account.social_account)
     return {"email": email_social_account.email, "social_account": email_social_account.social_account}
+
+@router.post("/update/user_preferences", response_model=UpdateUserPreferences, status_code=status.HTTP_201_CREATED)
+def update_User_preferences(email_user_preferences: UpdateUserPreferences, db: Session = Depends(get_db)):
+    update_user_preferences(db, email_user_preferences.email, email_user_preferences.user_preferences)
+    return {"email": email_user_preferences.email, "user_preferences": email_user_preferences.user_preferences}
+
+@router.post("/update/bot_preferences", response_model=UpdateBotPreferences, status_code=status.HTTP_201_CREATED)
+def update_Bot_preferences(email_bot_preferences: UpdateBotPreferences, db: Session = Depends(get_db)):
+    update_bot_preferences(db, email_bot_preferences.email, email_bot_preferences.bot_preferences)
+    return {"email": email_bot_preferences.email, "bot_preferences": email_bot_preferences.bot_preferences}

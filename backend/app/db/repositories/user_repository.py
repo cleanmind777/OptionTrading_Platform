@@ -56,3 +56,17 @@ def user_update_social_account(db: Session, email: str, social_account: json):
     db.commit()
     db.refresh(db_user)
     return db_user
+
+def user_update_user_preferences(db: Session, email: str, user_preferences: json):
+    db_user = db.query(User).filter(User.email == email).first()
+    db_user.user_preferences = user_preferences
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+def user_update_bot_preferences(db: Session, email: str, bot_preferences: json):
+    db_user = db.query(User).filter(User.email == email).first()
+    db_user.bot_preferences = bot_preferences
+    db.commit()
+    db.refresh(db_user)
+    return db_user

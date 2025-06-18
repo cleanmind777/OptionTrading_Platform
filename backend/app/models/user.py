@@ -16,6 +16,16 @@ class User(Base):
     user_level = Column(Integer, nullable = False, default=0)
     social_account = Column(JSON, nullable = True, default={"Discord":"cleanmind777"})
     two_factor = Column(Boolean, nullable = False, default=False)
+    account_access_settings = Column(JSON, nullable=False, default={
+        "log_me_out_after_no_activity_for": 0.5,
+        "pause_bots_if_no_activity_for" : 2,
+    })
+    email_preferences = Column(JSON, nullable=False, default={
+        "bot_trading_alerts" : True,
+        "service_alerts" : True,
+        "feature_announcements" : True,
+        "promotional_emails" : True
+    })
     user_preferences = Column(JSON, nullable = False, default={
         "main_dashboard_settings" : {
             "default_to_privacy_mode_on" : False,

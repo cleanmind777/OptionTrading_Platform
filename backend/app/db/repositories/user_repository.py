@@ -3,6 +3,7 @@ from sqlalchemy.sql import func
 from app.models.user import User
 from app.schemas.user import UserCreate
 from app.core.security import hash_password
+import json
 
 def get_user_by_email(db: Session, email: str):
     return db.query(User).filter(User.email == email).first()
@@ -31,6 +32,13 @@ def user_update_last_login_time(db: Session, email: str):
 def user_update_phone_number(db: Session, email: str, phone_number: str):
     db_user = db.query(User).filter(User.email == email).first()
     db_user.phone_number = phone_number
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+def user_update_email_preferences(db: Session, email: str, email_preferences: json):
+    db_user = db.query(User).filter(User.email == email).first()
+    db_user.email_preferences = email_preferences
     db.commit()
     db.refresh(db_user)
     return db_user

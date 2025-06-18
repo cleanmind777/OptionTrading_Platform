@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
-
+from typing import Optional, Dict, Any
+import json
 class UserBase(BaseModel):
     email: EmailStr
     first_name: str
@@ -33,3 +33,7 @@ class UpdateUserPhoneNumber(BaseModel):
     
     class Config:
         from_attributes = True
+
+class UpdateUserEmailPreferences(BaseModel):
+    email: EmailStr
+    email_preferences: Dict[str, Any]

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from app.db.repositories.user_repository import get_user_by_email, create_user
+from app.db.repositories.user_repository import get_user_by_email, create_user, update_last_login_time
 from app.core.security import verify_password
 from app.schemas.user import UserCreate
 from app.models.user import User
@@ -15,4 +15,6 @@ def authenticate_user(db: Session, email: str, password: str) -> User | None:
     user = get_user_by_email(db, email)
     if not user or not verify_password(password, user.hashed_password):
         return None
+    else:
+        update_last_login_time(db, email)
     return user

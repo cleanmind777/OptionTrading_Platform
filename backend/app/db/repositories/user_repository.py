@@ -49,3 +49,10 @@ def user_update_account_access_settings(db: Session, email: str, account_access_
     db.commit()
     db.refresh(db_user)
     return db_user
+
+def user_update_social_account(db: Session, email: str, social_account: json):
+    db_user = db.query(User).filter(User.email == email).first()
+    db_user.social_account = social_account
+    db.commit()
+    db.refresh(db_user)
+    return db_user

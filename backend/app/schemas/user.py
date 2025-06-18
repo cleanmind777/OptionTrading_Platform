@@ -41,3 +41,7 @@ class UpdateUserEmailPreferences(BaseModel):
 class UpdateAccountAccessSettings(BaseModel):
     email: EmailStr
     account_access_settings: Dict[str, Any]
+    
+class UpdateSocialAccount(BaseModel):
+    email: EmailStr
+    social_account: Dict[str, Any]

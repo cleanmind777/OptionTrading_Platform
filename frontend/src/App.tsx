@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -51,7 +51,6 @@ import "./App.css";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
   const handleLogin = () => {
     setIsLoggedIn(true);
   };
@@ -59,7 +58,9 @@ function App() {
   const handleLogout = () => {
     setIsLoggedIn(false);
   };
-
+  useEffect(() => {
+    sessionStorage.getItem('access_token') ? setIsLoggedIn(true) : setIsLoggedIn(false);
+  });
   return (
     // <NotificationProvider>
     <Router>

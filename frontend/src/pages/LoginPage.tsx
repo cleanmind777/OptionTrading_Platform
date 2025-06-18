@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from 'axios';
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 interface LoginPageProps {
   onLogin: () => void;
@@ -10,6 +13,22 @@ export function LoginPage({ onLogin }: LoginPageProps) {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
+  const login = async (email: string, password: string) => {
+    const userData = {
+      email: email,
+      password: password,
+    }
+    try {
+      const response = await axios.post(`${BACKEND_URL}/auth/token`, userData)
+      console.log('Login successful:', response.data)
+      // navigate("/login");
+      // Handle successful registration, e.g., redirect to login page
+      return response.data
+    } catch (error) {
+      console.log("error")
+      return false
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,12 +37,17 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       // Here you would typically make an API call to authenticate
       // For now, we'll just simulate a successful login
       console.log("Logging in with:", { email, password, rememberMe });
-
+      const result = await login(email, password);
       // Call the onLogin prop to update the global login state
-      onLogin();
-
-      // Navigate to the account stats page
-      navigate("/account-stats");
+      if (result == false) {
+        console.log("Login failed")
+      }
+      else {
+        onLogin();
+        sessionStorage.setItem('access_token', result.access_token);
+        sessionStorage.setItem('token_type', result.token_type);
+        navigate("/account-stats");
+      }
     } catch (error) {
       console.error("Login failed:", error);
       // Here you would typically show an error message to the user

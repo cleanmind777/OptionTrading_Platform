@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from 'axios';
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 interface HeroSectionProps {
   onLogin: () => void;
@@ -11,7 +14,22 @@ export function HeroSection({ onLogin }: HeroSectionProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-
+  const login = async (email: string, password: string) => {
+    const userData = {
+      email: email,
+      password: password,
+    }
+    try {
+      const response = await axios.post(`${BACKEND_URL}/auth/token`, userData)
+      console.log('Login successful:', response.data)
+      // navigate("/login");
+      // Handle successful registration, e.g., redirect to login page
+      return response.data
+    } catch (error) {
+      console.log("error")
+      return false
+    }
+  };
   // Auto-rotate features every 7.5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
@@ -22,17 +40,21 @@ export function HeroSection({ onLogin }: HeroSectionProps) {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       // Here you would typically make an API call to authenticate
       // For now, we'll just simulate a successful login
       console.log("Logging in with:", { email, password, rememberMe });
-
+      const result = await login(email, password);
       // Call the onLogin prop to update the global login state
-      onLogin();
-
-      // Navigate to the account stats page
-      navigate("/account-stats");
+      if (result == false) {
+        console.log("Login failed")
+      }
+      else {
+        onLogin();
+        sessionStorage.setItem('access_token', result.access_token);
+        sessionStorage.setItem('token_type', result.token_type);
+        navigate("/account-stats");
+      }
     } catch (error) {
       console.error("Login failed:", error);
       // Here you would typically show an error message to the user
@@ -215,11 +237,10 @@ export function HeroSection({ onLogin }: HeroSectionProps) {
         {features.map((feature, index) => (
           <div
             key={index}
-            className={`transition-all w-full  duration-1000 ease-in-out ${
-              activeFeature === index
-                ? "opacity-100 translate-x-0"
-                : "opacity-0 absolute translate-x-full"
-            }`}
+            className={`transition-all w-full  duration-1000 ease-in-out ${activeFeature === index
+              ? "opacity-100 translate-x-0"
+              : "opacity-0 absolute translate-x-full"
+              }`}
           >
             <div
               className="relative h-[600px] w-full"
@@ -262,9 +283,8 @@ export function HeroSection({ onLogin }: HeroSectionProps) {
             <button
               key={index}
               onClick={() => setActiveFeature(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                activeFeature === index ? "bg-white scale-125" : "bg-gray-500"
-              }`}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${activeFeature === index ? "bg-white scale-125" : "bg-gray-500"
+                }`}
               aria-label={`Go to feature ${index + 1}`}
             />
           ))}

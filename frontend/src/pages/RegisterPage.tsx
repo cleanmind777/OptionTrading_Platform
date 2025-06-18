@@ -1,5 +1,9 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import client from '../api/client'
+import axios from 'axios';
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -14,7 +18,7 @@ export function RegisterPage() {
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
-
+  const navigate = useNavigate();
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
     setFormData(prev => ({
@@ -63,9 +67,28 @@ export function RegisterPage() {
     return Object.keys(newErrors).length === 0
   }
 
+  const registerUser = async () => {
+    const userData = {
+      email: formData.email,
+      password: formData.password,
+      first_name: formData.firstName,
+      last_name: formData.lastName,
+      phone_number: formData.phone,
+    }
+    try {
+      const response = await axios.post(`${BACKEND_URL}/auth/signup`, userData)
+      console.log('Registration successful:', response.data)
+      navigate("/login");
+      // Handle successful registration, e.g., redirect to login page
+    } catch (error) {
+      console.log("error")
+    }
+  }
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (validateForm()) {
+      registerUser();
+      console.log("Backend_URL: ", BACKEND_URL)
       console.log('Registration data:', formData)
       // Handle registration logic here
     }
@@ -124,9 +147,8 @@ export function RegisterPage() {
                   value={formData.firstName}
                   onChange={handleChange}
                   placeholder="First Name"
-                  className={`w-full px-4 py-3 bg-slate-700 border rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 ${
-                    errors.firstName ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-600 focus:border-blue-500 focus:ring-blue-500'
-                  }`}
+                  className={`w-full px-4 py-3 bg-slate-700 border rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 ${errors.firstName ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-600 focus:border-blue-500 focus:ring-blue-500'
+                    }`}
                   required
                 />
                 {errors.firstName && <p className="text-red-400 text-xs mt-1">{errors.firstName}</p>}
@@ -140,9 +162,8 @@ export function RegisterPage() {
                   value={formData.lastName}
                   onChange={handleChange}
                   placeholder="Last Name"
-                  className={`w-full px-4 py-3 bg-slate-700 border rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 ${
-                    errors.lastName ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-600 focus:border-blue-500 focus:ring-blue-500'
-                  }`}
+                  className={`w-full px-4 py-3 bg-slate-700 border rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 ${errors.lastName ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-600 focus:border-blue-500 focus:ring-blue-500'
+                    }`}
                   required
                 />
                 {errors.lastName && <p className="text-red-400 text-xs mt-1">{errors.lastName}</p>}
@@ -159,9 +180,8 @@ export function RegisterPage() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Email Address"
-                className={`w-full px-4 py-3 bg-slate-700 border rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 ${
-                  errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-600 focus:border-blue-500 focus:ring-blue-500'
-                }`}
+                className={`w-full px-4 py-3 bg-slate-700 border rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 ${errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-600 focus:border-blue-500 focus:ring-blue-500'
+                  }`}
                 required
               />
               {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
@@ -191,9 +211,8 @@ export function RegisterPage() {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Password"
-                className={`w-full px-4 py-3 bg-slate-700 border rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 ${
-                  errors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-600 focus:border-blue-500 focus:ring-blue-500'
-                }`}
+                className={`w-full px-4 py-3 bg-slate-700 border rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 ${errors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-600 focus:border-blue-500 focus:ring-blue-500'
+                  }`}
                 required
               />
               {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
@@ -208,9 +227,8 @@ export function RegisterPage() {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 placeholder="Confirm Password"
-                className={`w-full px-4 py-3 bg-slate-700 border rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 ${
-                  errors.confirmPassword ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-600 focus:border-blue-500 focus:ring-blue-500'
-                }`}
+                className={`w-full px-4 py-3 bg-slate-700 border rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 ${errors.confirmPassword ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-600 focus:border-blue-500 focus:ring-blue-500'
+                  }`}
                 required
               />
               {errors.confirmPassword && <p className="text-red-400 text-xs mt-1">{errors.confirmPassword}</p>}
@@ -243,9 +261,8 @@ export function RegisterPage() {
                   name="agreeToTerms"
                   checked={formData.agreeToTerms}
                   onChange={handleChange}
-                  className={`mt-1 w-4 h-4 text-blue-600 bg-slate-700 border rounded focus:ring-blue-500 ${
-                    errors.agreeToTerms ? 'border-red-500' : 'border-slate-600'
-                  }`}
+                  className={`mt-1 w-4 h-4 text-blue-600 bg-slate-700 border rounded focus:ring-blue-500 ${errors.agreeToTerms ? 'border-red-500' : 'border-slate-600'
+                    }`}
                 />
                 <span className="text-gray-300 text-sm">
                   I agree to the{' '}

@@ -1,2 +1,15 @@
 .vscode
 .env
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.pyi
+*.pyz
+*.pyzw
+*.pyzw3
+*.pyzw38
+*.pyzw39
+*.pyzw310
+*.pyzw31

@@ -21,9 +21,16 @@ def create_user(db: Session, user_create: UserCreate):
     db.refresh(db_user)
     return db_user
 
-def update_last_login_time(db: Session, email: str):
+def user_update_last_login_time(db: Session, email: str):
     db_user = db.query(User).filter(User.email == email).first()
     db_user.last_login_time = func.now()
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+def user_update_phone_number(db: Session, email: str, phone_number: str):
+    db_user = db.query(User).filter(User.email == email).first()
+    db_user.phone_number = phone_number
     db.commit()
     db.refresh(db_user)
     return db_user

@@ -26,3 +26,10 @@ class TokenData(BaseModel):
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
+
+class UpdateUserPhoneNumber(BaseModel):
+    email: EmailStr
+    phone_number: str
+    
+    class Config:
+        from_attributes = True

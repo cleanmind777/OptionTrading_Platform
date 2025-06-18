@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from app.db.repositories.user_repository import get_user_by_email, create_user, user_update_last_login_time, user_update_phone_number, user_update_email_preferences
+from app.db.repositories.user_repository import get_user_by_email, create_user, user_update_last_login_time, user_update_phone_number, user_update_email_preferences, user_update_account_access_settings
 from app.core.security import verify_password
 from app.schemas.user import UserCreate
 from app.models.user import User
@@ -25,3 +25,6 @@ def update_phone_number(db: Session, email: str, phone_number: str)-> User:
 
 def update_email_preferences(db: Session, email: str, email_preferences: json)-> User:
     return user_update_email_preferences(db, email, email_preferences)
+
+def update_account_access_settings(db: Session, email: str, account_access_settings: json)-> User:
+    return user_update_account_access_settings(db, email, account_access_settings)

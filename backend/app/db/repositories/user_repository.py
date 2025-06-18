@@ -42,3 +42,10 @@ def user_update_email_preferences(db: Session, email: str, email_preferences: js
     db.commit()
     db.refresh(db_user)
     return db_user
+
+def user_update_account_access_settings(db: Session, email: str, account_access_settings: json):
+    db_user = db.query(User).filter(User.email == email).first()
+    db_user.account_access_settings = account_access_settings
+    db.commit()
+    db.refresh(db_user)
+    return db_user

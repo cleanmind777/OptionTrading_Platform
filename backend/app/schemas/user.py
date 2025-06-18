@@ -37,3 +37,7 @@ class UpdateUserPhoneNumber(BaseModel):
 class UpdateUserEmailPreferences(BaseModel):
     email: EmailStr
     email_preferences: Dict[str, Any]
+
+class UpdateAccountAccessSettings(BaseModel):
+    email: EmailStr
+    account_access_settings: Dict[str, Any]

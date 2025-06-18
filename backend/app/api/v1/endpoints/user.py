@@ -3,8 +3,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
 
-from app.schemas.user import UpdateUserPhoneNumber, UpdateUserEmailPreferences
-from app.services.user_service import update_phone_number, update_email_preferences
+from app.schemas.user import UpdateUserPhoneNumber, UpdateUserEmailPreferences, UpdateAccountAccessSettings
+from app.services.user_service import update_phone_number, update_email_preferences, update_account_access_settings
 from app.dependencies.database import get_db
 from app.core.config import settings
 
@@ -20,3 +20,7 @@ def update_Email_preferences(email_email_preferences: UpdateUserEmailPreferences
     update_email_preferences(db, email_email_preferences.email, email_email_preferences.email_preferences)
     return {"email": email_email_preferences.email, "email_preferences": email_email_preferences.email_preferences}
 
+@router.post("/update/account_access_settings", response_model=UpdateAccountAccessSettings, status_code=status.HTTP_201_CREATED)
+def update_Account_access_settings(email_account_access_settings: UpdateAccountAccessSettings, db: Session = Depends(get_db)):
+    update_account_access_settings(db, email_account_access_settings.email, email_account_access_settings.account_access_settings)
+    return {"email": email_account_access_settings.email, "account_access_settings": email_account_access_settings.account_access_settings}

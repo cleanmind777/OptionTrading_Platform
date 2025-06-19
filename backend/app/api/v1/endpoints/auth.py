@@ -2,9 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
+from uuid import UUID
 
 from app.schemas.user import UserCreate, UserResponse, Token, LoginRequest
-from app.services.user_service import register_user, authenticate_user
+from app.services.user_service import register_user, authenticate_user, get_account_id
 from app.dependencies.database import get_db
 from app.core.security import create_access_token
 from app.core.config import settings
@@ -38,7 +39,8 @@ def login_for_access_token(login: LoginRequest, db: Session = Depends(get_db)):
     access_token = create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    account_id = get_account_id(db, login.email)
+    return {"access_token": access_token, "token_type": "bearer", "account_id" : str(account_id)}
 
 # Sign out with JWT is stateless; token invalidation requires blacklist (not implemented here)
 @router.post("/signout")

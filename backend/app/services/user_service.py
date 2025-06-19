@@ -20,6 +20,10 @@ def authenticate_user(db: Session, email: str, password: str) -> User | None:
         user_update_last_login_time(db, email)
     return user
 
+def get_account_id(db: Session, email: str) -> str:
+    user = get_user_by_email(db, email)
+    print(user.id)
+    return user.id
 def update_phone_number(db: Session, email: str, phone_number: str)-> User:
     return user_update_phone_number(db, email, phone_number)
 

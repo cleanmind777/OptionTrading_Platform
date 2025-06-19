@@ -63,3 +63,15 @@ def update_Password(email_new_password: UpdatePassword, db: Session = Depends(ge
         )
     update_password(db, email_new_password.current_password, email_new_password.new_password)
     return "Successful"
+
+@router.post("/update/email", response_model=Email, status_code=status.HTTP_201_CREATED)
+def update_Email(email_password: UpdateEmail, db: Session = Depends(get_db)):
+    user = authenticate_user(db, email_password.current_email, email_password.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    update_email(db, email_password.current_email, email_password.new_email)
+    return {"email": email_password.new_email}

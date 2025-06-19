@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional, Dict, Any
+import uuid
 import json
 class UserBase(BaseModel):
     email: EmailStr
@@ -19,6 +20,7 @@ class UserResponse(UserBase):
 class Token(BaseModel):
     access_token: str
     token_type: str
+    account_id: str
 
 class TokenData(BaseModel):
     email: Optional[str] = None

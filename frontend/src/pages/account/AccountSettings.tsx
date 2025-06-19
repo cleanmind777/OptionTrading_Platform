@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export function AccountSettings() {
   const [userInfo, setUserInfo] = useState({
     name: "lucas",
     userId: "user1",
-    email: "lucaswong203162@gmail.com",
+    email: sessionStorage.getItem('email'),
     emailVerified: true,
     discordUsername: "",
     phoneNumber: "561-672-1462",
@@ -13,6 +15,7 @@ export function AccountSettings() {
 
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [verifyPassword, setVerifyPassword] = useState("");
+  const [Email, setEmail] = useState("");
 
   const [tradingGroup, setTradingGroup] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -37,6 +40,24 @@ export function AccountSettings() {
     wideSpreadWindow: "3 Minutes",
   });
 
+  const update_email = async (current_email: string, password: string, new_email: string) => {
+    const data = {
+      current_email: current_email,
+      password: password,
+      new_email: new_email
+    }
+    try {
+      const response = await axios.post(`${BACKEND_URL}/auth/token`, data)
+      console.log('Email change successful:', response.data)
+      setShowEmailModal(false);
+      setUserInfo({ ...userInfo, "email": Email });
+      return response.data
+    } catch (error) {
+      console.log("error")
+      alert("Incorrect Password")
+      return false
+    }
+  };
   const navigate = useNavigate();
 
   return (
@@ -88,6 +109,19 @@ export function AccountSettings() {
                 />
               </div>
 
+              <div>
+                <label className="block text-sm text-gray-300 mb-1">
+                  To get started, please input your new email
+                </label>
+                <input
+                  type="email"
+                  value={Email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white text-sm"
+                  placeholder="Enter your new email"
+                />
+              </div>
+
               <div className="flex space-x-3 pt-4">
                 <button
                   onClick={() => setShowEmailModal(false)}
@@ -98,7 +132,7 @@ export function AccountSettings() {
                 <button
                   onClick={() => {
                     // Handle password verification
-                    setShowEmailModal(false);
+                    update_email(userInfo.email, verifyPassword, Email)
                   }}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm"
                 >

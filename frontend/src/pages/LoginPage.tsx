@@ -41,11 +41,13 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       // Call the onLogin prop to update the global login state
       if (result == false) {
         console.log("Login failed")
+        alert('Failed Login')
       }
       else {
         onLogin();
         sessionStorage.setItem('access_token', result.access_token);
         sessionStorage.setItem('token_type', result.token_type);
+        sessionStorage.setItem('email', email);
         navigate("/account-stats");
       }
     } catch (error) {

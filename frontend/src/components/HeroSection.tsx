@@ -27,6 +27,7 @@ export function HeroSection({ onLogin }: HeroSectionProps) {
       return response.data
     } catch (error) {
       console.log("error")
+      alert("Login Failed")
       return false
     }
   };

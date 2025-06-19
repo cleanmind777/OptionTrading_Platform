@@ -53,3 +53,16 @@ class UpdateUserPreferences(BaseModel):
 class UpdateBotPreferences(BaseModel):
     email: EmailStr
     bot_preferences: Dict[str, Any]
+    
+class UpdateEmail(BaseModel):
+    current_email: EmailStr
+    password: str
+    new_email: EmailStr
+
+class Email(BaseModel):
+    email: EmailStr
+    
+class UpdatePassword(BaseModel):
+    email: EmailStr
+    current_password: str
+    new_password: str

@@ -3,8 +3,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
 
-from app.schemas.user import UpdateUserPhoneNumber, UpdateUserEmailPreferences, UpdateAccountAccessSettings, UpdateSocialAccount, UpdateUserPreferences, UpdateBotPreferences
-from app.services.user_service import update_phone_number, update_email_preferences, update_account_access_settings, update_social_account, update_user_preferences, update_bot_preferences
+from app.schemas.user import UpdateUserPhoneNumber, UpdateUserEmailPreferences, UpdateAccountAccessSettings, UpdateSocialAccount, UpdateUserPreferences, UpdateBotPreferences, Email, UpdateEmail, UpdatePassword
+from app.services.user_service import authenticate_user, update_phone_number, update_email_preferences, update_account_access_settings, update_social_account, update_user_preferences, update_bot_preferences, update_email, update_password
 from app.dependencies.database import get_db
 from app.core.config import settings
 
@@ -39,3 +39,27 @@ def update_User_preferences(email_user_preferences: UpdateUserPreferences, db: S
 def update_Bot_preferences(email_bot_preferences: UpdateBotPreferences, db: Session = Depends(get_db)):
     update_bot_preferences(db, email_bot_preferences.email, email_bot_preferences.bot_preferences)
     return {"email": email_bot_preferences.email, "bot_preferences": email_bot_preferences.bot_preferences}
+
+@router.post("/update/email", response_model=Email, status_code=status.HTTP_201_CREATED)
+def update_Email(email_password: UpdateEmail, db: Session = Depends(get_db)):
+    user = authenticate_user(db, email_password.current_email, email_password.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    update_email(db, email_password.current_email, email_password.new_email)
+    return {"email": email_password.new_email}
+
+@router.post("/update/password", status_code=status.HTTP_201_CREATED)
+def update_Password(email_new_password: UpdatePassword, db: Session = Depends(get_db)):
+    user = authenticate_user(db, email_new_password.email, email_new_password.current_password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    update_password(db, email_new_password.current_password, email_new_password.new_password)
+    return "Successful"

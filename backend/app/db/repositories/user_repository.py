@@ -70,3 +70,18 @@ def user_update_bot_preferences(db: Session, email: str, bot_preferences: json):
     db.commit()
     db.refresh(db_user)
     return db_user
+
+def user_update_email(db: Session, current_email: str, new_email: str):
+    db_user = db.query(User).filter(User.email == current_email).first()
+    db_user.email = new_email
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+def user_update_password(db: Session, current_email: str, password: str):
+    db_user = db.query(User).filter(User.email == current_email).first()
+    db_user.hashed_password = hash_password(password)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+

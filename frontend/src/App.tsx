@@ -56,10 +56,11 @@ function App() {
   };
 
   const handleLogout = () => {
+    // localStorage.removeItem('access_token')
     setIsLoggedIn(false);
   };
   useEffect(() => {
-    sessionStorage.getItem('access_token') ? setIsLoggedIn(true) : setIsLoggedIn(false);
+    localStorage.getItem('access_token') ? setIsLoggedIn(true) : setIsLoggedIn(false);
   });
   return (
     // <NotificationProvider>

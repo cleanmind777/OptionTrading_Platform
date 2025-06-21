@@ -78,6 +78,10 @@ export function RegisterPage() {
     try {
       const response = await axios.post(`${BACKEND_URL}/auth/signup`, userData)
       console.log('Registration successful:', response.data)
+      localStorage.removeItem("access_id");
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("email");
+      localStorage.removeItem("token_type");
       navigate("/login");
       // Handle successful registration, e.g., redirect to login page
     } catch (error) {

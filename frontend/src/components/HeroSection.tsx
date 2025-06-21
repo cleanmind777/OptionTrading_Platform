@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
-
+import { useAtom, useAtomValue } from 'jotai';
+import { userAtom } from '../atoms/userAtom';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 interface HeroSectionProps {
@@ -9,6 +10,7 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ onLogin }: HeroSectionProps) {
+  const [user, setUser] = useAtom(userAtom);
   const [rememberMe, setRememberMe] = useState(false);
   const [activeFeature, setActiveFeature] = useState(0);
   const [email, setEmail] = useState("");
@@ -24,10 +26,17 @@ export function HeroSection({ onLogin }: HeroSectionProps) {
       console.log('Login successful:', response.data)
       // navigate("/login");
       // Handle successful registration, e.g., redirect to login page
+      console.log(response.data.account_id)
+      localStorage.setItem('access_id', response.data.account_id);
+      localStorage.setItem('access_token', response.data.access_token);
+      const userinfo = await axios.get(`${BACKEND_URL}/user/me/?account_id=${response.data.account_id}`)
+      console.log(userinfo.data)
+      setUser(userinfo.data)
+      localStorage.setItem("userinfo", JSON.stringify(userinfo.data))
+      // console.log("errror", useAtomValue(userAtom));
       return response.data
     } catch (error) {
       console.log("error")
-      alert("Login Failed")
       return false
     }
   };
@@ -52,8 +61,8 @@ export function HeroSection({ onLogin }: HeroSectionProps) {
       }
       else {
         onLogin();
-        sessionStorage.setItem('access_token', result.access_token);
-        sessionStorage.setItem('token_type', result.token_type);
+        localStorage.setItem('access_token', result.access_token);
+        localStorage.setItem('token_type', result.token_type);
         navigate("/account-stats");
       }
     } catch (error) {

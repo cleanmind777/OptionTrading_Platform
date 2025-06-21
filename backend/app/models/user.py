@@ -41,14 +41,14 @@ class User(Base):
         "intraday_chart_settings" : {
             "display_buying_power" : False,
             "display_trades" : False,
-            "delay_chart_start_until_9:31am" : False,
+            "delay_chart_start_until" : False,
         },
         "chart_comparison_index" : "SPY",
     })
     bot_preferences = Column(JSON, nullable=False, default= {
         "percent_sizing_uses_minimum_quantity_of_1" : True,
         "leverage_sizing_uses_minimum_quantity_of_1" : True,
-        "wide_ppread_patience_window" : 3,
+        "wide_spread_patience_window" : 3,
         "profit_target_trigger" : 5,
         "enable_bot_webhook_controls" : False,
     })

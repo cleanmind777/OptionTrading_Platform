@@ -3,6 +3,10 @@ from app.api.v1.routers import api_router
 from app.db.session import engine
 from app.models import base
 from fastapi.middleware.cors import CORSMiddleware
+import os
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path=".env", encoding="utf-8-sig")
 
 base.Base.metadata.create_all(bind=engine)
 

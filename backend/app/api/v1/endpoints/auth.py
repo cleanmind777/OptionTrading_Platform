@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from datetime import timedelta
+from datetime import timedelta, datetime
 from uuid import UUID
 import logging
 
@@ -11,7 +11,7 @@ from app.schemas.user import (
 )
 from app.services.user_service import (
     register_user, authenticate_user, get_account_id,
-    change_password, refresh_user_session
+    update_password
 )
 from app.dependencies.database import get_db
 from app.core.security import (
@@ -61,7 +61,7 @@ async def login(
             )
         
         # Check if user is disabled
-        if user.disabled:
+        if user.disabled is True:
             logger.warning(f"Login attempt for disabled user: {login_data.email}")
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -90,7 +90,7 @@ async def login(
         )
         
         # Update last login time
-        user.last_login_time = timedelta.now()
+        user.last_login_time = datetime.utcnow()
         db.commit()
         
         logger.info(f"User logged in successfully: {login_data.email}")
@@ -228,14 +228,16 @@ async def change_user_password(
                 detail="Invalid token"
             )
         
-        # Change password
-        success = change_password(db, email, password_change.current_password, password_change.new_password)
-        
-        if not success:
+        # Verify current password first
+        user = authenticate_user(db, email, password_change.current_password)
+        if not user:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Current password is incorrect"
             )
+        
+        # Change password
+        update_password(db, email, password_change.new_password)
         
         logger.info(f"Password changed for user: {email}")
         
@@ -290,7 +292,7 @@ async def get_current_user(
                 detail="User not found"
             )
         
-        if user.disabled:
+        if user.disabled is True:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Account is disabled"
@@ -310,9 +312,9 @@ async def get_current_user(
 # Legacy endpoint for backward compatibility
 @router.post("/token", response_model=Token)
 async def login_for_access_token(
-    login: LoginRequest,
+    login_data: LoginRequest,
     response: Response,
     db: Session = Depends(get_db)
 ):
     """Legacy login endpoint"""
-    return await login(UserLogin(**login.dict()), response, db)
+    return await login(UserLogin(**login_data.dict()), response, db)

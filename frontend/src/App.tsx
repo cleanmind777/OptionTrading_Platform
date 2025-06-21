@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, lazy } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -21,46 +21,46 @@ import {
   addNotification,
 } from "./store";
 
-// Lazy load pages for better performance
-const HomePage = lazy(() => import("./pages/HomePage"));
-const LoginPage = lazy(() => import("./pages/LoginPage"));
-const RegisterPage = lazy(() => import("./pages/RegisterPage"));
-const TradingDashboard = lazy(() => import("./pages/trades/TradingDashboard"));
-const AccountStats = lazy(() => import("./pages/account/AccountStats"));
-const AccountSettings = lazy(() => import("./pages/account/AccountSettings"));
-const BrokerLink = lazy(() => import("./pages/account/BrokerLink"));
-const BrokerAuth = lazy(() => import("./pages/account/BrokerAuth"));
-const BotManagement = lazy(() => import("./pages/bots/BotManagement"));
-const BotCreateWizard = lazy(() => import("./pages/bots/BotCreateWizard"));
-const CreateTrancheBots = lazy(() => import("./pages/bots/CreateTrancheBots"));
-const BotPerformance = lazy(() => import("./pages/bots/BotPerformance"));
-const BotSharedBots = lazy(() => import("./pages/bots/BotSharedBots"));
-const BotActivity = lazy(() => import("./pages/bots/BotActivity"));
-const BotDayPlanner = lazy(() => import("./pages/bots/BotDayPlanner"));
-const TradeLog = lazy(() => import("./pages/trades/TradeLog"));
-const OpenPositions = lazy(() => import("./pages/trades/OpenPositions"));
-const EditSingleBot = lazy(() => import("./pages/bots/EditSingleBot"));
-const EditMultipleBots = lazy(() => import("./pages/bots/EditMultipleBots"));
-const ImportBots = lazy(() => import("./pages/bots/ImportBots"));
-const BotSettingsHistory = lazy(() => import("./pages/bots/BotSettingsHistory"));
-const BidlessLongCreditRecovery = lazy(() => import("./pages/bots/BidlessLongCreditRecovery"));
-const WebhookActivity = lazy(() => import("./pages/bots/WebhookActivity"));
-const BotFilterValues = lazy(() => import("./pages/bots/BotFilterValues"));
-const BalanceProfitsOverTime = lazy(() => import("./pages/performance/BallanceProfitsOverTime"));
-const BalanceHistoryTable = lazy(() => import("./pages/performance/BallanceHistoryTable"));
-const ViewHistoricalDashboards = lazy(() => import("./pages/performance/ViewHistoricalDashboards"));
-const MonthlyCalendarReport = lazy(() => import("./pages/performance/MonthlyCalendarReport"));
-const PerformanceVolatility = lazy(() => import("./pages/performance/PerformanceVolatility"));
-const StrategyPerformance = lazy(() => import("./pages/performance/StrategyPerformance"));
-const BotAnalytics = lazy(() => import("./pages/bots/BotAnalytics"));
-const ComprehensiveBotAnalytics = lazy(() => import("./pages/bots/ComprehensiveBotAnalytics"));
-const AdvancedBacktesting = lazy(() => import("./pages/bots/AdvancedBacktesting"));
-const ViewStrategies = lazy(() => import("./pages/strategies/ViewStrategies"));
-const VideoVault = lazy(() => import("./pages/support/VideoVault"));
-const DiscordCommunity = lazy(() => import("./pages/support/DiscordCommunity"));
-const AccountVsMarketPerformance = lazy(() => import("./pages/performance/AccountVsMarketPerformance"));
-const EmailPrefs = lazy(() => import("./pages/account/EmailPrefs"));
-const MainNavigation = lazy(() => import("./components/MainNavigation"));
+// Import pages using named imports
+import { HomePage } from "./pages/HomePage";
+import { LoginPage } from "./pages/LoginPage";
+import { RegisterPage } from "./pages/RegisterPage";
+import { TradingDashboard } from "./pages/trades/TradingDashboard";
+import { AccountStats } from "./pages/account/AccountStats";
+import { AccountSettings } from "./pages/account/AccountSettings";
+import { BrokerLink } from "./pages/account/BrokerLink";
+import { BrokerAuth } from "./pages/account/BrokerAuth";
+import { BotManagement } from "./pages/bots/BotManagement";
+import { BotCreateWizard } from "./pages/bots/BotCreateWizard";
+import { CreateTrancheBots } from "./pages/bots/CreateTrancheBots";
+import { BotPerformance } from "./pages/bots/BotPerformance";
+import { BotSharedBots } from "./pages/bots/BotSharedBots";
+import { BotActivity } from "./pages/bots/BotActivity";
+import { BotDayPlanner } from "./pages/bots/BotDayPlanner";
+import { TradeLog } from "./pages/trades/TradeLog";
+import { OpenPositions } from "./pages/trades/OpenPositions";
+import { EditSingleBot } from "./pages/bots/EditSingleBot";
+import { EditMultipleBots } from "./pages/bots/EditMultipleBots";
+import { ImportBots } from "./pages/bots/ImportBots";
+import { BotSettingsHistory } from "./pages/bots/BotSettingsHistory";
+import { BidlessLongCreditRecovery } from "./pages/bots/BidlessLongCreditRecovery";
+import { WebhookActivity } from "./pages/bots/WebhookActivity";
+import { BotFilterValues } from "./pages/bots/BotFilterValues";
+import { BalanceProfitsOverTime } from "./pages/performance/BallanceProfitsOverTime";
+import { BalanceHistoryTable } from "./pages/performance/BallanceHistoryTable";
+import { ViewHistoricalDashboards } from "./pages/performance/ViewHistoricalDashboards";
+import { MonthlyCalendarReport } from "./pages/performance/MonthlyCalendarReport";
+import { PerformanceVolatility } from "./pages/performance/PerformanceVolatility";
+import { StrategyPerformance } from "./pages/performance/StrategyPerformance";
+import { BotAnalytics } from "./pages/bots/BotAnalytics";
+import { ComprehensiveBotAnalytics } from "./pages/bots/ComprehensiveBotAnalytics";
+import { AdvancedBacktesting } from "./pages/bots/AdvancedBacktesting";
+import { ViewStrategies } from "./pages/strategies/ViewStrategies";
+import { VideoVault } from "./pages/support/VideoVault";
+import { DiscordCommunity } from "./pages/support/DiscordCommunity";
+import { AccountVsMarketPerformance } from "./pages/performance/AccountVsMarketPerformance";
+import { EmailPrefs } from "./pages/account/EmailPrefs";
+import { MainNavigation } from "./components/MainNavigation";
 
 import "./App.css";
 
@@ -92,7 +92,7 @@ const LoadingComponent: React.FC = () => (
 
 function App() {
   const [user, setUser] = useAtom(userAtom);
-  const [isAuthenticated, setIsAuthenticated] = useAtom(isAuthenticatedAtom);
+  const [isAuthenticated] = useAtom(isAuthenticatedAtom);
   const [globalLoading, setGlobalLoading] = useAtom(globalLoadingAtom);
   const [globalError, setGlobalError] = useAtom(globalErrorAtom);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -108,7 +108,6 @@ function App() {
 
         if (userData) {
           setUser(userData);
-          setIsAuthenticated(true);
           addNotification(setGlobalError, 'success', 'Welcome back!');
         }
 
@@ -126,7 +125,7 @@ function App() {
     };
 
     initializeApp();
-  }, [setUser, setIsAuthenticated, setGlobalLoading, setGlobalError]);
+  }, [setUser, setGlobalLoading, setGlobalError]);
 
   // Handle user activity
   useEffect(() => {
@@ -153,7 +152,6 @@ function App() {
       setLoading(setGlobalLoading, 'global', true);
       await authService.logout();
       clearAuthData(setUser);
-      setIsAuthenticated(false);
       addNotification(setGlobalError, 'success', 'Logged out successfully');
     } catch (error) {
       console.error('Logout failed:', error);
@@ -166,9 +164,13 @@ function App() {
   // Handle login
   const handleLogin = (userData: any) => {
     setUser(userData);
-    setIsAuthenticated(true);
     authService.storeUserData(userData);
     addNotification(setGlobalError, 'success', 'Login successful!');
+  };
+
+  // Handle login button click (for navigation)
+  const handleLoginClick = () => {
+    // This will be handled by the LoginPage component
   };
 
   // Show loading while initializing
@@ -199,327 +201,230 @@ function App() {
   return (
     <ErrorBoundary>
       <Router>
-        <div className="min-h-screen bg-slate-900 text-white">
-          <Suspense fallback={<LoadingComponent />}>
-            <MainNavigation
-              isLoggedIn={isAuthenticated}
-              onLogin={handleLogin}
-              onLogout={handleLogout}
-            />
-          </Suspense>
+        <div className="min-h-screen bg-slate-900">
+          <MainNavigation onLogin={handleLoginClick} />
 
           <main className="pt-16">
             <Suspense fallback={<LoadingComponent />}>
               <Routes>
-                {/* Public Routes */}
-                <Route path="/" element={<HomePage onLogin={handleLogin} />} />
-                <Route
-                  path="/login"
-                  element={
-                    isAuthenticated ? (
-                      <Navigate to="/account-stats" replace />
-                    ) : (
-                      <LoginPage onLogin={handleLogin} />
-                    )
-                  }
-                />
-                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/" element={<HomePage onLogin={handleLoginClick} />} />
 
-                {/* Protected Routes */}
-                <Route
-                  path="/dashboard"
-                  element={
-                    <ProtectedRoute>
-                      <TradingDashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/account-stats"
-                  element={
-                    <ProtectedRoute>
-                      <AccountStats />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/useracct"
-                  element={
-                    <ProtectedRoute>
-                      <AccountSettings />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/useracct/brokerlink"
-                  element={
-                    <ProtectedRoute>
-                      <BrokerLink />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/broker-auth"
-                  element={
-                    <ProtectedRoute>
-                      <BrokerAuth />
-                    </ProtectedRoute>
-                  }
-                />
+                {/* Public routes */}
+                <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+                <Route path="/register" element={<RegisterPage onLogin={handleLogin} />} />
 
-                {/* Bot Management Routes */}
-                <Route
-                  path="/bots/manage"
-                  element={
-                    <ProtectedRoute>
-                      <BotManagement />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/bots/create"
-                  element={
-                    <ProtectedRoute>
-                      <BotCreateWizard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/bots/create-tranche"
-                  element={
-                    <ProtectedRoute>
-                      <CreateTrancheBots />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/bots/edit-single"
-                  element={
-                    <ProtectedRoute>
-                      <EditSingleBot />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/bots/edit-multiple"
-                  element={
-                    <ProtectedRoute>
-                      <EditMultipleBots />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/bots/import"
-                  element={
-                    <ProtectedRoute>
-                      <ImportBots />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/bots/day-planner"
-                  element={
-                    <ProtectedRoute>
-                      <BotDayPlanner />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/bots/settings-history"
-                  element={
-                    <ProtectedRoute>
-                      <BotSettingsHistory />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/bots/performance"
-                  element={
-                    <ProtectedRoute>
-                      <BotPerformance />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/bots/shared"
-                  element={
-                    <ProtectedRoute>
-                      <BotSharedBots />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/bots/activity"
-                  element={
-                    <ProtectedRoute>
-                      <BotActivity />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/bots/analytics"
-                  element={
-                    <ProtectedRoute>
-                      <BotAnalytics />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/bots/comprehensive-analytics"
-                  element={
-                    <ProtectedRoute>
-                      <ComprehensiveBotAnalytics />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/bots/backtesting"
-                  element={
-                    <ProtectedRoute>
-                      <AdvancedBacktesting />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/bots/bidless-recovery"
-                  element={
-                    <ProtectedRoute>
-                      <BidlessLongCreditRecovery />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/bots/webhook-activity"
-                  element={
-                    <ProtectedRoute>
-                      <WebhookActivity />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/bots/filter-values"
-                  element={
-                    <ProtectedRoute>
-                      <BotFilterValues />
-                    </ProtectedRoute>
-                  }
-                />
+                {/* Protected routes */}
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <TradingDashboard />
+                  </ProtectedRoute>
+                } />
 
-                {/* Trading Routes */}
-                <Route
-                  path="/trades/history"
-                  element={
-                    <ProtectedRoute>
-                      <TradeLog />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/trades/positions"
-                  element={
-                    <ProtectedRoute>
-                      <OpenPositions />
-                    </ProtectedRoute>
-                  }
-                />
+                <Route path="/account/stats" element={
+                  <ProtectedRoute>
+                    <AccountStats />
+                  </ProtectedRoute>
+                } />
 
-                {/* Performance Routes */}
-                <Route
-                  path="/performance/balance-profits-time"
-                  element={
-                    <ProtectedRoute>
-                      <BalanceProfitsOverTime />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/performance/balance-history"
-                  element={
-                    <ProtectedRoute>
-                      <BalanceHistoryTable />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/performance/historical-dashboards"
-                  element={
-                    <ProtectedRoute>
-                      <ViewHistoricalDashboards />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/performance/monthly-calendar"
-                  element={
-                    <ProtectedRoute>
-                      <MonthlyCalendarReport />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/performance/volatility"
-                  element={
-                    <ProtectedRoute>
-                      <PerformanceVolatility />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/performance/strategy-performance"
-                  element={
-                    <ProtectedRoute>
-                      <StrategyPerformance />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/performance/account-vs-market"
-                  element={
-                    <ProtectedRoute>
-                      <AccountVsMarketPerformance />
-                    </ProtectedRoute>
-                  }
-                />
+                <Route path="/account/settings" element={
+                  <ProtectedRoute>
+                    <AccountSettings />
+                  </ProtectedRoute>
+                } />
 
-                {/* Strategy Routes */}
-                <Route
-                  path="/strategies/view"
-                  element={
-                    <ProtectedRoute>
-                      <ViewStrategies />
-                    </ProtectedRoute>
-                  }
-                />
+                <Route path="/account/broker-link" element={
+                  <ProtectedRoute>
+                    <BrokerLink />
+                  </ProtectedRoute>
+                } />
 
-                {/* Support Routes */}
-                <Route
-                  path="/support/video-vault"
-                  element={
-                    <ProtectedRoute>
-                      <VideoVault />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/support/discord"
-                  element={
-                    <ProtectedRoute>
-                      <DiscordCommunity />
-                    </ProtectedRoute>
-                  }
-                />
+                <Route path="/account/broker-auth" element={
+                  <ProtectedRoute>
+                    <BrokerAuth />
+                  </ProtectedRoute>
+                } />
 
-                {/* Account Routes */}
-                <Route
-                  path="/account/email-preferences"
-                  element={
-                    <ProtectedRoute>
-                      <EmailPrefs />
-                    </ProtectedRoute>
-                  }
-                />
+                <Route path="/account/email-preferences" element={
+                  <ProtectedRoute>
+                    <EmailPrefs />
+                  </ProtectedRoute>
+                } />
 
-                {/* Catch-all route */}
+                <Route path="/bots/management" element={
+                  <ProtectedRoute>
+                    <BotManagement />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/bots/create" element={
+                  <ProtectedRoute>
+                    <BotCreateWizard />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/bots/create-tranche" element={
+                  <ProtectedRoute>
+                    <CreateTrancheBots />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/bots/performance" element={
+                  <ProtectedRoute>
+                    <BotPerformance />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/bots/shared" element={
+                  <ProtectedRoute>
+                    <BotSharedBots />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/bots/activity" element={
+                  <ProtectedRoute>
+                    <BotActivity />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/bots/day-planner" element={
+                  <ProtectedRoute>
+                    <BotDayPlanner />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/trades/log" element={
+                  <ProtectedRoute>
+                    <TradeLog />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/trades/positions" element={
+                  <ProtectedRoute>
+                    <OpenPositions />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/bots/edit-single" element={
+                  <ProtectedRoute>
+                    <EditSingleBot />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/bots/edit-multiple" element={
+                  <ProtectedRoute>
+                    <EditMultipleBots />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/bots/import" element={
+                  <ProtectedRoute>
+                    <ImportBots />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/bots/settings-history" element={
+                  <ProtectedRoute>
+                    <BotSettingsHistory />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/bots/bidless-long-credit-recovery" element={
+                  <ProtectedRoute>
+                    <BidlessLongCreditRecovery />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/bots/webhook-activity" element={
+                  <ProtectedRoute>
+                    <WebhookActivity />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/bots/filter-values" element={
+                  <ProtectedRoute>
+                    <BotFilterValues />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/performance/balance-profits" element={
+                  <ProtectedRoute>
+                    <BalanceProfitsOverTime />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/performance/balance-history" element={
+                  <ProtectedRoute>
+                    <BalanceHistoryTable />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/performance/historical-dashboards" element={
+                  <ProtectedRoute>
+                    <ViewHistoricalDashboards />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/performance/monthly-calendar" element={
+                  <ProtectedRoute>
+                    <MonthlyCalendarReport />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/performance/volatility" element={
+                  <ProtectedRoute>
+                    <PerformanceVolatility />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/performance/strategy" element={
+                  <ProtectedRoute>
+                    <StrategyPerformance />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/bots/analytics" element={
+                  <ProtectedRoute>
+                    <BotAnalytics />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/bots/comprehensive-analytics" element={
+                  <ProtectedRoute>
+                    <ComprehensiveBotAnalytics />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/bots/advanced-backtesting" element={
+                  <ProtectedRoute>
+                    <AdvancedBacktesting />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/strategies" element={
+                  <ProtectedRoute>
+                    <ViewStrategies />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/support/video-vault" element={
+                  <ProtectedRoute>
+                    <VideoVault />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/support/discord" element={
+                  <ProtectedRoute>
+                    <DiscordCommunity />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/performance/account-vs-market" element={
+                  <ProtectedRoute>
+                    <AccountVsMarketPerformance />
+                  </ProtectedRoute>
+                } />
+
+                {/* Catch all route */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </Suspense>

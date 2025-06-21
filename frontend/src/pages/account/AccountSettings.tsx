@@ -6,6 +6,12 @@ import axios from "axios";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
+interface MainNavigationProps {
+  isLoggedIn: boolean;
+  onLogin: () => void;
+  onLogout: () => void;
+}
+
 export function AccountSettings() {
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [verifyPassword, setVerifyPassword] = useState("");

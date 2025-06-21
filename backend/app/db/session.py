@@ -1,7 +1,7 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy.pool import QueuePool
+from sqlalchemy.pool import QueuePool, StaticPool
 from contextlib import contextmanager
 from typing import Generator
 import logging
@@ -10,16 +10,26 @@ from app.core.config import settings
 # Configure logging
 logger = logging.getLogger(__name__)
 
-# Create engine with connection pooling
-engine = create_engine(
-    settings.DATABASE_URL,
-    poolclass=QueuePool,
-    pool_size=settings.DATABASE_POOL_SIZE,
-    max_overflow=settings.DATABASE_MAX_OVERFLOW,
-    pool_pre_ping=True,
-    pool_recycle=3600,  # Recycle connections after 1 hour
-    echo=settings.DEBUG,  # Log SQL queries in debug mode
-)
+# Create engine with appropriate configuration for SQLite or PostgreSQL
+if settings.DATABASE_URL.startswith('sqlite'):
+    # SQLite configuration (for development)
+    engine = create_engine(
+        settings.DATABASE_URL,
+        poolclass=StaticPool,  # SQLite doesn't support connection pooling
+        connect_args={"check_same_thread": False},  # Allow multiple threads
+        echo=settings.DEBUG,  # Log SQL queries in debug mode
+    )
+else:
+    # PostgreSQL configuration (for production)
+    engine = create_engine(
+        settings.DATABASE_URL,
+        poolclass=QueuePool,
+        pool_size=settings.DATABASE_POOL_SIZE,
+        max_overflow=settings.DATABASE_MAX_OVERFLOW,
+        pool_pre_ping=True,
+        pool_recycle=3600,  # Recycle connections after 1 hour
+        echo=settings.DEBUG,  # Log SQL queries in debug mode
+    )
 
 # Create session factory
 SessionLocal = sessionmaker(
@@ -80,7 +90,7 @@ def check_db_connection() -> bool:
     """
     try:
         with get_db_context() as db:
-            db.execute("SELECT 1")
+            db.execute(text("SELECT 1"))
         return True
     except Exception as e:
         logger.error(f"Database connection check failed: {e}")

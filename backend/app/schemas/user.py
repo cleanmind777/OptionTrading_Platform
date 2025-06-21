@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Optional, Dict, Any
-import datetime
+from datetime import datetime
 from uuid import UUID
 import json
 class UserBase(BaseModel):

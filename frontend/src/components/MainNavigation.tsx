@@ -48,6 +48,10 @@ export function MainNavigation({
   // Handle logout
   const handleLogout = () => {
     onLogout();
+    localStorage.removeItem("access_id");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("email");
+    localStorage.removeItem("token_type");
     navigate("/");
   };
 
@@ -231,9 +235,8 @@ export function MainNavigation({
                 >
                   <span>{item.name}</span>
                   <svg
-                    className={`w-3 h-3 transition-transform ${
-                      activeDropdown === item.name ? "rotate-180" : ""
-                    }`}
+                    className={`w-3 h-3 transition-transform ${activeDropdown === item.name ? "rotate-180" : ""
+                      }`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -363,21 +366,19 @@ export function MainNavigation({
                   <div className="flex space-x-3">
                     <button
                       onClick={() => setPauseOption("manual")}
-                      className={`flex-1 px-4 py-3 rounded-md border transition-colors ${
-                        pauseOption === "manual"
-                          ? "border-red-500 bg-red-500 bg-opacity-20 text-red-400"
-                          : "border-slate-600 text-gray-300 hover:border-red-500"
-                      }`}
+                      className={`flex-1 px-4 py-3 rounded-md border transition-colors ${pauseOption === "manual"
+                        ? "border-red-500 bg-red-500 bg-opacity-20 text-red-400"
+                        : "border-slate-600 text-gray-300 hover:border-red-500"
+                        }`}
                     >
                       UNTIL I TURN BACK ON
                     </button>
                     <button
                       onClick={() => setPauseOption("timed")}
-                      className={`flex-1 px-4 py-3 rounded-md border transition-colors ${
-                        pauseOption === "timed"
-                          ? "border-purple-500 bg-purple-500 bg-opacity-20 text-purple-400"
-                          : "border-slate-600 text-gray-300 hover:border-purple-500"
-                      }`}
+                      className={`flex-1 px-4 py-3 rounded-md border transition-colors ${pauseOption === "timed"
+                        ? "border-purple-500 bg-purple-500 bg-opacity-20 text-purple-400"
+                        : "border-slate-600 text-gray-300 hover:border-purple-500"
+                        }`}
                     >
                       PAUSE UNTIL TIME
                     </button>
@@ -469,9 +470,8 @@ export function MainNavigation({
                   >
                     <span>{item.name}</span>
                     <svg
-                      className={`w-3 h-3 transition-transform ${
-                        activeDropdown === item.name ? "rotate-180" : ""
-                      }`}
+                      className={`w-3 h-3 transition-transform ${activeDropdown === item.name ? "rotate-180" : ""
+                        }`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"

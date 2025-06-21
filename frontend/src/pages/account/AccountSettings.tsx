@@ -1,44 +1,199 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+// import { useAtom, useAtomValue } from 'jotai';
+// import { userAtom } from '../../atoms/userAtom';
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export function AccountSettings() {
-  const [userInfo, setUserInfo] = useState({
-    name: "lucas",
-    userId: "user1",
-    email: "lucaswong203162@gmail.com",
-    emailVerified: true,
-    discordUsername: "",
-    phoneNumber: "561-672-1462",
-  });
-
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [verifyPassword, setVerifyPassword] = useState("");
-
+  const [Email, setEmail] = useState("");
+  const [pauseBots, setPauseBots] = useState(0)
+  const [logMeOut, setLogMeOut] = useState(0)
+  const [phoneNumber, setPhoneNumber] = useState("")
+  const [firstName, setFirstName] = useState("");
+  const [discord, setDiscord] = useState("")
+  const [accountAccessSettings, setaccountAccessSettings] = useState({});
+  const userInfo = JSON.parse(localStorage.getItem("userinfo")) || {};
   const [tradingGroup, setTradingGroup] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
-  const [preferences, setPreferences] = useState({
-    privacyMode: true,
-    hideClosedTrades: false,
-    hideFollowing: false,
-    showStrategy: false,
-    showRecent: false,
-    displayBuyingPower: true,
-    displayTrades: true,
-    displayChart: true,
-    displayProfile: false,
-    displayBotActivity: false,
-    percentSizing: false,
-    leverageSizing: false,
-    chartComparison: "SPY",
-    targetTriggering: "DTE",
-    wideSpreadWindow: "3 Minutes",
+  // const [userInfo, setUserInfo] = useState(localStorage.getItem("userinfo"));
+  const [userPreferences, setUserPreferences] = useState({
+    intraday_chart_settings: {
+      display_buying_power: true,
+      display_trades: true,
+      delay_chart_start_until: true,
+    },
+    main_dashboard_settings: {
+      default_to_privacy_mode_on: false,
+      hide_closed_trades_on_bots_table: false,
+      show_all_bot_trades_profit_card: false,
+      show_intraday_chart: false,
+      show_recent_bot_activity: false,
+      show_strategy_profits_on_profit_cards: false,
+      show_todays_bot_trade_profit_card: false,
+      show_trade_counts_card: false,
+    },
+    number_of_recent_bot_activities_to_show: 3,
+    chart_comparison_index: "SPY",
   });
 
-  const navigate = useNavigate();
+  const [botPreferences, setBotPreferences] = useState({
+    enable_bot_webhook_controls: false,
+    leverage_sizing_uses_minimum_quantity_of_1: true,
+    percent_sizing_uses_minimum_quantity_of_1: false,
+    profit_target_trigger: 5,
+    wide_spread_patience_window: 3
+  })
 
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+  const update_account_settings = async (email: string, account_access_settings: JSON) => {
+    const data = {
+      email: email,
+      account_access_settings: account_access_settings
+    }
+    try {
+      const response = await axios.post(`${BACKEND_URL}/user/update/account_access_settings`, data)
+      console.log('Account Settings change successful:', response.data)
+      localStorage.setItem("userinfo", JSON.stringify(response.data));
+      return response.data
+    } catch (error) {
+      console.log("error")
+      alert("Error")
+      return false
+    }
+  }
+  const update_preferences = async (email: string, user_preferences: JSON, bot_preferences: JSON) => {
+    const data = {
+      email: email,
+      user_preferences: user_preferences,
+      bot_preferences: bot_preferences
+    }
+    try {
+      const response = await axios.post(`${BACKEND_URL}/user/update/preferences`, data)
+      console.log('Preferences change successful:', response.data)
+      localStorage.setItem("userinfo", JSON.stringify(response.data));
+      return response.data
+    } catch (error) {
+      console.log("error")
+      alert("Error")
+      return false
+    }
+  }
+  const update_firstName = async (email: string, new_first_name: string) => {
+    const data = {
+      email: email,
+      new_first_name: new_first_name
+    }
+    try {
+      const response = await axios.post(`${BACKEND_URL}/user/update/first_name`, data)
+      console.log('FirstName change successful:', response.data)
+      localStorage.setItem("userinfo", JSON.stringify(response.data));
+      return response.data
+    } catch (error) {
+      console.log("error")
+      alert("Error")
+      return false
+    }
+  }
+  const update_discord = async (email: string, new_discord: string) => {
+    const data = {
+      email: email,
+      new_discord: new_discord
+    }
+    try {
+      const response = await axios.post(`${BACKEND_URL}/user/update/discord`, data)
+      console.log('Discord change successful:', response.data)
+      localStorage.setItem("userinfo", JSON.stringify(response.data));
+      return response.data
+    } catch (error) {
+      console.log("error")
+      alert("Error")
+      return false
+    }
+  }
+  const update_phone_number = async (email: string, new_phone_number: string) => {
+    const data = {
+      email: email,
+      new_phone_number: new_phone_number
+    }
+    try {
+      const response = await axios.post(`${BACKEND_URL}/user/update/phone_number`, data)
+      console.log('PhoneNumber change successful:', response.data)
+      localStorage.setItem("userinfo", JSON.stringify(response.data));
+      return response.data
+    } catch (error) {
+      console.log("error")
+      alert("Error")
+      return false
+    }
+  }
+  const update_password = async () => {
+    if (confirmPassword != newPassword) {
+      alert("Plz match with confirm and new")
+    }
+    else {
+      const data = {
+        email: userInfo.email,
+        current_password: currentPassword,
+        new_password: newPassword
+      }
+      try {
+        const response = await axios.post(`${BACKEND_URL}/user/update/password`, data)
+        console.log('Password change successful:', response.data)
+        localStorage.setItem("userinfo", JSON.stringify(response.data));
+        return response.data
+      } catch (error) {
+        console.log("error")
+        alert("Error")
+        return false
+      }
+    }
+  }
+  const update_email = async (current_email: string, password: string, new_email: string) => {
+    const data = {
+      current_email: current_email,
+      password: password,
+      new_email: new_email
+    }
+    try {
+      const response = await axios.post(`${BACKEND_URL}/user/update/email`, data)
+      console.log('Email change successful:', response.data)
+      setShowEmailModal(false);
+      userInfo.email = Email
+      localStorage.setItem("userinfo", JSON.stringify(userInfo));
+      return response.data
+    } catch (error) {
+      console.log("error")
+      alert("Incorrect Password")
+      return false
+    }
+  };
+  const navigate = useNavigate();
+  useEffect(() => {
+    // Handle initial page load with hash
+    console.log("jotai", userInfo);
+    setUserPreferences(userInfo.user_preferences)
+    setBotPreferences(userInfo.bot_preferences)
+    setFirstName(userInfo.first_name);
+    setPauseBots(userInfo.account_access_settings.pause_bots_if_no_activity_for);
+    setPhoneNumber(userInfo.phone_number);
+    setDiscord(userInfo.social_account.Discord);
+    setLogMeOut(userInfo.account_access_settings.log_me_out_after_no_activity_for)
+  }, []);
+  useEffect(() => {
+    // Handle initial page load w ith hash
+    console.log(pauseBots)
+
+  }, [firstName, discord, phoneNumber]);
   return (
     <div className="min-h-screen bg-slate-900">
       {/* Email Change Modal */}
@@ -88,6 +243,19 @@ export function AccountSettings() {
                 />
               </div>
 
+              <div>
+                <label className="block text-sm text-gray-300 mb-1">
+                  To get started, please input your new email
+                </label>
+                <input
+                  type="email"
+                  value={Email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white text-sm"
+                  placeholder="Enter your new email"
+                />
+              </div>
+
               <div className="flex space-x-3 pt-4">
                 <button
                   onClick={() => setShowEmailModal(false)}
@@ -98,7 +266,7 @@ export function AccountSettings() {
                 <button
                   onClick={() => {
                     // Handle password verification
-                    setShowEmailModal(false);
+                    update_email(userInfo.email, verifyPassword, Email)
                   }}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm"
                 >
@@ -138,13 +306,17 @@ export function AccountSettings() {
                   <div className="flex space-x-2">
                     <input
                       type="text"
-                      value={userInfo.name}
+                      value={firstName}
                       onChange={(e) =>
-                        setUserInfo({ ...userInfo, name: e.target.value })
+                        setFirstName(e.target.value)
                       }
                       className="flex-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white text-sm"
                     />
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm whitespace-nowrap">
+                    <button
+                      onClick={() =>
+                        update_firstName(userInfo.email, firstName)
+                      }
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm whitespace-nowrap">
                       UPDATE
                     </button>
                   </div>
@@ -219,18 +391,19 @@ export function AccountSettings() {
                     <div className="flex-1">
                       <input
                         type="text"
-                        value={userInfo.discordUsername}
+                        value={discord}
                         onChange={(e) =>
-                          setUserInfo({
-                            ...userInfo,
-                            discordUsername: e.target.value,
-                          })
+                          setDiscord(e.target.value)
                         }
                         placeholder="Enter Discord Username"
                         className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white text-sm placeholder-gray-400"
                       />
                     </div>
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm whitespace-nowrap">
+                    <button
+                      onClick={() =>
+                        update_discord(userInfo.email, discord)
+                      }
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm whitespace-nowrap">
                       UPDATE
                     </button>
                   </div>
@@ -247,16 +420,17 @@ export function AccountSettings() {
                   <div className="flex space-x-2">
                     <input
                       type="tel"
-                      value={userInfo.phoneNumber}
+                      value={phoneNumber}
                       onChange={(e) =>
-                        setUserInfo({
-                          ...userInfo,
-                          phoneNumber: e.target.value,
-                        })
+                        setPhoneNumber(e.target.value)
                       }
                       className="flex-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white text-sm"
                     />
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm whitespace-nowrap">
+                    <button
+                      onClick={() =>
+                        update_phone_number(userInfo.email, phoneNumber)
+                      }
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm whitespace-nowrap">
                       UPDATE
                     </button>
                   </div>
@@ -315,7 +489,11 @@ export function AccountSettings() {
                   />
                 </div>
 
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
+                <button
+                  onClick={() =>
+                    update_password()
+                  }
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
                   UPDATE
                 </button>
 
@@ -446,31 +624,58 @@ export function AccountSettings() {
                 Account Access Settings
               </h2>
 
-              <div className="space-y-4">
+              <div className="space-y-4 mb-6">
                 <div>
                   <label className="block text-sm text-gray-300 mb-1">
                     Log Me Out After No Activity For:
                   </label>
-                  <select className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white text-sm">
-                    <option>1 Hour</option>
-                    <option>2 Hours</option>
-                    <option>4 Hours</option>
-                    <option>8 Hours</option>
+                  <select
+                    value={logMeOut}
+                    onChange={(e) => {
+                      setLogMeOut(Number(e.target.value))
+                    }}
+                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white text-sm">
+                    <option value={0.5}>30 Minutes</option>
+                    <option value={1}>1 Hours</option>
+                    <option value={2}>2 Hours</option>
+                    <option value={4}>4 Hours</option>
+                    <option value={8}>8 Hours</option>
+                    <option value={12}>12 Hours</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-sm text-gray-300 mb-1">
-                    Phone Number (For Activity For):
+                    Pause Bots If No Activity For:
                   </label>
-                  <select className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white text-sm">
-                    <option>2 Days</option>
-                    <option>1 Week</option>
-                    <option>2 Weeks</option>
-                    <option>1 Month</option>
+                  <select
+                    value={pauseBots}
+                    onChange={(e) => {
+                      setPauseBots(Number(e.target.value))
+                    }}
+                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white text-sm">
+                    <option value={2}>2 Days</option>
+                    <option value={3}>3 Days</option>
+                    <option value={4}>4 Days</option>
+                    <option value={5}>5 Days</option>
+                    <option value={7}>7 Days</option>
+                    <option value={10}>10 Days</option>
                   </select>
                 </div>
               </div>
+              <button
+                onClick={(e) => {
+                  // console.log(userInfo.account_access_settings);
+                  // console.log(pauseBots)
+                  // console.log(logMeOut)
+                  update_account_settings(userInfo.email, {
+                    pause_bots_if_no_activity_for: pauseBots.toString(),
+                    log_me_out_after_no_activity_for: logMeOut.toString(),
+                  })
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm w-full">
+                UPDATE
+              </button>
             </div>
 
             {/* User Preferences */}
@@ -479,7 +684,7 @@ export function AccountSettings() {
                 User Preferences
               </h2>
 
-              <div className="space-y-4">
+              <div className="space-y-4 mb-6">
                 <div>
                   <div className="text-sm text-white font-medium mb-2">
                     Main Dashboard Settings
@@ -488,11 +693,14 @@ export function AccountSettings() {
                     <label className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        checked={preferences.privacyMode}
-                        onChange={() =>
-                          setPreferences({
-                            ...preferences,
-                            privacyMode: !preferences.privacyMode,
+                        checked={userPreferences.main_dashboard_settings.default_to_privacy_mode_on}
+                        onChange={(e) =>
+                          setUserPreferences({
+                            ...userPreferences,
+                            main_dashboard_settings: {
+                              ...userPreferences.main_dashboard_settings,
+                              default_to_privacy_mode_on: e.target.checked,
+                            },
                           })
                         }
                         className="w-4 h-4 text-blue-600 rounded border-slate-600 bg-slate-700 focus:ring-blue-500"
@@ -504,11 +712,14 @@ export function AccountSettings() {
                     <label className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        checked={preferences.hideClosedTrades}
-                        onChange={() =>
-                          setPreferences({
-                            ...preferences,
-                            hideClosedTrades: !preferences.hideClosedTrades,
+                        checked={userPreferences.main_dashboard_settings.hide_closed_trades_on_bots_table}
+                        onChange={(e) =>
+                          setUserPreferences({
+                            ...userPreferences,
+                            main_dashboard_settings: {
+                              ...userPreferences.main_dashboard_settings,
+                              hide_closed_trades_on_bots_table: e.target.checked,
+                            },
                           })
                         }
                         className="w-4 h-4 text-blue-600 rounded border-slate-600 bg-slate-700 focus:ring-blue-500"
@@ -520,11 +731,14 @@ export function AccountSettings() {
                     <label className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        checked={preferences.hideFollowing}
-                        onChange={() =>
-                          setPreferences({
-                            ...preferences,
-                            hideFollowing: !preferences.hideFollowing,
+                        checked={userPreferences.main_dashboard_settings.show_all_bot_trades_profit_card}
+                        onChange={(e) =>
+                          setUserPreferences({
+                            ...userPreferences,
+                            main_dashboard_settings: {
+                              ...userPreferences.main_dashboard_settings,
+                              show_all_bot_trades_profit_card: e.target.checked,
+                            },
                           })
                         }
                         className="w-4 h-4 text-blue-600 rounded border-slate-600 bg-slate-700 focus:ring-blue-500"
@@ -533,14 +747,17 @@ export function AccountSettings() {
                         Show Following Bot Trades on Profit Card
                       </span>
                     </label>
-                    <label className="flex items-center space-x-2">
+                    {/* <label className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        checked={preferences.showRecent}
-                        onChange={() =>
-                          setPreferences({
-                            ...preferences,
-                            showRecent: !preferences.showRecent,
+                        checked={userPreferences.main_dashboard_settings.show_recent_bot_activity}
+                        onChange={(e) =>
+                          setUserPreferences({
+                            ...userPreferences,
+                            main_dashboard_settings: {
+                              ...userPreferences.main_dashboard_settings,
+                              show_recent_bot_activity: e.target.checked,
+                            },
                           })
                         }
                         className="w-4 h-4 text-blue-600 rounded border-slate-600 bg-slate-700 focus:ring-blue-500"
@@ -548,15 +765,18 @@ export function AccountSettings() {
                       <span className="text-gray-300">
                         Show Recent Activity
                       </span>
-                    </label>
+                    </label> */}
                     <label className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        checked={preferences.showStrategy}
-                        onChange={() =>
-                          setPreferences({
-                            ...preferences,
-                            showStrategy: !preferences.showStrategy,
+                        checked={userPreferences.main_dashboard_settings.show_strategy_profits_on_profit_cards}
+                        onChange={(e) =>
+                          setUserPreferences({
+                            ...userPreferences,
+                            main_dashboard_settings: {
+                              ...userPreferences.main_dashboard_settings,
+                              show_strategy_profits_on_profit_cards: e.target.checked,
+                            },
                           })
                         }
                         className="w-4 h-4 text-blue-600 rounded border-slate-600 bg-slate-700 focus:ring-blue-500"
@@ -568,11 +788,14 @@ export function AccountSettings() {
                     <label className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        checked={preferences.displayChart}
-                        onChange={() =>
-                          setPreferences({
-                            ...preferences,
-                            displayChart: !preferences.displayChart,
+                        checked={userPreferences.main_dashboard_settings.show_intraday_chart}
+                        onChange={(e) =>
+                          setUserPreferences({
+                            ...userPreferences,
+                            main_dashboard_settings: {
+                              ...userPreferences.main_dashboard_settings,
+                              show_intraday_chart: e.target.checked,
+                            },
                           })
                         }
                         className="w-4 h-4 text-blue-600 rounded border-slate-600 bg-slate-700 focus:ring-blue-500"
@@ -582,11 +805,14 @@ export function AccountSettings() {
                     <label className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        checked={preferences.displayBotActivity}
-                        onChange={() =>
-                          setPreferences({
-                            ...preferences,
-                            displayBotActivity: !preferences.displayBotActivity,
+                        checked={userPreferences.main_dashboard_settings.show_recent_bot_activity}
+                        onChange={(e) =>
+                          setUserPreferences({
+                            ...userPreferences,
+                            main_dashboard_settings: {
+                              ...userPreferences.main_dashboard_settings,
+                              show_recent_bot_activity: e.target.checked,
+                            },
                           })
                         }
                         className="w-4 h-4 text-blue-600 rounded border-slate-600 bg-slate-700 focus:ring-blue-500"
@@ -606,11 +832,14 @@ export function AccountSettings() {
                     <label className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        checked={preferences.displayBuyingPower}
-                        onChange={() =>
-                          setPreferences({
-                            ...preferences,
-                            displayBuyingPower: !preferences.displayBuyingPower,
+                        checked={userPreferences.intraday_chart_settings.display_buying_power}
+                        onChange={(e) =>
+                          setUserPreferences({
+                            ...userPreferences,
+                            intraday_chart_settings: {
+                              ...userPreferences.intraday_chart_settings,
+                              display_buying_power: e.target.checked,
+                            },
                           })
                         }
                         className="w-4 h-4 text-blue-600 rounded border-slate-600 bg-slate-700 focus:ring-blue-500"
@@ -622,11 +851,14 @@ export function AccountSettings() {
                     <label className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        checked={preferences.displayTrades}
-                        onChange={() =>
-                          setPreferences({
-                            ...preferences,
-                            displayTrades: !preferences.displayTrades,
+                        checked={userPreferences.intraday_chart_settings.display_trades}
+                        onChange={(e) =>
+                          setUserPreferences({
+                            ...userPreferences,
+                            intraday_chart_settings: {
+                              ...userPreferences.intraday_chart_settings,
+                              display_trades: e.target.checked,
+                            },
                           })
                         }
                         className="w-4 h-4 text-blue-600 rounded border-slate-600 bg-slate-700 focus:ring-blue-500"
@@ -636,11 +868,14 @@ export function AccountSettings() {
                     <label className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        checked={preferences.displayProfile}
-                        onChange={() =>
-                          setPreferences({
-                            ...preferences,
-                            displayProfile: !preferences.displayProfile,
+                        checked={userPreferences.intraday_chart_settings.delay_chart_start_until}
+                        onChange={(e) =>
+                          setUserPreferences({
+                            ...userPreferences,
+                            intraday_chart_settings: {
+                              ...userPreferences.intraday_chart_settings,
+                              delay_chart_start_until: e.target.checked,
+                            },
                           })
                         }
                         className="w-4 h-4 text-blue-600 rounded border-slate-600 bg-slate-700 focus:ring-blue-500"
@@ -660,12 +895,13 @@ export function AccountSettings() {
                     <label className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        checked={preferences.percentSizing}
-                        onChange={() =>
-                          setPreferences({
-                            ...preferences,
-                            percentSizing: !preferences.percentSizing,
-                          })
+                        checked={botPreferences.percent_sizing_uses_minimum_quantity_of_1}
+                        onChange={(e) =>
+                          setBotPreferences({
+                            ...botPreferences,
+                            percent_sizing_uses_minimum_quantity_of_1: e.target.checked,
+                          },
+                          )
                         }
                         className="w-4 h-4 text-blue-600 rounded border-slate-600 bg-slate-700 focus:ring-blue-500"
                       />
@@ -676,12 +912,13 @@ export function AccountSettings() {
                     <label className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        checked={preferences.leverageSizing}
-                        onChange={() =>
-                          setPreferences({
-                            ...preferences,
-                            leverageSizing: !preferences.leverageSizing,
-                          })
+                        checked={botPreferences.leverage_sizing_uses_minimum_quantity_of_1}
+                        onChange={(e) =>
+                          setBotPreferences({
+                            ...botPreferences,
+                            leverage_sizing_uses_minimum_quantity_of_1: e.target.checked,
+                          },
+                          )
                         }
                         className="w-4 h-4 text-blue-600 rounded border-slate-600 bg-slate-700 focus:ring-blue-500"
                       />
@@ -697,18 +934,18 @@ export function AccountSettings() {
                     Chart Comparison Index
                   </div>
                   <select
-                    value={preferences.chartComparison}
+                    value={userPreferences.chart_comparison_index}
                     onChange={(e) =>
-                      setPreferences({
-                        ...preferences,
-                        chartComparison: e.target.value,
+                      setUserPreferences({
+                        ...userPreferences,
+                        chart_comparison_index: e.target.value
                       })
                     }
                     className="w-20 px-2 py-1 bg-slate-700 border border-slate-600 rounded text-white text-sm"
                   >
-                    <option>SPY</option>
-                    <option>QQQ</option>
-                    <option>IWM</option>
+                    <option value={"SPY"}>SPY</option>
+                    <option value={"QQQ"}>QQQ</option>
+                    <option value={"IWM"}>IWM</option>
                   </select>
                 </div>
 
@@ -717,18 +954,20 @@ export function AccountSettings() {
                     Wide Spread Performance Window
                   </div>
                   <select
-                    value={preferences.wideSpreadWindow}
+                    value={botPreferences.wide_spread_patience_window}
                     onChange={(e) =>
-                      setPreferences({
-                        ...preferences,
-                        wideSpreadWindow: e.target.value,
-                      })
+                      setBotPreferences({
+                        ...botPreferences,
+                        wide_spread_patience_window: Number(e.target.value),
+                      },
+                      )
                     }
                     className="w-32 px-2 py-1 bg-slate-700 border border-slate-600 rounded text-white text-sm"
                   >
-                    <option>3 Minutes</option>
-                    <option>5 Minutes</option>
-                    <option>10 Minutes</option>
+                    <option value={3}>3 Minutes</option>
+                    <option value={5}>5 Minutes</option>
+                    <option value={10}>10 Minutes</option>
+                    <option value={0}>Until Normal Quotes</option>
                   </select>
                 </div>
 
@@ -737,20 +976,44 @@ export function AccountSettings() {
                     Profit Target Triggering
                   </div>
                   <select
-                    value={preferences.targetTriggering}
+                    value={botPreferences.profit_target_trigger}
                     onChange={(e) =>
-                      setPreferences({
-                        ...preferences,
-                        targetTriggering: e.target.value,
-                      })
+                      setBotPreferences({
+                        ...botPreferences,
+                        profit_target_trigger: Number(e.target.value),
+                      },
+                      )
                     }
                     className="w-20 px-2 py-1 bg-slate-700 border border-slate-600 rounded text-white text-sm"
                   >
-                    <option>DTE</option>
-                    <option>Time</option>
+                    <option value={0}>Immediatley</option>
+                    <option value={5}>5%</option>
+                    <option value={10}>10%</option>
+                    <option value={15}>15%</option>
+                    <option value={20}>20%</option>
+                    <option value={25}>25%</option>
+                    <option value={30}>30%</option>
+                    <option value={35}>35%</option>
+                    <option value={40}>40%</option>
+                    <option value={45}>45%</option>
+                    <option value={50}>50%</option>
+                    <option value={55}>55%</option>
+                    <option value={60}>60%</option>
+                    <option value={65}>65%</option>
+                    <option value={70}>70%</option>
+                    <option value={75}>75%</option>
+                    <option value={80}>80%</option>
+
                   </select>
                 </div>
               </div>
+              <button
+                onClick={() => {
+                  update_preferences(userInfo.email, userPreferences, botPreferences);
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm w-full">
+                UPDATE
+              </button>
             </div>
 
             {/* Account Data Summary */}
@@ -760,19 +1023,19 @@ export function AccountSettings() {
               </h2>
 
               <div className="space-y-2 text-sm text-gray-300">
-                <div>Member Since: Thursday, June 2, 2022</div>
-                <div>Last Login: 3:21pm on Thursday, June 2, 2022</div>
+                <div>Member Since: {userInfo.created_time}</div>
+                <div>Last Login: {userInfo.last_login_time}</div>
                 <div>
-                  Last Website Activity: 4:22pm on Thursday, June 2, 2022
+                  Last Website Activity: {userInfo.last_website_activity}
                 </div>
-                <div>Trades Logged: 0</div>
-                <div>Bots Created: 0</div>
-                <div>Bot Groups: 0</div>
+                <div>Trades Logged: {userInfo.trades_logged}</div>
+                <div>Bots Created: {userInfo.bots_created}</div>
+                <div>Bot Groups: {userInfo.bot_groups}</div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

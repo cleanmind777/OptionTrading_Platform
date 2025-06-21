@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
-
+import { useAtom } from 'jotai';
+import { userAtom } from '../atoms/userAtom';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 interface LoginPageProps {
@@ -9,6 +10,7 @@ interface LoginPageProps {
 }
 
 export function LoginPage({ onLogin }: LoginPageProps) {
+  const [user, setUser] = useAtom(userAtom);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -23,6 +25,14 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       console.log('Login successful:', response.data)
       // navigate("/login");
       // Handle successful registration, e.g., redirect to login page
+      console.log(response.data.account_id)
+      localStorage.setItem('access_id', response.data.account_id);
+      localStorage.setItem('access_token', response.data.access_token);
+      const userinfo = await axios.get(`${BACKEND_URL}/user/me/?account_id=${response.data.account_id}`)
+      console.log(userinfo.data)
+      setUser(userinfo.data)
+      localStorage.setItem("userinfo", JSON.stringify(userinfo.data))
+      // console.log("errror", useAtomValue(userAtom));
       return response.data
     } catch (error) {
       console.log("error")
@@ -32,7 +42,6 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       // Here you would typically make an API call to authenticate
       // For now, we'll just simulate a successful login
@@ -44,8 +53,8 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       }
       else {
         onLogin();
-        sessionStorage.setItem('access_token', result.access_token);
-        sessionStorage.setItem('token_type', result.token_type);
+        localStorage.setItem('access_token', result.access_token);
+        localStorage.setItem('token_type', result.token_type);
         navigate("/account-stats");
       }
     } catch (error) {

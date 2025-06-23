@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Cookies from "js-cookie"
 
 interface NavigationProps {
   onLogout: () => void;
@@ -66,6 +67,7 @@ export function Navigation({ onLogout }: NavigationProps) {
   }, []);
 
   const handleLogout = () => {
+
     onLogout();
     navigate("/");
   };
@@ -219,7 +221,9 @@ export function Navigation({ onLogout }: NavigationProps) {
                   <div className="border-t border-slate-700 my-2" />
 
                   <button
-                    onClick={handleLogout}
+                    onClick={
+                      handleLogout
+                    }
                     className="w-full text-left px-4 py-3 text-red-400 hover:text-red-300 hover:bg-slate-700 transition-colors flex items-center space-x-3"
                   >
                     <svg
@@ -892,21 +896,19 @@ export function Navigation({ onLogout }: NavigationProps) {
                 <div className="flex space-x-3">
                   <button
                     onClick={() => setPauseOption("manual")}
-                    className={`flex-1 px-4 py-3 rounded-md border transition-colors ${
-                      pauseOption === "manual"
-                        ? "border-red-500 bg-red-500 bg-opacity-20 text-red-400"
-                        : "border-slate-600 text-gray-300 hover:border-red-500"
-                    }`}
+                    className={`flex-1 px-4 py-3 rounded-md border transition-colors ${pauseOption === "manual"
+                      ? "border-red-500 bg-red-500 bg-opacity-20 text-red-400"
+                      : "border-slate-600 text-gray-300 hover:border-red-500"
+                      }`}
                   >
                     UNTIL I TURN BACK ON
                   </button>
                   <button
                     onClick={() => setPauseOption("timed")}
-                    className={`flex-1 px-4 py-3 rounded-md border transition-colors ${
-                      pauseOption === "timed"
-                        ? "border-purple-500 bg-purple-500 bg-opacity-20 text-purple-400"
-                        : "border-slate-600 text-gray-300 hover:border-purple-500"
-                    }`}
+                    className={`flex-1 px-4 py-3 rounded-md border transition-colors ${pauseOption === "timed"
+                      ? "border-purple-500 bg-purple-500 bg-opacity-20 text-purple-400"
+                      : "border-slate-600 text-gray-300 hover:border-purple-500"
+                      }`}
                   >
                     PAUSE UNTIL TIME
                   </button>

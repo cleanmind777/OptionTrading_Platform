@@ -1,6 +1,8 @@
 from sqlalchemy import Column, Integer, String, Boolean, JSON, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from app.db.session import Base
+# from app.models.strategy import Strategy
 import uuid
 from sqlalchemy.sql import func
 
@@ -14,7 +16,7 @@ class User(Base):
     phone_number = Column(String, nullable=True)
     hashed_password = Column(String, nullable=False)
     user_level = Column(Integer, nullable = False, default=0)
-    social_account = Column(JSON, nullable = True, default={"Discord":"cleanmind777"})
+    social_account = Column(JSON, nullable = True, default={"Discord":""})
     two_factor = Column(Boolean, nullable = False, default=False)
     account_access_settings = Column(JSON, nullable=False, default={
         "log_me_out_after_no_activity_for": 0.5,
@@ -62,3 +64,4 @@ class User(Base):
     group_id = Column(UUID(as_uuid=True), nullable=True)
     group_display_name = Column(String, nullable=True)
     group_admin = Column(Boolean, nullable=True, default=False)
+    # strategies = relationship("Strategy", back_populates='user', cascade="all, delete-orphan", passive_deletes=True)

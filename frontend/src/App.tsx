@@ -65,6 +65,8 @@ function App() {
 
   const handleLogout = () => {
     // localStorage.removeItem('access_token')
+    console.log("11111111111111111111111111111111111")
+
     setIsLoggedIn(false);
   };
   useEffect(() => {
@@ -73,9 +75,9 @@ function App() {
 
     setIsLoggedIn(!!token);
   }, [Cookies.get('access_token')]);
-  useEffect(() => {
+  // useEffect(() => {
 
-  }, [isLoggedIn])
+  // }, [isLoggedIn])
   // useEffect(() => {
   //   const token = Cookies.get('access_token');
   //   if (token) {

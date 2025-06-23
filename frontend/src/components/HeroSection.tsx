@@ -22,18 +22,19 @@ export function HeroSection({ onLogin }: HeroSectionProps) {
       password: password,
     }
     try {
-      const response = await axios.post(`${BACKEND_URL}/auth/token`, userData)
+      const response = await axios.post(`${BACKEND_URL}/auth/login`, userData)
       console.log('Login successful:', response.data)
       // navigate("/login");
       // Handle successful registration, e.g., redirect to login page
       console.log(response.data.account_id)
-      localStorage.setItem('access_id', response.data.account_id);
-      localStorage.setItem('access_token', response.data.access_token);
+      // localStorage.setItem('access_id', response.data.account_id);
+      // localStorage.setItem('access_token', response.data.access_token);
       const userinfo = await axios.get(`${BACKEND_URL}/user/me/?account_id=${response.data.account_id}`)
       console.log(userinfo.data)
       setUser(userinfo.data)
       localStorage.setItem("userinfo", JSON.stringify(userinfo.data))
       // console.log("errror", useAtomValue(userAtom));
+
       return response.data
     } catch (error) {
       console.log("error")

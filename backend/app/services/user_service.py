@@ -18,7 +18,7 @@ def register_user(db: Session, user_create: UserCreate) -> User:
 def authenticate_user(db: Session, email: str, password: str) -> User | None:
     user = get_user_by_email(db, email)
     if not user or not verify_password(password, user.hashed_password):
-        return None
+        None
     else:
         user_update_last_login_time(db, email)
     return user

@@ -15,3 +15,7 @@ def user_create_strategy(db: Session, strategy_create: StrategyCreate):
     db.commit()
     db.refresh(db_strategy)
     return db_strategy
+
+def user_get_all_strategies(db: Session, account_id: str):
+    db_strategies = db.query(Strategy).filter(Strategy.user_id == account_id).all()
+    return db_strategies

@@ -7,7 +7,7 @@ from fastapi.encoders import jsonable_encoder
 from datetime import timedelta
 from app.models.strategy import Strategy
 from uuid import UUID
-from app.services.strategy_service import create_strategy
+from app.services.strategy_service import create_strategy, get_all_strategies
 from app.schemas.strategy import StrategyInfo, StrategyCreate
 from app.dependencies.database import get_db
 from app.core.security import create_access_token
@@ -22,3 +22,6 @@ def create_Strategy(strategy_create: StrategyCreate, db: Session = Depends(get_d
         raise HTTPException(status_code=400, detail="Strategy that has same name, already registered")
     return create_strategy(db, strategy_create)
 
+@router.get("/get_all_strategies", status_code=status.HTTP_201_CREATED)
+def get_All_strategies(account_id: str, db: Session = Depends(get_db)):
+    return get_all_strategies(db, account_id)

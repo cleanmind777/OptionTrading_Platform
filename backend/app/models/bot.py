@@ -3,9 +3,10 @@ from sqlalchemy.dialects.postgresql import UUID
 from app.db.session import Base
 import uuid
 from sqlalchemy.sql import func
-    
-class Strategy(Base):
-    __tablename__ = "strategies"
+from sqlalchemy.orm import relationship
+
+class Bot(Base):
+    __tablename__ = "bots"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
@@ -14,6 +15,8 @@ class Strategy(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, onupdate=func.now())
+    trading_account = Column(String, nullable=True)
+    strategy_id = Column(UUID(as_uuid=True), ForeignKey("strategy.id"), nullable=False)
     # symbol = Column(String, nullable=True)
     # parameters = Column(JSON, nullable=True)
     # trade_type = Column(String, nullable=True)
@@ -265,5 +268,8 @@ class Strategy(Base):
             },
         },
     })
+    
+    user = relationship("User", back_populates="bots")
+    strategy = relationship("Strategy", back_populates="bots")
     
     

@@ -3,6 +3,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from app.db.session import Base
 import uuid
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 
 class Group(Base):
     __tablename__ = 'groups'
@@ -13,3 +14,5 @@ class Group(Base):
     notification_email = Column(String, nullable=False)
     total_users = Column(Integer, nullable=False, default=1)
     shared_bots = Column(Integer, nullable=False, default=0)
+    
+    users = relationship("User", secondary="group_users", back_populates="groups")

@@ -1,10 +1,22 @@
-from sqlalchemy import Column, Integer, String, Boolean, JSON, DateTime, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, Integer, String, Boolean, JSON, DateTime, ForeignKey, Table
+from sqlalchemy.dialects.postgresql import UUID as SQLAlchemyUUID
 from sqlalchemy.orm import relationship
+from uuid import UUID, uuid4
+from sqlalchemy.dialects.postgresql import UUID
 from app.db.session import Base
 # from app.models.strategy import Strategy
 import uuid
 from sqlalchemy.sql import func
+
+
+# Association Table for Group-User many-to-many relationship
+group_users = Table(
+    "group_users",
+    Base.metadata,
+    Column("group_id", SQLAlchemyUUID(as_uuid=True), ForeignKey("groups.id")),
+    Column("user_id", SQLAlchemyUUID(as_uuid=True), ForeignKey("users.id"))
+)
+
 
 class User(Base):
     __tablename__ = "users"
@@ -22,7 +34,7 @@ class User(Base):
         "log_me_out_after_no_activity_for": 0.5,
         "pause_bots_if_no_activity_for" : 2,
     })
-    email_preferences = Column(JSON, nullable=False, default={
+    email_preferences = Column(JSON, nullable=False, default={                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
         "bot_trading_alerts" : True,
         "service_alerts" : True,
         "feature_announcements" : True,
@@ -61,7 +73,10 @@ class User(Base):
     strategies_created = Column(Integer, nullable=False, default=0)
     bots_created = Column(Integer, nullable=False, default=0)
     disabled = Column(Boolean, default=False)
-    group_id = Column(UUID(as_uuid=True), nullable=True)
-    group_display_name = Column(String, nullable=True)
-    group_admin = Column(Boolean, nullable=True, default=False)
-    # strategies = relationship("Strategy", back_populates='user', cascade="all, delete-orphan", passive_deletes=True)
+    # group_id = Column(UUID(as_uuid=True), nullable=True)
+    # group_display_name = Column(String, nullable=True)
+    # group_admin = Column(Boolean, nullable=True, default=False)
+    
+    bots = relationship("Bot", back_populates="user")
+    strategies = relationship("Strategy", back_populates="user")
+    groups = relationship("Group", back_populates="users")

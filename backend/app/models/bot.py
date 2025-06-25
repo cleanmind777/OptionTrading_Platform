@@ -268,7 +268,23 @@ class Bot(Base):
             },
         },
     })
-    
+    bot_dependencies = Column(JSON, nullable=True, default={
+        "do_not_open_trades_when" : {
+            "bots_are_in_trade" : "",
+            "bots_are_not_in_trade" : "",
+            "bots_have_been_in_trade_today" : "",
+        },
+        "only_open_trades_when" : {
+            "bots_are_in_trade" : "",
+            "bots_are_not_in_trade" : "",
+            "bots_have_been_in_trade_today" : "",
+        },
+        "immediately_close_trades_when" : {
+            "bots_are_in_trade" : "",
+            "bots_are_not_in_trade" : "",
+        },
+        "disabled_bots_shouldbe_ignored" : True
+    })
     user = relationship("User", back_populates="bots")
     strategy = relationship('Strategy', back_populates='bots')
     

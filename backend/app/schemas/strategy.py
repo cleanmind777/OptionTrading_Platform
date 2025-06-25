@@ -3,12 +3,14 @@ from typing import Optional, Dict, Any
 from datetime import datetime
 from uuid import UUID
 import json
-class StrategyBase(BaseModel):
-    id: UUID
+class StrategyCreate(BaseModel):
     user_id: UUID
     name: str
     description: Optional[str] = None
-    
+
+class StrategyBase(StrategyCreate):
+    id: Optional[UUID] = None
+
 class StrategyInfo(StrategyBase):
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None

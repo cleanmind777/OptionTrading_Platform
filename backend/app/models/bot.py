@@ -16,7 +16,7 @@ class Bot(Base):
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, onupdate=func.now())
     trading_account = Column(String, nullable=True)
-    strategy_id = Column(UUID(as_uuid=True), ForeignKey("strategy.id"), nullable=False)
+    strategy_id = Column(UUID(as_uuid=True), ForeignKey("strategies.id"), nullable=False)
     # symbol = Column(String, nullable=True)
     # parameters = Column(JSON, nullable=True)
     # trade_type = Column(String, nullable=True)
@@ -270,6 +270,6 @@ class Bot(Base):
     })
     
     user = relationship("User", back_populates="bots")
-    strategy = relationship("Strategy", back_populates="bots")
+    strategy = relationship('Strategy', back_populates='bots')
     
     

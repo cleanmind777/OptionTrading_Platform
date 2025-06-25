@@ -79,4 +79,4 @@ class User(Base):
     
     bots = relationship("Bot", back_populates="user")
     strategies = relationship("Strategy", back_populates="user")
-    groups = relationship("Group", back_populates="users")
+    groups = relationship('Group', secondary=group_users, back_populates='users')

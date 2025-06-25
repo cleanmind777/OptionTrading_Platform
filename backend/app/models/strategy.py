@@ -69,3 +69,4 @@ class Strategy(Base):
     
     user = relationship("User", back_populates="strategies")
     bots = relationship("Bot", back_populates="strategy")
+    

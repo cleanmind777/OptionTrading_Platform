@@ -52,6 +52,8 @@ export function MainNavigation({
     localStorage.removeItem("access_token");
     localStorage.removeItem("email");
     localStorage.removeItem("token_type");
+    localStorage.removeItem("user");
+    localStorage.removeItem("userinfo");
     Cookies.remove("access_token");
     navigate("/");
   };

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-
+import Cookies from "js-cookie"
 interface MainNavigationProps {
   isLoggedIn: boolean;
   onLogin: () => void;
@@ -52,6 +52,9 @@ export function MainNavigation({
     localStorage.removeItem("access_token");
     localStorage.removeItem("email");
     localStorage.removeItem("token_type");
+    localStorage.removeItem("user");
+    localStorage.removeItem("userinfo");
+    Cookies.remove("access_token");
     navigate("/");
   };
 

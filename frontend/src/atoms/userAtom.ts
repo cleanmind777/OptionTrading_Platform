@@ -1,5 +1,8 @@
-import { atom } from "jotai";
-import { UserInfo } from "../types/user";
+import { atomWithStorage } from "jotai/utils";
 
-// Atom for user information
-export const userAtom = atom<UserInfo | null>(null);
+export interface User {
+  name: string;
+  token: string;
+}
+
+export const userAtom = atomWithStorage<User | null>("user", null);

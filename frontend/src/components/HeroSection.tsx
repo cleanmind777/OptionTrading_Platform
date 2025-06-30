@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useAtom, useAtomValue } from 'jotai';
 import { userAtom } from '../atoms/userAtom';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-
+import Cookies from 'js-cookie';
 interface HeroSectionProps {
   onLogin: () => void;
 }
@@ -17,24 +17,36 @@ export function HeroSection({ onLogin }: HeroSectionProps) {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const login = async (email: string, password: string) => {
-    const userData = {
-      email: email,
-      password: password,
-    }
+    const params = new URLSearchParams();
+    params.append('username', email); // OAuth2PasswordRequestForm expects 'username'
+    params.append('password', password);
     try {
-      const response = await axios.post(`${BACKEND_URL}/auth/token`, userData)
-      console.log('Login successful:', response.data)
+      await axios.post(`${BACKEND_URL}/auth/login`, params,
+        {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          withCredentials: true, // Send cookies
+        }).then(response => {
+          console.log('Login successful:', response)
+          console.log("Cookie", Cookies.get('access_token'))
+          localStorage.setItem("userinfo", JSON.stringify(response.data))
+          setUser(response.data)
+          console.log(response)
+          console.log();
+
+          // Cookies.set('access_token', response.data.access_token, { path: '/' })
+
+          return true
+        }).catch(error => {
+          console.log(error)
+          return false
+        })
       // navigate("/login");
       // Handle successful registration, e.g., redirect to login page
-      console.log(response.data.account_id)
-      localStorage.setItem('access_id', response.data.account_id);
-      localStorage.setItem('access_token', response.data.access_token);
-      const userinfo = await axios.get(`${BACKEND_URL}/user/me/?account_id=${response.data.account_id}`)
-      console.log(userinfo.data)
-      setUser(userinfo.data)
-      localStorage.setItem("userinfo", JSON.stringify(userinfo.data))
+      // console.log(response.data.account_id)
+      // localStorage.setItem('access_id', response.data.account_id);
+      // localStorage.setItem('access_token', response.data.access_token);
+      // const userinfo = await axios.get(`${BACKEND_URL}/user/me/?account_id=${response.data.account_id}`)
       // console.log("errror", useAtomValue(userAtom));
-      return response.data
     } catch (error) {
       console.log("error")
       return false
@@ -61,8 +73,7 @@ export function HeroSection({ onLogin }: HeroSectionProps) {
       }
       else {
         onLogin();
-        localStorage.setItem('access_token', result.access_token);
-        localStorage.setItem('token_type', result.token_type);
+
         navigate("/account-stats");
       }
     } catch (error) {

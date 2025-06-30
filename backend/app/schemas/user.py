@@ -108,3 +108,7 @@ class UserInfo(UserBase):
     group_id : Optional[str] = None
     group_display_name: Optional[str] = None
     group_admin : Optional[bool] = None
+    
+    model_config = {
+        "from_attributes": True,  # replaces orm_mode=True
+    }

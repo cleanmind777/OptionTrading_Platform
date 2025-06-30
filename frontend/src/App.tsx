@@ -5,7 +5,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { HomePage } from "./pages/HomePage";
+import { HomePage, } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { TradingDashboard } from "./pages/trades/TradingDashboard";
@@ -44,24 +44,46 @@ import { DiscordCommunity } from "./pages/support/DiscordCommunity";
 import { AccountVsMarketPerformance } from "./pages/performance/AccountVsMarketPerformance";
 import { EmailPrefs } from "./pages/account/EmailPrefs";
 import { MainNavigation } from "./components/MainNavigation";
+import PrivateRoute from "./components/PrivateRoute";
 import { Navigation } from "./components/Navigation";
+import { CookiesProvider } from 'react-cookie';
+import Cookies from 'js-cookie';
+// In your index.js or App.js
+<CookiesProvider>
+  <App />
+</CookiesProvider>
+
 // import { NotificationProvider } from "./contexts/NotificationContext";
 // import { ToastNotifications } from "./components/ToastNotifications";
 import "./App.css";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(Cookies.get('access_token') ? true : false);
   const handleLogin = () => {
     setIsLoggedIn(true);
   };
 
   const handleLogout = () => {
     // localStorage.removeItem('access_token')
+    console.log("11111111111111111111111111111111111")
+
     setIsLoggedIn(false);
   };
   useEffect(() => {
-    localStorage.getItem('access_token') ? setIsLoggedIn(true) : setIsLoggedIn(false);
-  });
+    const token = Cookies.get('access_token');
+    console.log("token", token);
+
+    setIsLoggedIn(!!token);
+  }, [Cookies.get('access_token')]);
+  // useEffect(() => {
+
+  // }, [isLoggedIn])
+  // useEffect(() => {
+  //   const token = Cookies.get('access_token');
+  //   if (token) {
+  //     setIsLoggedIn(true)
+  //   }
+  // }, [navigate]);
   return (
     // <NotificationProvider>
     <Router>
@@ -89,11 +111,7 @@ function App() {
             <Route
               path="/dashboard"
               element={
-                isLoggedIn ? (
-                  <TradingDashboard />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
+                isLoggedIn ? <TradingDashboard /> : <Navigate to="/login" replace />
               }
             />
             <Route

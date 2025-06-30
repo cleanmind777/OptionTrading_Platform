@@ -1,7 +1,28 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
+from fastapi.responses import JSONResponse
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from sqlalchemy.orm import joinedload
 from app.models.bot import Bot
-from app.schemas.bot import BotCreate
+from app.models.strategy import Strategy
+from app.schemas.bot import BotCreate, BotFilter
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.encoders import jsonable_encoder
+from sqlalchemy.future import select
+from datetime import timedelta
+from uuid import UUID
+from app.schemas.bot import BotCreate, BotInfo, BotFilter
+from app.dependencies.database import get_db
+from app.core.security import create_access_token
+from app.core.config import settings
+from sqlalchemy import cast, JSON
+
+def safe_uuid(val):
+    if not val or str(val).strip() == "":
+        return None
+    return val
 
 def user_create_bot(db: Session, bot_create: BotCreate):
     db_strategy = Bot(
@@ -13,9 +34,6 @@ def user_create_bot(db: Session, bot_create: BotCreate):
         created_at = func.now(),
         updated_at = func.now(),
         strategy_id = bot_create.strategy_id,
-        # symbol = bot_create.symbol,
-        # parameters = bot_create.parameters,
-        # trade_type = bot_create.trade_type,
         trade_entry = bot_create.trade_entry,
         trade_exit = bot_create.trade_exit,
         trade_stop = bot_create.trade_stop,
@@ -26,3 +44,39 @@ def user_create_bot(db: Session, bot_create: BotCreate):
     db.commit()
     db.refresh(db_strategy)
     return db_strategy
+
+async def user_get_bots(db: Session, bot_filters: BotFilter):
+    # Start building the query
+    query = (
+        select(Bot)
+        .join(Bot.strategy)
+        .options(joinedload(Bot.strategy))
+        .filter(Bot.user_id == bot_filters.user_id)
+    )
+
+    
+    # Filter by is_active if not "All"
+    if bot_filters.is_active == "Enabled":
+        query = query.filter(Bot.is_active == True)
+    elif bot_filters.is_active != "All":
+        query = query.filter(Bot.is_active == False)
+
+    # Filter by symbol if not "All"
+    if bot_filters.symbol != "All":
+        query = query.filter(Strategy.symbol == bot_filters.symbol)
+        
+    if bot_filters.strategy != "All":
+        strategy_id = safe_uuid(getattr(bot_filters, "strategy", None))
+        if strategy_id:
+            query = query.filter(Bot.strategy_id == strategy_id)
+    
+    if bot_filters.name != "":
+        query = query.filter(Bot.name == bot_filters.name)
+    
+    if bot_filters.entryDay == "Monday":
+        query = query.filter(
+            Bot.trade_entry['days_of_week_to_enter'][1].as_boolean() == True
+        )
+    result = db.execute(query)
+    bots = result.scalars().all()
+    return bots

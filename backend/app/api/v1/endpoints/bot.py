@@ -10,8 +10,8 @@ from datetime import timedelta
 from app.models.bot import Bot
 
 from uuid import UUID
-from app.services.bot_service import create_bot, get_bots
-from app.schemas.bot import BotCreate, BotInfo, BotFilter
+from app.services.bot_service import create_bot, get_bots, get_bot, edit_bot
+from app.schemas.bot import BotCreate, BotInfo, BotFilter, BotEdit
 from app.dependencies.database import get_db
 from app.core.security import create_access_token
 from app.core.config import settings
@@ -25,7 +25,14 @@ def create_Bot(bot_create: BotCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Bot that has same name, already registered")
     return create_bot(db, bot_create)
 
+@router.post("/edit", status_code=status.HTTP_201_CREATED)
+def edit_Bot(bot_edit: BotEdit, db: Session = Depends(get_db)):
+    return edit_bot(db, bot_edit)
+
 @router.post("/get_bots", status_code=status.HTTP_201_CREATED)
 async def get_Bots(bot_filters: BotFilter, db: Session = Depends(get_db)):
-    
     return await get_bots(db, bot_filters)
+
+@router.get("/get_bot", status_code=status.HTTP_201_CREATED)
+async def get_Bot(id: UUID, db: Session = Depends(get_db)):
+    return await get_bot(db, id)

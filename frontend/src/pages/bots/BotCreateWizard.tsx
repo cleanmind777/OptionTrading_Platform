@@ -872,7 +872,6 @@ export function BotCreateWizard() {
 
     return errors;
   };
-
   // Comprehensive form validation
   const validateForm = (config: BotConfig): ValidationResult => {
     const allErrors: ValidationError[] = [];
@@ -972,7 +971,6 @@ export function BotCreateWizard() {
       completionPercentage,
     };
   };
-
   // Auto-save effect
   useEffect(() => {
     const autoSaveKey = "botCreateWizard_autoSave";

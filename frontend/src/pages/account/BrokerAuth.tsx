@@ -61,14 +61,15 @@ export function BrokerAuth() {
   }
 
   const handleAuthorize = async () => {
-    setIsConnecting(true)
-    setStep('authorize')
+    window.location.href = "https://api.schwabapi.com/v1/oauth/authorize?response_type=code&client_id=1wzwOrhivb2PkR1UCAUVTKYqC4MTNYlj&scope=readonly&redirect_uri=https://developer.schwab.com/oauth2-redirect.html"
+    // setIsConnecting(true)
+    // setStep('authorize')
 
-    // Simulate authorization process
-    setTimeout(() => {
-      setStep('success')
-      setIsConnecting(false)
-    }, 3000)
+    // // Simulate authorization process
+    // setTimeout(() => {
+    //   setStep('success')
+    //   setIsConnecting(false)
+    // }, 3000)
   }
 
   const selectedBroker = brokerages.find(b => b.id === selectedBrokerage)
@@ -117,26 +118,21 @@ export function BrokerAuth() {
         {/* Progress Steps */}
         <div className="flex justify-center mb-12">
           <div className="flex items-center space-x-4">
-            <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-              step === 'select' ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'
-            }`}>
+            <div className={`flex items-center justify-center w-8 h-8 rounded-full ${step === 'select' ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'
+              }`}>
               {step === 'select' ? '1' : '✓'}
             </div>
-            <div className={`h-1 w-16 ${
-              step === 'select' ? 'bg-gray-600' : 'bg-green-600'
-            }`} />
-            <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-              step === 'select' ? 'bg-gray-600 text-gray-400' :
+            <div className={`h-1 w-16 ${step === 'select' ? 'bg-gray-600' : 'bg-green-600'
+              }`} />
+            <div className={`flex items-center justify-center w-8 h-8 rounded-full ${step === 'select' ? 'bg-gray-600 text-gray-400' :
               step === 'authorize' ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'
-            }`}>
+              }`}>
               {step === 'success' ? '✓' : '2'}
             </div>
-            <div className={`h-1 w-16 ${
-              step === 'success' ? 'bg-green-600' : 'bg-gray-600'
-            }`} />
-            <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-              step === 'success' ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-400'
-            }`}>
+            <div className={`h-1 w-16 ${step === 'success' ? 'bg-green-600' : 'bg-gray-600'
+              }`} />
+            <div className={`flex items-center justify-center w-8 h-8 rounded-full ${step === 'success' ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-400'
+              }`}>
               {step === 'success' ? '✓' : '3'}
             </div>
           </div>
@@ -153,13 +149,12 @@ export function BrokerAuth() {
               {brokerages.map((brokerage) => (
                 <div
                   key={brokerage.id}
-                  className={`relative bg-[rgb(15 23 42)] rounded-lg border p-6 cursor-pointer transition-all ${
-                    selectedBrokerage === brokerage.id
-                      ? 'border-blue-500 ring-2 ring-blue-500/20'
-                      : brokerage.available
+                  className={`relative bg-[rgb(15 23 42)] rounded-lg border p-6 cursor-pointer transition-all ${selectedBrokerage === brokerage.id
+                    ? 'border-blue-500 ring-2 ring-blue-500/20'
+                    : brokerage.available
                       ? 'border-slate-700 hover:border-slate-600'
                       : 'border-slate-700 opacity-60 cursor-not-allowed'
-                  }`}
+                    }`}
                   onClick={() => handleBrokerageSelect(brokerage.id)}
                 >
                   {brokerage.comingSoon && (

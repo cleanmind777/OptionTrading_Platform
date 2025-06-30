@@ -65,7 +65,7 @@ function App() {
 
   const handleLogout = () => {
     // localStorage.removeItem('access_token')
-    console.log("11111111111111111111111111111111111")
+    // console.log("11111111111111111111111111111111111")
 
     setIsLoggedIn(false);
   };

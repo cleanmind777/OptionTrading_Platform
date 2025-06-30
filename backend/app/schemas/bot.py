@@ -17,6 +17,9 @@ class BotCreate(BaseModel):
     trade_condition: Optional[Dict[str, Any]] = None
     bot_dependencies: Optional[Dict[str, Any]] = None
 
+class BotEdit(BotCreate):
+    id: UUID
+
 class BotInfo(BotCreate):
     id: UUID
     created_at: Optional[datetime] = None

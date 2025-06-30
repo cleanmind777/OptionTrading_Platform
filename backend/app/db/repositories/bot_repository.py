@@ -13,7 +13,7 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.future import select
 from datetime import timedelta
 from uuid import UUID
-from app.schemas.bot import BotCreate, BotInfo, BotFilter
+from app.schemas.bot import BotCreate, BotInfo, BotFilter, BotEdit
 from app.dependencies.database import get_db
 from app.core.security import create_access_token
 from app.core.config import settings
@@ -25,7 +25,7 @@ def safe_uuid(val):
     return val
 
 def user_create_bot(db: Session, bot_create: BotCreate):
-    db_strategy = Bot(
+    db_bot = Bot(
         user_id = bot_create.user_id,
         name = bot_create.name,
         description = bot_create.description,
@@ -40,10 +40,28 @@ def user_create_bot(db: Session, bot_create: BotCreate):
         trade_condition = bot_create.trade_condition,
         bot_dependencies = bot_create.bot_dependencies,
     )
-    db.add(db_strategy)
+    db.add(db_bot)
     db.commit()
-    db.refresh(db_strategy)
-    return db_strategy
+    db.refresh(db_bot)
+    return db_bot
+
+def user_edit_bot(db: Session, bot_edit: BotEdit):
+    db_bot = db.query(Bot).filter(Bot.id == bot_edit.id).first()
+    db_bot.name = bot_edit.name
+    db_bot.description = bot_edit.description
+    db_bot.trading_account = bot_edit.trading_account
+    db_bot.is_active = bot_edit.is_active
+    db_bot.strategy_id = bot_edit.strategy_id
+    db_bot.trade_entry = bot_edit.trade_entry
+    db_bot.trade_exit = bot_edit.trade_exit
+    db_bot.trade_stop = bot_edit.trade_stop
+    db_bot.trade_condition = bot_edit.trade_condition
+    db_bot.bot_dependencies = bot_edit.bot_dependencies
+    db.updated_at = func.now()
+    db.commit()
+    db.refresh(db_bot)
+    db_bots = db.query(Bot).filter(Bot.user_id == bot_edit.user_id).all()
+    return db_bots
 
 async def user_get_bots(db: Session, bot_filters: BotFilter):
     # Start building the query
@@ -80,3 +98,7 @@ async def user_get_bots(db: Session, bot_filters: BotFilter):
     result = db.execute(query)
     bots = result.scalars().all()
     return bots
+
+async def user_get_bot(db: Session, id: UUID):
+    db_bot = db.query(Bot).filter(Bot.id == id).first()
+    return db_bot

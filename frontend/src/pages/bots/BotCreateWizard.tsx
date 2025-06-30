@@ -223,7 +223,7 @@ export function BotCreateWizard() {
     "3:40", "3:41", "3:42", "3:43", "3:44", "3:45", "3:46", "3:47", "3:48", "3:49",
     "3:50", "3:51", "3:52", "3:53", "3:54", "3:55", "3:56", "3:57", "3:58", "3:59"
   ]
-
+  const symbols = ['AI', 'AMC', 'AAPL', 'AMD', 'AMZN', 'ARM', 'AVGO', 'CMG', 'COIN', 'GLD', 'GME', 'GOOG', 'GOOGL', 'HYG', 'IBIT', 'INTC', 'IWM', 'MARA', 'META', 'MU', 'MSTR', 'NDX', 'NKE', 'NFLX', 'NVDA', 'QQQ', 'PLTR', 'RIVN', 'RUT', 'SIRI', 'SMCI', 'SPX', 'SPY', 'SVIX', 'TLT', 'TSLA', 'UVIX', 'UVXY', 'VIX', 'VXX', 'XLE', 'XSP']
   const userInfo = JSON.parse(localStorage.getItem("userinfo")!)
   const [config, setConfig] = useState<BotConfig>({
     // Bot Identification
@@ -632,7 +632,29 @@ export function BotCreateWizard() {
     {}
   );
   const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
-  const [strategies, setStrategies] = useState([{}]);
+  const [strategies, setStrategies] = useState([{
+    "id": "",
+    "name": "",
+    "description": "",
+    "symbol": "",
+    "parameters": {},
+    "trade_type": "",
+    "skip_am_expirations": false,
+    "sell_bidless_longs_on_trade_exit": false,
+    "efficient_spreads": false,
+    "legs": [{
+      "strike_target_type": "",
+      "strike_target_value": [0.0, 0.0, 0.0],
+      "option_type": null,
+      "long_or_short": null,
+      "size_ratio": 1,
+      "days_to_expiration_type": "Exact",
+      "days_to_expiration_value": [0.0, 0.0, 0.0],
+      "conflict_resolution": false,
+      "conflict_resolution_value": [0, 0],
+    },],
+    "number_of_legs": 0,
+  }]);
   // Validation rules
   const validateField = (
     field: string,
@@ -1809,9 +1831,11 @@ export function BotCreateWizard() {
                     className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm"
                   >
                     <option value="" disabled>Select Symbol</option>
-                    <option value="SPY">SPY</option>
-                    <option value="QQQ">QQQ</option>
-                    <option value="IWM">IWM</option>
+                    {symbols.map((item, key) => (
+                      <option key={key} value={item}>
+                        {item}
+                      </option>
+                    ))}
                   </select>
                   <p className="text-xs text-gray-500 mt-1">Symbol to trade</p>
                 </div>

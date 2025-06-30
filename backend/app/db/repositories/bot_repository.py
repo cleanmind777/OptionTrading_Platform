@@ -18,7 +18,7 @@ def user_create_bot(db: Session, bot_create: BotCreate):
         # trade_type = bot_create.trade_type,
         trade_entry = bot_create.trade_entry,
         trade_exit = bot_create.trade_exit,
-        trad_stop = bot_create.trad_stop,
+        trade_stop = bot_create.trade_stop,
         trade_condition = bot_create.trade_condition,
         bot_dependencies = bot_create.bot_dependencies,
     )

@@ -43,7 +43,7 @@ class Bot(Base):
         "profit_target_value" : 0.0,
         "disable_profit_target_after_stop" : False,
     })
-    trad_stop = Column(JSON, nullable=True, default={
+    trade_stop = Column(JSON, nullable=True, default={
         "stop_loss_type" : "DISABLED",
         "stop_controller_type" : "BOT ALGO",
         "stop_order_type" : "BID/ASK",
@@ -55,13 +55,14 @@ class Bot(Base):
         "stop_adjustments" : False,
         "stop_adjustments_settings" : {
             "stop_adjustments_on_days_in_trade_or_days_to_expiration" : "TO EXPIRATION",
-            "stop_adjustments_by_time" : [
+            "stop_adjustments_by_time" : 
                 {
                     "days" : 1,
-                    "adjustment_time" : 0,
-                    "stop_adjustment" : 0.0
+                    "adjustment_time" : "",
+                    "stop_adjustment" : 0.0,
+                    "disable_stops" : False,
                 }
-            ]
+                
         },
         "stop_speed" : "CUSTOM",
         "custom_stop_speed_settings" : {
@@ -74,10 +75,12 @@ class Bot(Base):
                 "first_attempt_slippage" : 0.0,
                 "replace_order_after" : 0,
                 "add_slippage_order" : 0.0,
+                "send_market_order_after" : 0,
             },
-            "send_market_order_after" : 0,
+            
         },
-        "stop_groupings_and_triggers" : "VERTICALS",
+        "partial_trade_stops" : "VERTICALS",
+        "entire_trade_stops" : "ENTIRE TRADE ON SHORT",
         "trailing_stop_configuration" : {
             "trailing_stop" : True,
             "trail_calculated_by" : "percentage",
@@ -95,7 +98,7 @@ class Bot(Base):
                     "replace_order_after" : 0.0,
                     "add_slippage_order" : 0.0,
                     "send_market_attemps" : 0,
-                }
+                },
             },
             
         },
@@ -112,11 +115,14 @@ class Bot(Base):
         "max_stops_per_day_value" : 50,
         "minimum_price_to_enter" : False,
         "minimum_price_to_enter_value" : 0.0,
-        "maximum_price_to_enter" : 0.0,
+        "maximum_price_to_enter" : False,
+        "maximum_price_to_enter_value" : 0.0,
         "check_closings_before_opening" : False,
         "only_credit_or_debit" : "ANY",
         "opening_quote" : "9:30:05",
         "trade_on_event_days" : False,
+        "user_hosted_entry_filters": False,
+        "user_hosted_entry_filters_endpoint": "",
         "trade_on_special_days" : {
             "all_other_days" : False,
             "fomc_press_conferences" : [False, False, False],
@@ -171,7 +177,7 @@ class Bot(Base):
             },
             "open_when_underlying_moving_average_range" : {
                 "enabled" : False,
-                "moving_average_type" : "Simple",
+                "moving_average_type" : "",
                 "period_type" : "Hour",
                 "periods" : 0.0,
                 "period_length" : 0.0,
@@ -188,8 +194,8 @@ class Bot(Base):
             },
             "open_when_underlying_moving_average_crossover" : {
                 "enabled" : True,
-                "moving_average_type" : "Simple",
-                "period_type" : "Hour",
+                "moving_average_type" : "",
+                "period_type" : "",
                 "period_length" : 0.0,
                 "periods_in_moving_average1" : 0.0,
                 "periods_in_moving_average2" : 0.0,
@@ -270,6 +276,7 @@ class Bot(Base):
         },
     })
     bot_dependencies = Column(JSON, nullable=True, default={
+        "enabled": False,
         "do_not_open_trades_when" : {
             "bots_are_in_trade" : "",
             "bots_are_not_in_trade" : "",

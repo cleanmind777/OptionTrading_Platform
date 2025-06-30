@@ -16,7 +16,7 @@ class BotCreate(BaseModel):
     # trade_type: Optional[str] = None
     trade_entry: Optional[Dict[str, Any]] = None
     trade_exit: Optional[Dict[str, Any]] = None
-    trad_stop: Optional[Dict[str, Any]] = None
+    trade_stop: Optional[Dict[str, Any]] = None
     trade_condition: Optional[Dict[str, Any]] = None
     bot_dependencies: Optional[Dict[str, Any]] = None
 

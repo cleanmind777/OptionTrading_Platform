@@ -1,16 +1,30 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import axios from 'axios';
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 interface Strategy {
   id: string
+  user_id: string
   name: string
-  enabled: boolean
+  is_active: boolean
   description: string
-  lastTraded: string
-  tradeCount: number
-  allTimeCommissions: number
-  ytdCommissions: number
-  allTimeNetPL: number
-  ytdNetPL: number
+  symbol: string
+  parameters: JSON
+  trade_type: string
+  number_of_legs: number
+  skip_am_expirations: boolean
+  sell_bidless_longs_on_trade_exit: boolean
+  efficient_spreads: boolean
+  legs: JSON
+  // lastTraded: string
+  // allTimeCommissions: number
+  // ytdCommissions: number
+  // allTimeNetPL: number
+  // ytdNetPL: number,
+  created_at: Date,
+  updated_at: Date,
+
 }
 
 export function ViewStrategies() {
@@ -19,98 +33,109 @@ export function ViewStrategies() {
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
 
-  const strategies: Strategy[] = [
-    {
-      id: 'iron-condor',
-      name: 'Iron Condor Strategy',
-      enabled: true,
-      description: 'A neutral options strategy that profits from low volatility by selling both put and call spreads',
-      lastTraded: '2025-06-09',
-      tradeCount: 124,
-      allTimeCommissions: 1240.50,
-      ytdCommissions: 580.25,
-      allTimeNetPL: 5420.30,
-      ytdNetPL: 2150.75
-    },
-    {
-      id: 'credit-spread',
-      name: 'Put Credit Spread',
-      enabled: true,
-      description: 'Bullish options strategy that profits from time decay and upward price movement',
-      lastTraded: '2025-06-08',
-      tradeCount: 89,
-      allTimeCommissions: 890.00,
-      ytdCommissions: 445.00,
-      allTimeNetPL: 2830.75,
-      ytdNetPL: 1425.35
-    },
-    {
-      id: 'covered-call',
-      name: 'Covered Call Strategy',
-      enabled: true,
-      description: 'Conservative income strategy for existing stock positions',
-      lastTraded: '2025-06-07',
-      tradeCount: 156,
-      allTimeCommissions: 780.00,
-      ytdCommissions: 390.00,
-      allTimeNetPL: 3250.40,
-      ytdNetPL: 1625.20
-    },
-    {
-      id: 'short-strangle',
-      name: 'Short Strangle',
-      enabled: false,
-      description: 'High-risk strategy that profits from very low volatility',
-      lastTraded: '2025-05-15',
-      tradeCount: 67,
-      allTimeCommissions: 670.00,
-      ytdCommissions: 335.00,
-      allTimeNetPL: -640.25,
-      ytdNetPL: -320.15
-    },
-    {
-      id: 'butterfly-spread',
-      name: 'Butterfly Spread',
-      enabled: true,
-      description: 'Neutral strategy with limited risk that profits from specific price targets',
-      lastTraded: '2025-06-05',
-      tradeCount: 45,
-      allTimeCommissions: 450.00,
-      ytdCommissions: 225.00,
-      allTimeNetPL: 1580.60,
-      ytdNetPL: 790.30
-    },
-    {
-      id: 'calendar-spread',
-      name: 'Calendar Spread',
-      enabled: true,
-      description: 'Time-based strategy that profits from time decay differential',
-      lastTraded: '2025-06-01',
-      tradeCount: 78,
-      allTimeCommissions: 390.00,
-      ytdCommissions: 195.00,
-      allTimeNetPL: 2240.85,
-      ytdNetPL: 1120.45
-    },
-    {
-      id: 'momentum-scalp',
-      name: 'Momentum Scalping',
-      enabled: false,
-      description: 'High-frequency trading strategy for quick profits',
-      lastTraded: '2025-04-20',
-      tradeCount: 234,
-      allTimeCommissions: 2340.00,
-      ytdCommissions: 1170.00,
-      allTimeNetPL: -1250.75,
-      ytdNetPL: -625.40
-    }
-  ]
+  // const strategies: Strategy[] = [
+  //   {
+  //     id: 'iron-condor',
+  //     name: 'Iron Condor Strategy',
+  //     user_id: "",
+  //     is_active: true,
+  //     description: 'A neutral options strategy that profits from low volatility by selling both put and call spreads',
+  //     lastTraded: '2025-06-09',
+  //     tradeCount: 124,
+  //     allTimeCommissions: 1240.50,
+  //     ytdCommissions: 580.25,
+  //     allTimeNetPL: 5420.30,
+  //     ytdNetPL: 2150.75
+  //   },
+  //   {
+  //     id: 'credit-spread',
+  //     name: 'Put Credit Spread',
+  //     user_id: "",
+  //     is_active: true,
+  //     description: 'Bullish options strategy that profits from time decay and upward price movement',
+  //     lastTraded: '2025-06-08',
+  //     tradeCount: 89,
+  //     allTimeCommissions: 890.00,
+  //     ytdCommissions: 445.00,
+  //     allTimeNetPL: 2830.75,
+  //     ytdNetPL: 1425.35
+  //   },
+  //   {
+  //     id: 'covered-call',
+  //     name: 'Covered Call Strategy',
+  //     user_id: "",
+  //     is_active: true,
+  //     description: 'Conservative income strategy for existing stock positions',
+  //     lastTraded: '2025-06-07',
+  //     tradeCount: 156,
+  //     allTimeCommissions: 780.00,
+  //     ytdCommissions: 390.00,
+  //     allTimeNetPL: 3250.40,
+  //     ytdNetPL: 1625.20
+  //   },
+  //   {
+  //     id: 'short-strangle',
+  //     name: 'Short Strangle',
+  //     user_id: "",
+  //     is_active: false,
+  //     description: 'High-risk strategy that profits from very low volatility',
+  //     lastTraded: '2025-05-15',
+  //     tradeCount: 67,
+  //     allTimeCommissions: 670.00,
+  //     ytdCommissions: 335.00,
+  //     allTimeNetPL: -640.25,
+  //     ytdNetPL: -320.15
+  //   },
+  //   {
+  //     id: 'butterfly-spread',
+  //     name: 'Butterfly Spread',
+  //     user_id: "",
+  //     is_active: true,
+  //     description: 'Neutral strategy with limited risk that profits from specific price targets',
+  //     lastTraded: '2025-06-05',
+  //     tradeCount: 45,
+  //     allTimeCommissions: 450.00,
+  //     ytdCommissions: 225.00,
+  //     allTimeNetPL: 1580.60,
+  //     ytdNetPL: 790.30
+  //   },
+  //   {
+  //     id: 'calendar-spread',
+  //     name: 'Calendar Spread',
+  //     user_id: "",
+  //     is_active: true,
+  //     description: 'Time-based strategy that profits from time decay differential',
+  //     lastTraded: '2025-06-01',
+  //     tradeCount: 78,
+  //     allTimeCommissions: 390.00,
+  //     ytdCommissions: 195.00,
+  //     allTimeNetPL: 2240.85,
+  //     ytdNetPL: 1120.45
+  //   },
+  //   {
+  //     id: 'momentum-scalp',
+  //     name: 'Momentum Scalping',
+  //     user_id: "",
+  //     is_active: false,
+  //     description: 'High-frequency trading strategy for quick profits',
+  //     lastTraded: '2025-04-20',
+  //     tradeCount: 234,
+  //     allTimeCommissions: 2340.00,
+  //     ytdCommissions: 1170.00,
+  //     allTimeNetPL: -1250.75,
+  //     ytdNetPL: -625.40
+  //   }
+  // ]
+
+  const userInfo = JSON.parse(localStorage.getItem("userinfo")!)
+
+  const [strategies, setStrategies] = useState<Strategy[]>([])
 
   const filteredStrategies = strategies.filter(strategy => {
     const matchesSearch = strategy.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         strategy.description.toLowerCase().includes(searchTerm.toLowerCase())
+      strategy.description.toLowerCase().includes(searchTerm.toLowerCase())
 
-    const matchesHideDisabled = !hideDisabled || strategy.enabled
+    const matchesHideDisabled = !hideDisabled || strategy.is_active
 
     return matchesSearch && matchesHideDisabled
   })
@@ -144,6 +169,30 @@ export function ViewStrategies() {
     }
   }
 
+  const getAllStrategies = () => {
+    console.log("Type of userinfo", typeof (userInfo))
+    const params = {
+      user_id: userInfo.id
+    };
+    console.log("Param", params)
+    axios.get(`${BACKEND_URL}/strategy/get_all_strategies`, { params })
+      .then(response => {
+        setStrategies(response.data);
+        localStorage.setItem('strategies', response.data)
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  }
+
+  useEffect(() => {
+    getAllStrategies();
+  }, [])
+
+  useEffect(() => {
+    console.log(strategies)
+  }, [strategies])
+
   return (
     <div className="min-h-screen bg-slate-900 text-white">
       <div className="max-w-7xl mx-auto p-6">
@@ -166,14 +215,14 @@ export function ViewStrategies() {
         </div>
 
         {/* Create Strategy Button */}
-        <div className="mb-6">
+        {/* <div className="mb-6">
           <button className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 transition-colors">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
             <span>Create new strategy...</span>
           </button>
-        </div>
+        </div> */}
 
         {/* Data Table */}
         <div className="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
@@ -209,9 +258,9 @@ export function ViewStrategies() {
                   <th className="px-6 py-4 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                     YTD Net P/L
                   </th>
-                  <th className="px-6 py-4 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  {/* <th className="px-6 py-4 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                     Actions
-                  </th>
+                  </th> */}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-700">
@@ -222,10 +271,9 @@ export function ViewStrategies() {
                         <div className="text-sm font-medium text-white">{strategy.name}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${
-                          strategy.enabled ? 'bg-green-500' : 'bg-gray-500'
-                        }`}>
-                          {strategy.enabled && (
+                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${strategy.is_active ? 'bg-green-500' : 'bg-gray-500'
+                          }`}>
+                          {strategy.is_active && (
                             <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                             </svg>
@@ -238,34 +286,40 @@ export function ViewStrategies() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-300">
-                        {strategy.lastTraded}
+                        {/* {strategy.lastTraded} */}
+                        ---
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-white">
-                        {strategy.tradeCount}
+                        {/* {strategy.tradeCount} */}
+                        ---
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-orange-400">
-                        {formatCurrency(strategy.allTimeCommissions)}
+                        {/* {formatCurrency(strategy.allTimeCommissions)} */}
+                        ---
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-orange-400">
-                        {formatCurrency(strategy.ytdCommissions)}
+                        {/* {formatCurrency(strategy.ytdCommissions)} */}
+                        ---
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center text-sm">
-                        <span className={strategy.allTimeNetPL >= 0 ? 'text-green-400' : 'text-red-400'}>
+                        {/* <span className={strategy.allTimeNetPL >= 0 ? 'text-green-400' : 'text-red-400'}>
                           {formatCurrency(strategy.allTimeNetPL)}
-                        </span>
+                        </span> */}
+                        ---
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center text-sm">
-                        <span className={strategy.ytdNetPL >= 0 ? 'text-green-400' : 'text-red-400'}>
+                        {/* <span className={strategy.ytdNetPL >= 0 ? 'text-green-400' : 'text-red-400'}>
                           {formatCurrency(strategy.ytdNetPL)}
-                        </span>
+                        </span> */}
+                        ---
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                      {/* <td className="px-6 py-4 whitespace-nowrap text-center">
                         <div className="flex items-center justify-center space-x-2">
                           <button className="text-blue-400 hover:text-blue-300 text-xs">Edit</button>
                           <button className="text-green-400 hover:text-green-300 text-xs">Clone</button>
                           <button className="text-red-400 hover:text-red-300 text-xs">Delete</button>
                         </div>
-                      </td>
+                      </td> */}
                     </tr>
                   ))
                 ) : (

@@ -23,3 +23,4 @@ class StrategyInfo(StrategyBase):
     sell_bidless_longs_on_trade_exit: Optional[bool] = None
     efficient_spreads: Optional[bool] = None
     legs: Optional[List[Dict]] = None
+    is_active: bool

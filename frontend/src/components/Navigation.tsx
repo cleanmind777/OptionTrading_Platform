@@ -388,13 +388,13 @@ export function Navigation({ onLogout }: NavigationProps) {
                     View Bots
                   </Link>
 
-                  <Link
+                  {/* <Link
                     to="/bots/shared"
                     onClick={() => setIsBotsDropdownOpen(false)}
                     className="block px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 transition-colors"
                   >
                     Group Shared Bots
-                  </Link>
+                  </Link> */}
 
                   <Link
                     to="/bots/activity"
@@ -412,13 +412,13 @@ export function Navigation({ onLogout }: NavigationProps) {
                     Create Bot
                   </Link>
 
-                  <Link
+                  {/* <Link
                     to="/bots/create-tranche"
                     onClick={() => setIsBotsDropdownOpen(false)}
                     className="block px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 transition-colors"
                   >
                     Create Tranche Bots
-                  </Link>
+                  </Link> */}
 
                   <div className="border-t border-slate-600 my-1" />
 
@@ -431,21 +431,21 @@ export function Navigation({ onLogout }: NavigationProps) {
                     Edit Single Bot
                   </Link>
 
-                  <Link
+                  {/* <Link
                     to="/bots/edit-multiple"
                     onClick={() => setIsBotsDropdownOpen(false)}
                     className="block px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 transition-colors"
                   >
                     Edit Multiple Bots
-                  </Link>
+                  </Link> */}
 
-                  <Link
+                  {/* <Link
                     to="/bots/import"
                     onClick={() => setIsBotsDropdownOpen(false)}
                     className="block px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 transition-colors"
                   >
                     Import Bots
-                  </Link>
+                  </Link> */}
 
                   <Link
                     to="/bots/settings-history"
@@ -681,13 +681,13 @@ export function Navigation({ onLogout }: NavigationProps) {
                   >
                     Strategy Performance
                   </Link>
-                  <Link
+                  {/* <Link
                     to="/strategies/backtest"
                     onClick={() => setIsStrategiesDropdownOpen(false)}
                     className="block px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 transition-colors"
                   >
                     Strategy Backtesting
-                  </Link>
+                  </Link> */}
                 </div>
               )}
             </div>

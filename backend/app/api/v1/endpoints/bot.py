@@ -12,7 +12,7 @@ from app.models.bot import Bot
 from uuid import UUID
 from app.services.bot_service import create_bot, get_bots, get_bot, edit_bot, get_setting_history
 from app.schemas.bot import BotCreate, BotInfo, BotFilter, BotEdit
-from app.schemas.bots_setting_history import BotSettingHistoryFilter
+from app.schemas.bots_setting_history import BotSettingHistoryFilter, BotSettingHistoryResponse
 from app.dependencies.database import get_db
 from app.core.security import create_access_token
 from app.core.config import settings
@@ -40,4 +40,11 @@ async def get_Bot(id: UUID, db: Session = Depends(get_db)):
 
 @router.post("/get_setting_history", status_code=status.HTTP_201_CREATED)
 async def get_Setting_history(filter: BotSettingHistoryFilter, db: Session = Depends(get_db)):
-    return await get_setting_history(db, filter)
+    history = await get_setting_history(db, filter)
+    return [
+        BotSettingHistoryResponse(
+            **entry.__dict__,
+            bot_name=entry.bot.name
+        )
+        for entry in history
+    ]

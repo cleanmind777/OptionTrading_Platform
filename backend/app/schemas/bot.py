@@ -28,7 +28,7 @@ class BotInfo(BotCreate):
 class BotFilter(BaseModel):
     user_id: UUID
     name: Optional[str] = None
-    trading_account: Optional[UUID] = None
+    trading_account: Optional[str] = None
     is_active: Optional[str] = None
     strategy: Optional[str] = None
     entryDay: Optional[str] = None

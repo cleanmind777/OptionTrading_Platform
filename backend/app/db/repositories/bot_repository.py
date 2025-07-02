@@ -49,7 +49,7 @@ def user_create_bot(db: Session, bot_create: BotCreate):
 
 def user_edit_bot(db: Session, bot_edit: BotEdit):
     db_bot = db.query(Bot).filter(Bot.id == bot_edit.id).first()
-    change_info = {}
+    change_info = []
     if db_bot.name != bot_edit.name:
         change_info.append({"name": [db_bot.name, bot_edit.name]})
         db_bot.name = bot_edit.name

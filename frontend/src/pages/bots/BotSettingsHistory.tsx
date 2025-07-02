@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { format } from 'date-fns'
 import axios from 'axios';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -242,14 +243,372 @@ interface BotConfig {
   webhookEnabled: boolean;
 }
 
-interface StrategyConfig {
+interface Filter {
+  user_id: string
+  bot_id: string
+  from_time: Date
+  to_time: Date
+}
 
+interface History {
+  id: string
+  user_id: string
+  bot_id: string
+  bot_name: string
+  change_info: JSON
+  changed_at: Date
 }
 
 export function BotSettingsHistory() {
-  const [selectedBot, setSelectedBot] = useState('All Bots')
-  const [viewAs, setViewAs] = useState('Settings Time')
+  const [selectedBot, setSelectedBot] = useState('All')
+  const [history, setHistory] = useState<History[]>([])
+  const userInfo = JSON.parse(localStorage.getItem("userinfo")!)
+  const [bot, setBot] = useState({
+    "user_id": "",
+    "name": "",
+    "description": "",
+    "is_active": false,
+    "trading_account": "",
+    "strategy_id": "",
+    "trade_entry": {
+      "enter_by": "BOT SETTINGS",
+      "auto_size_down": false,
+      "entry_speed": "NORMAL",
+      "position_sizing": "QUANTITY",
+      "position_sizing_value": 0.0,
+      "include_credit": false,
+      "entry_time_window_start": [0, 0, 0],
+      "entry_time_window_end": [0, 0, 0],
+      "days_of_week_to_enter": [true, false, false, false, false, false],
+      "open_if_no_position_or_staggered_days": "NO POSITION",
+      "entry_day_literval": 0,
+      "entry_time_randomization": 0,
+      "sequential_entry_delay": 60,
+    },
+    "trade_exit": {
+      "timed_exit": true,
+      "exit_days_in_trade_or_days_to_expiration": "TO EXPIRATION",
+      "exit_at_set_time": [0, 0, 0],
+      "profit_target_type": 'DISABLED',
+      "profit_target_value": 0.0,
+      "disable_profit_target_after_stop": false,
+    },
+    "trade_stop": {
+      "stop_loss_type": "DISABLED",
+      "stop_controller_type": "BOT ALGO",
+      "stop_order_type": "BID/ASK",
+      "stop_based_on": "stop_leg_only",
+      "stop_value": 0.0,
+      "side_to_stop": "Long ONLY",
+      "close_remaining_legs_after_stop": false,
+      "stop_when_ITM_or_OTM": "IN THE MONEY",
+      "stop_adjustments": false,
+      "stop_adjustments_settings": {
+        "stop_adjustments_on_days_in_trade_or_days_to_expiration": "TO EXPIRATION",
+        "stop_adjustments_by_time":
+        {
+          "days": 1,
+          "adjustment_time": "",
+          "stop_adjustment": 0.0,
+          "disable_stops": false,
+        }
 
+      },
+      "stop_speed": "CUSTOM",
+      "custom_stop_speed_settings": {
+        "stop_trigger_settings": {
+          "stop_after": 0,
+          "out_of": 0,
+          "check_interval_after_first_hit": 0,
+        },
+        "stop_order_settings": {
+          "first_attempt_slippage": 0.0,
+          "replace_order_after": 0,
+          "add_slippage_order": 0.0,
+          "send_market_order_after": 0,
+        },
+
+      },
+      "partial_trade_stops": "VERTICALS",
+      "entire_trade_stops": "ENTIRE TRADE ON SHORT",
+      "trailing_stop_configuration": {
+        "trailing_stop": false,
+        "trail_calculated_by": "percentage",
+        "profit_trigger_for_trailing_stop": 0.0,
+        "trailing_stop_allowance": 0.0,
+        "trailing_stop_speed": "CUSTOM",
+        "custom_trailing_stop_speed_settings": {
+          "trailing_stop_trigger_settings": {
+            "stop_after": 0,
+            "out_of": 0,
+            "check_interval_after_first_hit": 0.0,
+          },
+          "trailing_stop_order_settings": {
+            "first_attempt_slippage": 0,
+            "replace_order_after": 0.0,
+            "add_slippage_order": 0.0,
+            "send_market_attemps": 0,
+          }
+        },
+
+      },
+    },
+    "trade_condition": {
+      "entry_filters": false,
+      "max_trades_per_day": false,
+      "max_trades_per_day_value": 1,
+      "max_concurrent_trades": false,
+      "max_concurrent_trades_value": 15,
+      "max_profit_targets_per_day": false,
+      "max_profit_targets_per_day_value": 50,
+      "max_stops_per_day": false,
+      "max_stops_per_day_value": 50,
+      "minimum_price_to_enter": false,
+      "minimum_price_to_enter_value": 0.0,
+      "maximum_price_to_enter": false,
+      "maximum_price_to_enter_value": 0.0,
+      "check_closings_before_opening": false,
+      "only_credit_or_debit": "ANY",
+      "opening_quote": "9:30:05",
+      "trade_on_event_days": false,
+      "user_hosted_entry_filters": false,
+      "user_hosted_entry_filters_endpoint": "",
+      "trade_on_special_days": {
+        "all_other_days": false,
+        "fomc_press_conferences": [false, false, false],
+        "monthly_cpi_report": [false, false, false],
+        "monthly_opex": [false, false, false],
+        "last_trading_day_of_the": [false, false]
+      },
+      "underlying_entry_filters": {
+        "open_when_underlying_intraday_change": {
+          "enabled": false,
+          "greater_than": {
+            "on": false,
+            "value": 0.0,
+          },
+          "lower_than": {
+            "on": false,
+            "value": 0.0,
+          },
+        },
+        "open_when_underlying_oneday_change": {
+          "enabled": false,
+          "greater_than": {
+            "on": false,
+            "value": 0.0,
+          },
+          "lower_than": {
+            "on": false,
+            "value": 0.0,
+          },
+        },
+        "open_when_underlying_overnight_gap": {
+          "enabled": false,
+          "greater_than": {
+            "on": false,
+            "value": 0.0,
+          },
+          "lower_than": {
+            "on": false,
+            "value": 0.0,
+          },
+        },
+        "open_when_underlying_market_value_between": {
+          "enabled": false,
+          "greater_than": {
+            "on": false,
+            "value": 0.0,
+          },
+          "lower_than": {
+            "on": false,
+            "value": 0.0,
+          },
+        },
+        "open_when_underlying_moving_average_range": {
+          "enabled": false,
+          "moving_average_type": "",
+          "period_type": "",
+          "periods": 0.0,
+          "period_length": 0.0,
+          "open_trade_when_underlying_market_price_is": {
+            "greater_than": {
+              "on": false,
+              "value": 0.0,
+            },
+            "lower_than": {
+              "on": false,
+              "value": 0.0,
+            },
+          }
+        },
+        "open_when_underlying_moving_average_crossover": {
+          "enabled": true,
+          "moving_average_type": "",
+          "period_type": "",
+          "period_length": 0.0,
+          "periods_in_moving_average1": 0.0,
+          "periods_in_moving_average2": 0.0,
+          "open_trade_when": "below",
+        },
+      },
+      "volatility_index_entry_filters": {
+        "open_when_volatility_index_intraday_change": {
+          "enabled": false,
+          "greater_than": {
+            "on": false,
+            "value": 0.0,
+          },
+          "lower_than": {
+            "on": false,
+            "value": 0.0,
+          },
+        },
+        "open_when_volatility_index_oneday_change": {
+          "enabled": false,
+          "greater_than": {
+            "on": false,
+            "value": 0.0,
+          },
+          "lower_than": {
+            "on": false,
+            "value": 0.0,
+          },
+        },
+        "open_when_volatility_index_overnight_gap": {
+          "enabled": false,
+          "greater_than": {
+            "on": false,
+            "value": 0.0,
+          },
+          "lower_than": {
+            "on": false,
+            "value": 0.0,
+          },
+        },
+        "open_when_volatility_index_between": {
+          "enabled": false,
+          "greater_than": {
+            "on": false,
+            "value": 0.0,
+          },
+          "lower_than": {
+            "on": false,
+            "value": 0.0,
+          },
+        },
+        "open_when_volatility_index_moving_average_range": {
+          "enabled": false,
+          "moving_average_type": "Simple",
+          "period_type": "Hour",
+          "periods": 0.0,
+          "period_length": 0.0,
+          "open_trade_when_underlying_market_price_is": {
+            "greater_than": {
+              "on": false,
+              "value": 0.0,
+            },
+            "lower_than": {
+              "on": false,
+              "value": 0.0,
+            },
+          }
+        },
+        "open_when_volatility_index_moving_average_crossover": {
+          "enabled": false,
+          "moving_average_type": "",
+          "period_type": "",
+          "period_length": 0.0,
+          "periods_in_moving_average1": 0.0,
+          "periods_in_moving_average2": 0.0,
+          "open_trade_when": "Greater Than",
+        },
+      },
+    },
+    "bot_dependencies": {
+      "enabled": false,
+      "do_not_open_trades_when": {
+        "bots_are_in_trade": "",
+        "bots_are_not_in_trade": "",
+        "bots_have_been_in_trade_today": "",
+      },
+      "only_open_trades_when": {
+        "bots_are_in_trade": "",
+        "bots_are_not_in_trade": "",
+        "bots_have_been_in_trade_today": "",
+      },
+      "immediately_close_trades_when": {
+        "bots_are_in_trade": "",
+        "bots_are_not_in_trade": "",
+      },
+      "disabled_bots_shouldbe_ignored": true,
+    }
+  });
+  const [filter, setFilter] = useState<Filter>({
+    user_id: userInfo.id,
+    bot_id: "",
+    from_time: new Date(),
+    to_time: new Date(),
+  });
+  // const [bot, setBot] = useState<TradingBot>()
+  const [bots, setBots] = useState<TradingBot[]>([
+    // Sample data - in real app this would come from API
+  ])
+
+  const getBots = () => {
+    const params = {
+      user_id: userInfo.id,
+      name: "",
+      trading_account: "",
+      is_active: "All",
+      strategy: "All",
+      entryDay: "Any",
+      symbol: "All",
+      webhookPartial: "All",
+    }
+    axios.post(`${BACKEND_URL}/bot/get_bots`, params)
+      .then(response => {
+        setBots(response.data);
+        localStorage.setItem('bots', response.data)
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  }
+  const getHistory = () => {
+    axios.post(`${BACKEND_URL}/bot/get_setting_history`, filter)
+      .then(response => {
+        console.log(response.data)
+        setHistory(response.data)
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  }
+
+  useEffect(() => {
+    setFilter({
+      user_id: userInfo.id,
+      bot_id: selectedBot,
+      from_time: new Date(),
+      to_time: new Date(),
+    })
+    getBots();
+  }, [])
+  useEffect(() => {
+
+  }, [bots, history])
+  useEffect(() => {
+    setFilter(
+      {
+        ...filter,
+        bot_id: selectedBot
+      }
+    )
+  }, [selectedBot])
+  useEffect(() => {
+    console.log("Filter: ", filter)
+  }, [filter])
   return (
     <div className="min-h-screen bg-slate-900 text-white p-6">
       <div className="max-w-4xl mx-auto">
@@ -258,56 +617,89 @@ export function BotSettingsHistory() {
         </div>
 
         <div className="bg-slate-800 rounded-lg p-6 border border-slate-700 max-w-2xl mx-auto">
-          <div className="space-y-6">
-            {/* Select Bot to View */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Select Bot to View
-              </label>
-              <div className="relative">
-                <select
-                  value={selectedBot}
-                  onChange={(e) => setSelectedBot(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded text-white appearance-none"
-                >
-                  <option value="All Bots">All Bots</option>
-                  <option value="Bot 1">Bot 1</option>
-                  <option value="Bot 2">Bot 2</option>
-                  <option value="Bot 3">Bot 3</option>
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </div>
-              </div>
-            </div>
+          {/* Select Bot to View */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Select Bot to View
+            </label>
+            <select
+              value={selectedBot}
+              onChange={(e) => setSelectedBot(e.target.value)}
+              className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded text-white"
+            >
+              <option value="All">All Bots</option>
+              {bots.map((bot) => (
+                <option key={bot.id} value={bot.id}>
+                  {bot.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-            {/* View Settings As Of */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                View Settings As Of
-              </label>
-              <select
-                value={viewAs}
-                onChange={(e) => setViewAs(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded text-white"
+          {/* View Settings As Of */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              View Settings As Of
+            </label>
+            <div className="flex gap-4">
+              <input
+                type="date"
+                className="px-4 py-3 bg-slate-700 border border-slate-600 rounded text-white"
+                value={filter.from_time ? filter.from_time.toISOString().split('T')[0] : ''}
+                onChange={(e) =>
+                  setFilter({ ...filter, from_time: new Date(e.target.value) })
+                }
+              />
+              <input
+                type="date"
+                className="px-4 py-3 bg-slate-700 border border-slate-600 rounded text-white"
+                value={filter.to_time ? filter.to_time.toISOString().split('T')[0] : ''}
+                onChange={(e) =>
+                  setFilter({ ...filter, to_time: new Date(e.target.value) })
+                }
+              />
+              <button
+                onClick={getHistory}
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
               >
-                <option value="Settings Time">Settings Time</option>
-                <option value="Current Time">Current Time</option>
-                <option value="Custom Date">Custom Date</option>
-              </select>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex justify-center space-x-4 pt-4">
-              <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors">
                 GET SETTINGS
               </button>
-              <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors">
-                COPY TO NEW BOT
-              </button>
             </div>
+          </div>
+
+          {/* History Display */}
+          <div className="space-y-4">
+            {history.length > 0 ? (
+              history.map((item) => (
+                <div
+                  key={item.id}
+                  className="bg-slate-700 p-4 rounded-lg border border-slate-600"
+                >
+                  <h3 className="font-bold text-lg">
+                    Bot: {item.bot_name} ({item.bot_id})
+                  </h3>
+                  <p className="text-sm text-gray-400">
+                    Changed at: {format(new Date(item.changed_at), 'yyyy-MM-dd HH:mm:ss')}
+                  </p>
+                  <div className="mt-2">
+                    <h4 className="font-medium">Changes:</h4>
+                    <ul className="list-disc pl-5">
+                      {item.change_info.map((change: any, index: number) => {
+                        const key = Object.keys(change)[0]
+                        const [oldValue, newValue] = change[key]
+                        return (
+                          <li key={index}>
+                            <span className="font-semibold">{key}:</span> {oldValue} → {newValue}
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-400">No settings history found.</p>
+            )}
           </div>
         </div>
       </div>

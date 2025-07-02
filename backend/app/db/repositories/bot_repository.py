@@ -171,12 +171,12 @@ async def user_get_bot(db: Session, id: UUID):
 async def user_get_setting_history(db: Session, filter: BotSettingHistoryFilter):
     query = (
         select(BotsSettingHistory)
-        .filter(BotsSettingHistory.user_id == filter.user_id)
+        .filter(BotsSettingHistory.user_id == UUID(filter.user_id))
     )
     
-    if filter.bot_id != "ALL":
+    if filter.bot_id != "All":
         query = query.filter(
-            BotsSettingHistory.bot_id == filter.bot_id
+            BotsSettingHistory.bot_id == UUID(filter.bot_id)
         )
     
     if filter.from_time == None:

@@ -335,6 +335,7 @@ export function BotManagement() {
                   className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none pr-8"
                 >
                   <option value="Any">Any</option>
+                  <option value="All">All</option>
                   <option value="Monday">Monday</option>
                   <option value="Tuesday">Tuesday</option>
                   <option value="Wednesday">Wednesday</option>

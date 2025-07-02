@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from app.api.v1.routers import api_router
 from app.db.session import engine
 from app.models import base
+import app.models
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from dotenv import load_dotenv

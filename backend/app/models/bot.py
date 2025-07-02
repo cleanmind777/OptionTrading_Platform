@@ -7,7 +7,8 @@ from sqlalchemy.orm import relationship
 
 class Bot(Base):
     __tablename__ = "bots"
-
+    # __table_args__ = {'extend_existing': True}
+    
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     name = Column(String, nullable=False)
@@ -15,11 +16,8 @@ class Bot(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, onupdate=func.now())
-    trading_account = Column(String, nullable=True)
+    trading_account_id = Column(UUID(as_uuid=True), ForeignKey('trading_accounts.id'))
     strategy_id = Column(UUID(as_uuid=True), ForeignKey("strategies.id"), nullable=False)
-    # symbol = Column(String, nullable=True)
-    # parameters = Column(JSON, nullable=True)
-    # trade_type = Column(String, nullable=True)
     trade_entry = Column(JSON, nullable=True, default={
         "enter_by" : "BOT SETTINGS",
         "auto_size_down" : False,
@@ -295,5 +293,8 @@ class Bot(Base):
     })
     user = relationship("User", back_populates="bots")
     strategy = relationship('Strategy', back_populates='bots')
+    bot_setting_history = relationship("BotsSettingHistory", back_populates="bot")
+    trading_account = relationship("TradingAccount", back_populates="bots")
+    
     
     

@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship
 from uuid import UUID, uuid4
 from sqlalchemy.dialects.postgresql import UUID
 from app.db.session import Base
-# from app.models.strategy import Strategy
+from .trading_account import TradingAccount
 import uuid
 from sqlalchemy.sql import func
 
@@ -80,3 +80,5 @@ class User(Base):
     bots = relationship("Bot", back_populates="user")
     strategies = relationship("Strategy", back_populates="user")
     groups = relationship('Group', secondary=group_users, back_populates='users')
+    trading_accounts = relationship("TradingAccount", back_populates="user")
+    bot_setting_history = relationship("BotsSettingHistory", back_populates="user")

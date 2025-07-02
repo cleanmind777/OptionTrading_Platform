@@ -904,6 +904,7 @@ export function EditSingleBot() {
     axios.post(`${BACKEND_URL}/bot/edit`, params)
       .then(response => {
         alert("Successful")
+        setBots(response.data);
       })
       .catch(error => {
         // console.error('Error fetching data:', error);

@@ -1,4 +1,250 @@
 import { useState } from 'react'
+import axios from 'axios';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+// Helper interfaces for nested objects
+interface TradeExit {
+  timed_exit: boolean;
+  exit_days_in_trade_or_days_to_expiration: string;
+  exit_at_set_time: [number, number, number];
+  profit_target_type: string;
+  profit_target_value: number;
+  disable_profit_target_after_stop: boolean;
+}
+
+interface TradeCondition {
+  entry_filters: boolean;
+  max_trades_per_day: boolean;
+  max_trades_per_day_value: number;
+  max_concurrent_trades: boolean;
+  max_concurrent_trades_value: number;
+  max_profit_targets_per_day: boolean;
+  max_profit_targets_per_day_value: number;
+  max_stops_per_day: boolean;
+  max_stops_per_day_value: number;
+  minimum_price_to_enter: boolean;
+  minimum_price_to_enter_value: number;
+  maximum_price_to_enter: boolean;
+  maximum_price_to_enter_value: number;
+  check_closings_before_opening: boolean;
+  only_credit_or_debit: string;
+  opening_quote: string;
+  trade_on_event_days: boolean;
+  trade_on_special_days: {
+    all_other_days: boolean;
+    fomc_press_conferences: [boolean, boolean, boolean];
+    monthly_cpi_report: [boolean, boolean, boolean];
+    monthly_opex: [boolean, boolean, boolean];
+    last_trading_day_of_the: [boolean, boolean];
+  };
+  underlying_entry_filters: any; // You can further expand this based on your needs
+  volatility_index_entry_filters: any;
+}
+
+interface TradeEntry {
+  enter_by: string;
+  auto_size_down: boolean;
+  entry_speed: string;
+  position_sizing: string;
+  position_sizing_value: number;
+  include_credit: boolean;
+  entry_time_window_start: [number, number, number];
+  entry_time_window_end: [number, number, number];
+  days_of_week_to_enter: [boolean, boolean, boolean, boolean, boolean, boolean];
+  open_if_no_position_or_staggered_days: string;
+  entry_day_literval: number;
+  entry_time_randomization: number;
+  sequential_entry_delay: number;
+}
+
+interface TradeStop {
+  stop_loss_type: string;
+  stop_controller_type: string;
+  stop_order_type: string;
+  stop_based_on: string;
+  stop_value: number;
+  side_to_stop: string;
+  close_remaining_legs_after_stop: boolean;
+  stop_when_ITM_or_OTM: string;
+  stop_adjustments: boolean;
+  stop_adjustments_settings: any;
+  stop_speed: string;
+  custom_stop_speed_settings: any;
+  partial_trade_stops: string;
+  entire_trade_stops: string;
+  trailing_stop_configuration: any;
+}
+
+interface BotDependencies {
+  do_not_open_trades_when: {
+    bots_are_in_trade: string;
+    bots_are_not_in_trade: string;
+    bots_have_been_in_trade_today: string;
+  };
+  only_open_trades_when: {
+    bots_are_in_trade: string;
+    bots_are_not_in_trade: string;
+    bots_have_been_in_trade_today: string;
+  };
+  immediately_close_trades_when: {
+    bots_are_in_trade: string;
+    bots_are_not_in_trade: string;
+  };
+  disabled_bots_shouldbe_ignored: boolean;
+}
+
+interface StrategyLeg {
+  strike_target_type: string;
+  strike_target_value: [number, number, number];
+  option_type: string;
+  long_or_short: string;
+  size_ratio: number;
+  days_to_expiration_type: string;
+  days_to_expiration_value: [number, number, number];
+  conflict_resolution: boolean;
+  conflict_resolution_value: [number, number];
+}
+
+interface Strategy {
+  user_id: string;
+  description: string | null;
+  updated_at: string;
+  symbol: string;
+  trade_type: string;
+  skip_am_expirations: boolean;
+  efficient_spreads: boolean;
+  name: string;
+  id: string;
+  created_at: string;
+  parameters: any;
+  number_of_legs: number;
+  sell_bidless_longs_on_trade_exit: boolean;
+  legs: StrategyLeg[];
+}
+
+// Main TradingBot interface
+export interface TradingBot {
+  id: string;
+  is_active: boolean;
+  updated_at: string;
+  strategy_id: string;
+  trade_exit: TradeExit;
+  trade_condition: TradeCondition;
+  name: string;
+  user_id: string;
+  description: string;
+  created_at: string;
+  trading_account: string;
+  trade_entry: TradeEntry;
+  trade_stop: TradeStop;
+  bot_dependencies: BotDependencies;
+  strategy: Strategy;
+}
+
+interface ValidationError {
+  field: string;
+  message: string;
+  type: "error" | "warning" | "info";
+}
+
+interface ValidationResult {
+  isValid: boolean;
+  errors: ValidationError[];
+  warnings: ValidationError[];
+  completionPercentage: number;
+}
+
+interface BotConfig {
+  // Bot Identification
+  botName: string;
+  tradingAccount: string;
+  strategyAssignment: string;
+  botStatus: string;
+
+  // Trading Strategy
+  underlyingSymbol: string;
+  tradeType: string;
+  numberOfLegs: string;
+  skipAMExpirations: boolean;
+  sellBidlessLongs: boolean;
+  efficientSpreads: boolean;
+
+  // Position Legs
+  legs: Array<{
+    targetType: string;
+    strikeTarget: number;
+    optionType: string;
+    longOrShort: string;
+    sizeRatio: number;
+    daysToExpiration: string;
+    conflictResolution: string;
+  }>;
+
+  // Trade Entry
+  enterBy: string;
+  positionSizing: string;
+  quantity: number;
+  includeCredit: boolean;
+  autoSizeDown: boolean;
+  entryTimeWindow: {
+    start: string;
+    end: string;
+  };
+  daysOfWeekToEnter: string[];
+  openIfNoPosition: boolean;
+  entrySpeed: string;
+  entryTimeRandomization: string;
+  sequentialEntryDelay: string;
+
+  // Trade Exit
+  timedExit: boolean;
+  profitTargetType: string;
+  disableProfitTargetAfterStop: boolean;
+
+  // Trade Stop
+  stopLossType: string;
+  trailingStops: boolean;
+
+  // Trade Conditions
+  entryFilters: {
+    maxTradesPerDay: number;
+    isMaxTradesPerDayEnabled: boolean;
+    maxConcurrentTrades: number;
+    isMaxConcurrentTradesEnabled: boolean;
+    minimumPriceToEnter: number;
+    isMinimumPriceToEnterEnabled: boolean;
+    maximumPriceToEnter: number;
+    isMaximumPriceToEnterEnabled: boolean;
+    checkClosingsBeforeOpening: boolean;
+    isEntryFiltersEnabled: boolean;
+    isCheckClosingsEnabled: boolean;
+    isAnyEnabled: boolean;
+    isCreditEnabled: boolean;
+    isDebitEnabled: boolean;
+    onlyCreditOrDebit: string;
+    isFirstFridayEnabled: boolean;
+    isSkipEventDaysEnabled: boolean;
+    isTimeEnabled: boolean;
+    isFirstTickerEnabled: boolean;
+    isToExpirationEnabled: boolean;
+    isInTradeEnabled: boolean;
+  };
+  openingQuote: boolean;
+  skipEventDays: boolean;
+
+  // Bot Dependencies
+  enableBotDependencies: boolean;
+
+  // Bot Notes
+  notes: string;
+
+  // Webhook
+  webhookEnabled: boolean;
+}
+
+interface StrategyConfig {
+
+}
 
 export function BotSettingsHistory() {
   const [selectedBot, setSelectedBot] = useState('All Bots')

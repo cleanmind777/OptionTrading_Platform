@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from app.db.repositories.bot_repository import user_create_bot, user_get_bots, user_get_bot, user_edit_bot
+from app.db.repositories.bot_repository import user_create_bot, user_get_bots, user_get_bot, user_edit_bot, user_get_setting_history
 from app.schemas.bot import BotCreate, BotFilter, BotEdit
+from app.schemas.bots_setting_history import BotSettingHistoryFilter
 from app.models.bot import Bot
 import json
 from uuid import UUID
@@ -17,3 +18,6 @@ async def get_bots(db: Session, bot_filters: BotFilter):
 
 async def get_bot(db: Session, id: UUID):
     return await user_get_bot(db, id)
+
+async def get_setting_history(db: Session, filter: BotSettingHistoryFilter):
+    return await user_get_setting_history(db, filter)

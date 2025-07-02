@@ -8,7 +8,7 @@ class BotCreate(BaseModel):
     user_id: UUID
     name: str
     description: Optional[str] = None
-    trading_account: Optional[str] = None
+    trading_account_id: Optional[UUID] = None
     is_active: Optional[bool] = None
     strategy_id : Optional[UUID] = None
     trade_entry: Optional[Dict[str, Any]] = None

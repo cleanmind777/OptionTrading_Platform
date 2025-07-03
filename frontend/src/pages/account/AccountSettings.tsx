@@ -6,6 +6,11 @@ import axios from "axios";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
+interface AccountAccessSettings {
+  pause_bots_if_no_activity_for: number;
+  log_me_out_after_no_activity_for: number;
+}
+
 export function AccountSettings() {
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [verifyPassword, setVerifyPassword] = useState("");
@@ -16,7 +21,15 @@ export function AccountSettings() {
   const [firstName, setFirstName] = useState("");
   const [discord, setDiscord] = useState("")
   const [accountAccessSettings, setaccountAccessSettings] = useState({});
-  const userInfo = JSON.parse(localStorage.getItem("userinfo")) || {};
+  const storedUserInfo = localStorage.getItem("userinfo");
+  const userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : {
+    email: "",
+    account_access_settings: {
+      pause_bots_if_no_activity_for: 0,
+      log_me_out_after_no_activity_for: 0,
+    },
+    // Add other required fields with default values
+  };
   const [tradingGroup, setTradingGroup] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -55,39 +68,49 @@ export function AccountSettings() {
     month: 'short',
     day: 'numeric'
   });
-  const update_account_settings = async (email: string, account_access_settings: JSON) => {
+  const update_account_settings = async (
+    email: string,
+    account_access_settings: AccountAccessSettings
+  ) => {
     const data = {
       email: email,
-      account_access_settings: account_access_settings
-    }
+      account_access_settings: account_access_settings,
+    };
     try {
-      const response = await axios.post(`${BACKEND_URL}/user/update/account_access_settings`, data)
-      console.log('Account Settings change successful:', response.data)
+      const response = await axios.post(
+        `${BACKEND_URL}/user/update/account_access_settings`,
+        data
+      );
+      console.log("Account Settings change successful:", response.data);
       localStorage.setItem("userinfo", JSON.stringify(response.data));
-      return response.data
+      return response.data;
     } catch (error) {
-      console.log("error")
-      alert("Error")
-      return false
+      console.log("error");
+      alert("Error");
+      return false;
     }
-  }
-  const update_preferences = async (email: string, user_preferences: JSON, bot_preferences: JSON) => {
+  };
+  const update_preferences = async (
+    email: string,
+    userPreferences: any, // Replace `any` with the correct type
+    botPreferences: any   // Replace `any` with the correct type
+  ) => {
     const data = {
       email: email,
-      user_preferences: user_preferences,
-      bot_preferences: bot_preferences
-    }
+      user_preferences: userPreferences,
+      bot_preferences: botPreferences,
+    };
     try {
-      const response = await axios.post(`${BACKEND_URL}/user/update/preferences`, data)
-      console.log('Preferences change successful:', response.data)
+      const response = await axios.post(`${BACKEND_URL}/user/update/preferences`, data);
+      console.log("Preferences change successful:", response.data);
       localStorage.setItem("userinfo", JSON.stringify(response.data));
-      return response.data
+      return response.data;
     } catch (error) {
-      console.log("error")
-      alert("Error")
-      return false
+      console.log("error");
+      alert("Error updating preferences");
+      return false;
     }
-  }
+  };
   const update_firstName = async (email: string, new_first_name: string) => {
     const data = {
       email: email,
@@ -669,9 +692,9 @@ export function AccountSettings() {
                   // console.log(pauseBots)
                   // console.log(logMeOut)
                   update_account_settings(userInfo.email, {
-                    pause_bots_if_no_activity_for: pauseBots.toString(),
-                    log_me_out_after_no_activity_for: logMeOut.toString(),
-                  })
+                    pause_bots_if_no_activity_for: pauseBots, // Keep as number
+                    log_me_out_after_no_activity_for: logMeOut, // Keep as number
+                  });
                 }}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm w-full">
                 UPDATE

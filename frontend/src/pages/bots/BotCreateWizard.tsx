@@ -104,15 +104,23 @@ interface BotConfig {
   webhookEnabled: boolean;
 }
 
-interface StrategyConfig {
-
+interface Leg {
+  strike_target_type: string;
+  strike_target_value: number[];
+  option_type: string;
+  long_or_short: string; // Updated to `string`
+  size_ratio: number;
+  days_to_expiration_type: string;
+  days_to_expiration_value: number[];
+  conflict_resolution: boolean;
+  conflict_resolution_value: number[];
 }
 export function BotCreateWizard() {
   const sampleLeg = {
     "strike_target_type": "",
     "strike_target_value": [0.0, 0.0, 0.0], // value, min, max
-    "option_type": null,
-    "long_or_short": null,
+    "option_type": "",
+    "long_or_short": "",
     "size_ratio": 1,
     "days_to_expiration_type": "Exact",
     "days_to_expiration_value": [0.0, 0.0, 0.0], //[Target, min, max]
@@ -329,14 +337,14 @@ export function BotCreateWizard() {
     "legs": [{
       "strike_target_type": "",
       "strike_target_value": [0.0, 0.0, 0.0],
-      "option_type": null,
-      "long_or_short": null,
+      "option_type": "",
+      "long_or_short": "",
       "size_ratio": 1,
       "days_to_expiration_type": "Exact",
       "days_to_expiration_value": [0.0, 0.0, 0.0],
       "conflict_resolution": false,
       "conflict_resolution_value": [0, 0],
-    },],
+    }],
     "number_of_legs": 0,
   });
   const [bot, setBot] = useState({
@@ -2228,8 +2236,8 @@ export function BotCreateWizard() {
                           ...strategy,
                           legs: strategy.legs.map((leg, i) =>
                             i === index
-                              ? { ...leg, long_or_short: "SHORT" }
-                              : leg
+                              ? { ...leg, long_or_short: "SHORT" } // Update the specific leg
+                              : leg // Leave other legs unchanged
                           ),
                         });
                       }}
@@ -2912,7 +2920,7 @@ export function BotCreateWizard() {
                                 ...bot,
                                 trade_entry: {
                                   ...bot.trade_entry,
-                                  entry_time_randomization: e.target.value
+                                  entry_time_randomization: Number(e.target.value) // Convert to number
                                 }
                               })
                             }

@@ -254,8 +254,8 @@ export function EditSingleBot() {
   const sampleLeg = {
     "strike_target_type": "",
     "strike_target_value": [0.0, 0.0, 0.0], // value, min, max
-    "option_type": null,
-    "long_or_short": null,
+    "option_type": "",
+    "long_or_short": "",
     "size_ratio": 1,
     "days_to_expiration_type": "Exact",
     "days_to_expiration_value": [0.0, 0.0, 0.0], //[Target, min, max]
@@ -674,8 +674,8 @@ export function EditSingleBot() {
     "legs": [{
       "strike_target_type": "",
       "strike_target_value": [0.0, 0.0, 0.0],
-      "option_type": null,
-      "long_or_short": null,
+      "option_type": "",
+      "long_or_short": "",
       "size_ratio": 1,
       "days_to_expiration_type": "Exact",
       "days_to_expiration_value": [0.0, 0.0, 0.0],

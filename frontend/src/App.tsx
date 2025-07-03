@@ -44,7 +44,7 @@ import { DiscordCommunity } from "./pages/support/DiscordCommunity";
 import { AccountVsMarketPerformance } from "./pages/performance/AccountVsMarketPerformance";
 import { EmailPrefs } from "./pages/account/EmailPrefs";
 import { MainNavigation } from "./components/MainNavigation";
-import PrivateRoute from "./components/PrivateRoute";
+// import PrivateRoute from "./components/PrivateRoute";
 import { Navigation } from "./components/Navigation";
 import { CookiesProvider } from 'react-cookie';
 import Cookies from 'js-cookie';

@@ -75,9 +75,9 @@ export function LoginPage({ onLogin }: LoginPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="bg-slate-800 p-8 rounded-lg shadow-xl max-w-md mx-auto lg:mx-0">
-        <h3 className="text-2xl font-bold text-white mb-6">
+    <div className="w-full h-[calc(100vh-180px)] bg-slate-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="bg-slate-800 p-8 rounded-lg shadow-xl max-w-md mx-auto lg:mx-0 mt-[-100px]">
+        <h3 className="text-3xl font-bold text-white mb-6">
           Current Trader? Login
         </h3>
 

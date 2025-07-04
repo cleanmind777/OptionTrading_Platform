@@ -1676,8 +1676,8 @@ export function BotCreateWizard() {
                     <option value="">
                       Select the account this bot should use for trading
                     </option>
-                    <option value="account1">Account 1</option>
-                    <option value="account2">Account 2</option>
+                    {/* <option value="account1">Account 1</option>
+                    <option value="account2">Account 2</option> */}
                   </select>
                   {hasFieldError("tradingAccount") && (
                     <p className="text-red-400 text-xs mt-1 flex items-center">

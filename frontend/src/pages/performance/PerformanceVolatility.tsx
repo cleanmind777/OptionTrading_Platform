@@ -202,9 +202,9 @@ export function PerformanceVolatility() {
                   className="bg-slate-700 border border-slate-600 rounded-md px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer pr-8 min-w-[150px]"
                 >
                   <option value="All Accounts">All Accounts</option>
-                  <option value="Account 1">Account 1</option>
+                  {/* <option value="Account 1">Account 1</option>
                   <option value="Account 2">Account 2</option>
-                  <option value="Account 3">Account 3</option>
+                  <option value="Account 3">Account 3</option> */}
                   <option value="Paper Trading">Paper Trading</option>
                   <option value="Live Trading">Live Trading</option>
                   <option value="IRA Account">IRA Account</option>
@@ -417,7 +417,7 @@ export function PerformanceVolatility() {
                   {volatilityData.rollingVolatility.slice(-60).map((point, index) => {
                     const height = Math.min((point.volatility / 50) * 100, 100)
                     const color = point.volatility > 25 ? 'bg-red-400' :
-                                 point.volatility > 15 ? 'bg-yellow-400' : 'bg-green-400'
+                      point.volatility > 15 ? 'bg-yellow-400' : 'bg-green-400'
                     return (
                       <div
                         key={index}
@@ -461,19 +461,17 @@ export function PerformanceVolatility() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <h4 className="text-md font-medium text-white mb-3">Volatility Profile</h4>
-                    <div className={`p-3 rounded-lg ${
-                      volatilityData.volatilityMetrics.annualizedVolatility < 15 ? 'bg-green-900/30 border border-green-500/30' :
-                      volatilityData.volatilityMetrics.annualizedVolatility < 25 ? 'bg-yellow-900/30 border border-yellow-500/30' :
-                      'bg-red-900/30 border border-red-500/30'
-                    }`}>
-                      <div className={`font-medium ${
-                        volatilityData.volatilityMetrics.annualizedVolatility < 15 ? 'text-green-400' :
-                        volatilityData.volatilityMetrics.annualizedVolatility < 25 ? 'text-yellow-400' :
-                        'text-red-400'
+                    <div className={`p-3 rounded-lg ${volatilityData.volatilityMetrics.annualizedVolatility < 15 ? 'bg-green-900/30 border border-green-500/30' :
+                        volatilityData.volatilityMetrics.annualizedVolatility < 25 ? 'bg-yellow-900/30 border border-yellow-500/30' :
+                          'bg-red-900/30 border border-red-500/30'
                       }`}>
+                      <div className={`font-medium ${volatilityData.volatilityMetrics.annualizedVolatility < 15 ? 'text-green-400' :
+                          volatilityData.volatilityMetrics.annualizedVolatility < 25 ? 'text-yellow-400' :
+                            'text-red-400'
+                        }`}>
                         {volatilityData.volatilityMetrics.annualizedVolatility < 15 ? 'Low Risk' :
-                         volatilityData.volatilityMetrics.annualizedVolatility < 25 ? 'Moderate Risk' :
-                         'High Risk'}
+                          volatilityData.volatilityMetrics.annualizedVolatility < 25 ? 'Moderate Risk' :
+                            'High Risk'}
                       </div>
                       <div className="text-sm text-gray-300 mt-1">
                         Based on {volatilityData.volatilityMetrics.annualizedVolatility.toFixed(1)}% annualized volatility
@@ -483,19 +481,17 @@ export function PerformanceVolatility() {
 
                   <div>
                     <h4 className="text-md font-medium text-white mb-3">Performance Quality</h4>
-                    <div className={`p-3 rounded-lg ${
-                      volatilityData.volatilityMetrics.sharpeRatio > 1.5 ? 'bg-green-900/30 border border-green-500/30' :
-                      volatilityData.volatilityMetrics.sharpeRatio > 1.0 ? 'bg-yellow-900/30 border border-yellow-500/30' :
-                      'bg-red-900/30 border border-red-500/30'
-                    }`}>
-                      <div className={`font-medium ${
-                        volatilityData.volatilityMetrics.sharpeRatio > 1.5 ? 'text-green-400' :
-                        volatilityData.volatilityMetrics.sharpeRatio > 1.0 ? 'text-yellow-400' :
-                        'text-red-400'
+                    <div className={`p-3 rounded-lg ${volatilityData.volatilityMetrics.sharpeRatio > 1.5 ? 'bg-green-900/30 border border-green-500/30' :
+                        volatilityData.volatilityMetrics.sharpeRatio > 1.0 ? 'bg-yellow-900/30 border border-yellow-500/30' :
+                          'bg-red-900/30 border border-red-500/30'
                       }`}>
+                      <div className={`font-medium ${volatilityData.volatilityMetrics.sharpeRatio > 1.5 ? 'text-green-400' :
+                          volatilityData.volatilityMetrics.sharpeRatio > 1.0 ? 'text-yellow-400' :
+                            'text-red-400'
+                        }`}>
                         {volatilityData.volatilityMetrics.sharpeRatio > 1.5 ? 'Excellent' :
-                         volatilityData.volatilityMetrics.sharpeRatio > 1.0 ? 'Good' :
-                         'Poor'} Risk-Adjusted Returns
+                          volatilityData.volatilityMetrics.sharpeRatio > 1.0 ? 'Good' :
+                            'Poor'} Risk-Adjusted Returns
                       </div>
                       <div className="text-sm text-gray-300 mt-1">
                         Sharpe Ratio: {volatilityData.volatilityMetrics.sharpeRatio.toFixed(2)}

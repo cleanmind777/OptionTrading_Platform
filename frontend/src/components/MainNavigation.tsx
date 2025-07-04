@@ -113,7 +113,7 @@ export function MainNavigation({
         // { name: "Edit Multiple Bots", link: "/bots/edit-multiple" },
         { name: "Import Bots", link: "/bots/import" },
         { name: "Bot Settings History", link: "/bots/settings-history" },
-        { name: "Bot Day Planner", link: "/bots/day-planner" },
+        // { name: "Bot Day Planner", link: "/bots/day-planner" },
         // { name: "Bot Performance", link: "/bots/performance" },
         // { name: "Analytics & Backtesting", link: "/bots/analytics" },
       ],

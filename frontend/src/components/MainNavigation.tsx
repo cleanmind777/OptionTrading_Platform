@@ -195,7 +195,7 @@ export function MainNavigation({
   };
 
   return (
-    <nav className="bg-slate-900 py-3 px-6 border-b border-slate-700">
+    <nav className="bg-slate-900 py-3 px-6 border-b border-slate-700 h-[80px]">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-3">

@@ -60,7 +60,7 @@ import "./App.css";
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(Cookies.get('access_token') ? true : false);
   const handleLogin = () => {
-    setIsLoggedIn(true);
+    // setIsLoggedIn(true);
   };
 
   const handleLogout = () => {
@@ -73,7 +73,9 @@ function App() {
     const token = Cookies.get('access_token');
     console.log("token", token);
 
-    setIsLoggedIn(!!token);
+    if (token) {
+      setIsLoggedIn(true);
+    }
   }, [Cookies.get('access_token')]);
   // useEffect(() => {
 

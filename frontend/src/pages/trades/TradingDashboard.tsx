@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 interface Bot {
   id: string
@@ -23,7 +23,7 @@ interface Account {
 
 export function TradingDashboard() {
   const [activeTab, setActiveTab] = useState<'overview' | 'bots' | 'accounts' | 'trades'>('overview')
-
+  const navigate = useNavigate();
   const accounts: Account[] = [
     {
       id: '1',
@@ -103,13 +103,13 @@ export function TradingDashboard() {
           </div>
           <div className="flex space-x-3">
             <Link
-              to="/bot/new"
+              to="/bots/create"
               className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded transition-colors"
             >
               Create Bot
             </Link>
             <Link
-              to="/account/link"
+              to="/useracct/brokerlink"
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors"
             >
               Link Account
@@ -129,11 +129,10 @@ export function TradingDashboard() {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key as 'overview' | 'bots' | 'accounts' | 'trades')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === tab.key
-                    ? 'border-blue-500 text-blue-400'
-                    : 'border-transparent text-gray-300 hover:text-white hover:border-gray-300'
-                }`}
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.key
+                  ? 'border-blue-500 text-blue-400'
+                  : 'border-transparent text-gray-300 hover:text-white hover:border-gray-300'
+                  }`}
               >
                 {tab.label}
               </button>

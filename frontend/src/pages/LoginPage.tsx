@@ -38,6 +38,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
           return true
         }).catch(error => {
           console.log(error)
+          alert("Invalid email or password")
           return false
         })
       // navigate("/login");

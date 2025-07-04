@@ -255,7 +255,7 @@ interface History {
   user_id: string
   bot_id: string
   bot_name: string
-  change_info: JSON
+  change_info: [JSON]
   changed_at: Date
 }
 

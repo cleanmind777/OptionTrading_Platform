@@ -37,6 +37,7 @@ export function HeroSection({ onLogin }: HeroSectionProps) {
 
           return true
         }).catch(error => {
+          alert("Invalid email or password")
           console.log(error)
           return false
         })

@@ -1676,8 +1676,8 @@ export function BotCreateWizard() {
                     <option value="">
                       Select the account this bot should use for trading
                     </option>
-                    <option value="account1">Account 1</option>
-                    <option value="account2">Account 2</option>
+                    {/* <option value="account1">Account 1</option>
+                    <option value="account2">Account 2</option> */}
                   </select>
                   {hasFieldError("tradingAccount") && (
                     <p className="text-red-400 text-xs mt-1 flex items-center">
@@ -2091,7 +2091,7 @@ export function BotCreateWizard() {
                             ...strategy,
                             legs: strategy.legs.map((leg, i) =>
                               i === index
-                                ? { ...leg, strike_target_value: [Number(e.target.value), item.strike_target_value[1], item.strike_target_value[1]] }
+                                ? { ...leg, strike_target_value: [Number(e.target.value), item.strike_target_value[1], item.strike_target_value[2]] }
                                 : leg
                             ),
                           });
@@ -2133,7 +2133,7 @@ export function BotCreateWizard() {
                                 ...strategy,
                                 legs: strategy.legs.map((leg, i) =>
                                   i === index
-                                    ? { ...leg, strike_target_value: [Number(e.target.value), item.strike_target_value[1], item.strike_target_value[2]] }
+                                    ? { ...leg, strike_target_value: [item.strike_target_value[0], item.strike_target_value[1], Number(e.target.value)] }
                                     : leg
                                 ),
                               });

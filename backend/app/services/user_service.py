@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app.db.repositories.user_repository import user_update_preferences, user_update_discord, user_update_first_name, get_user_by_id, get_user_by_email, create_user, user_update_last_login_time, user_update_phone_number, user_update_email_preferences, user_update_account_access_settings, user_update_social_account, user_update_user_preferences, user_update_bot_preferences, user_update_email, user_update_password
 from app.core.security import verify_password
+from app.core.security import hash_password
 from app.schemas.user import UserCreate
 from app.models.user import User
 import json
@@ -17,8 +18,10 @@ def register_user(db: Session, user_create: UserCreate) -> User:
 
 def authenticate_user(db: Session, email: str, password: str) -> User | None:
     user = get_user_by_email(db, email)
+    print("DB Password:", user.hashed_password)
+    print("Input Password:", hash_password(password))
     if not user or not verify_password(password, user.hashed_password):
-        None
+        return None
     else:
         user_update_last_login_time(db, email)
     return user

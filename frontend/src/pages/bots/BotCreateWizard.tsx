@@ -670,213 +670,238 @@ export function BotCreateWizard() {
     config: BotConfig
   ): ValidationError[] => {
     const errors: ValidationError[] = [];
-
-    switch (field) {
-      case "botName":
-        if (!value || value.trim().length === 0) {
-          errors.push({
-            field,
-            message: "Bot name is required",
-            type: "error",
-          });
-        } else if (value.trim().length < 3) {
-          errors.push({
-            field,
-            message: "Bot name must be at least 3 characters",
-            type: "error",
-          });
-        } else if (value.trim().length > 50) {
-          errors.push({
-            field,
-            message: "Bot name cannot exceed 50 characters",
-            type: "error",
-          });
-        } else if (!/^[a-zA-Z0-9\s\-_]+$/.test(value)) {
-          errors.push({
-            field,
-            message:
-              "Bot name can only contain letters, numbers, spaces, hyphens, and underscores",
-            type: "error",
-          });
-        }
-        break;
-
-      case "tradingAccount":
-        if (!value) {
-          errors.push({
-            field,
-            message: "Trading account selection is required",
-            type: "error",
-          });
-        }
-        break;
-
-      case "strategyAssignment":
-        if (!value) {
-          errors.push({
-            field,
-            message: "Strategy assignment is required",
-            type: "error",
-          });
-        }
-        break;
-
-      case "underlyingSymbol":
-        if (!value) {
-          errors.push({
-            field,
-            message: "Underlying symbol is required",
-            type: "error",
-          });
-        } else if (!/^[A-Z]{1,5}$/.test(value)) {
-          errors.push({
-            field,
-            message: "Symbol must be 1-5 uppercase letters",
-            type: "error",
-          });
-        }
-        break;
-
-      case "tradeType":
-        if (!value) {
-          errors.push({
-            field,
-            message: "Trade type selection is required",
-            type: "error",
-          });
-        }
-        break;
-
-      case "quantity":
-        if (!value || value <= 0) {
-          errors.push({
-            field,
-            message: "Quantity must be greater than 0",
-            type: "error",
-          });
-        } else if (value > 1000) {
-          errors.push({
-            field,
-            message: "Quantity cannot exceed 1000 for safety",
-            type: "warning",
-          });
-        } else if (value > 100) {
-          errors.push({
-            field,
-            message: "Large quantities may impact liquidity",
-            type: "warning",
-          });
-        }
-        break;
-
-      case "maxTradesPerDay":
-        if (!value || value <= 0) {
-          errors.push({
-            field,
-            message: "Must allow at least 1 trade per day",
-            type: "error",
-          });
-        } else if (value > 20) {
-          errors.push({
-            field,
-            message: "More than 20 trades per day is not recommended",
-            type: "warning",
-          });
-        } else if (value > 10) {
-          errors.push({
-            field,
-            message: "High frequency trading increases risk",
-            type: "info",
-          });
-        }
-        break;
-
-      case "maxConcurrentTrades":
-        if (!value || value <= 0) {
-          errors.push({
-            field,
-            message: "Must allow at least 1 concurrent trade",
-            type: "error",
-          });
-        } else if (value > 10) {
-          errors.push({
-            field,
-            message: "Too many concurrent trades increases risk",
-            type: "warning",
-          });
-        }
-        break;
-
-      case "minimumPriceToEnter":
-        if (value < 0) {
-          errors.push({
-            field,
-            message: "Minimum price cannot be negative",
-            type: "error",
-          });
-        } else if (
-          value > config.entryFilters.maximumPriceToEnter &&
-          config.entryFilters.maximumPriceToEnter > 0
-        ) {
-          errors.push({
-            field,
-            message: "Minimum price cannot exceed maximum price",
-            type: "error",
-          });
-        }
-        break;
-
-      case "maximumPriceToEnter":
-        if (value < 0) {
-          errors.push({
-            field,
-            message: "Maximum price cannot be negative",
-            type: "error",
-          });
-        } else if (
-          value < config.entryFilters.minimumPriceToEnter &&
-          value > 0
-        ) {
-          errors.push({
-            field,
-            message: "Maximum price cannot be less than minimum price",
-            type: "error",
-          });
-        } else if (value > 10000) {
-          errors.push({
-            field,
-            message: "Very high price limits may not be practical",
-            type: "warning",
-          });
-        }
-        break;
-
-      case "strikeTarget":
-        if (value < 0) {
-          errors.push({
-            field,
-            message: "Strike target cannot be negative",
-            type: "error",
-          });
-        }
-        break;
-
-      case "sizeRatio":
-        if (!value || value <= 0) {
-          errors.push({
-            field,
-            message: "Size ratio must be greater than 0",
-            type: "error",
-          });
-        } else if (value > 10) {
-          errors.push({
-            field,
-            message: "Large size ratios may impact execution",
-            type: "warning",
-          });
-        }
-        break;
+    if (!bot.name || bot.name.trim().length === 0) {
+      errors.push({
+        field,
+        message: "Bot name is required",
+        type: "error",
+      });
+    } else if (bot.name.trim().length < 3) {
+      errors.push({
+        field,
+        message: "Bot name must be at least 3 characters",
+        type: "error",
+      });
+    } else if (bot.name.trim().length > 50) {
+      errors.push({
+        field,
+        message: "Bot name cannot exceed 50 characters",
+        type: "error",
+      });
+    } else if (!/^[a-zA-Z0-9\s\-_]+$/.test(bot.name)) {
+      errors.push({
+        field,
+        message:
+          "Bot name can only contain letters, numbers, spaces, hyphens, and underscores",
+        type: "error",
+      });
     }
+    // switch (field) {
+    //   case "botName":
+    //     if (!bot.name || bot.name.trim().length === 0) {
+    //       errors.push({
+    //         field,
+    //         message: "Bot name is required",
+    //         type: "error",
+    //       });
+    //     } else if (bot.name.trim().length < 3) {
+    //       errors.push({
+    //         field,
+    //         message: "Bot name must be at least 3 characters",
+    //         type: "error",
+    //       });
+    //     } else if (bot.name.trim().length > 50) {
+    //       errors.push({
+    //         field,
+    //         message: "Bot name cannot exceed 50 characters",
+    //         type: "error",
+    //       });
+    //     } else if (!/^[a-zA-Z0-9\s\-_]+$/.test(bot.name)) {
+    //       errors.push({
+    //         field,
+    //         message:
+    //           "Bot name can only contain letters, numbers, spaces, hyphens, and underscores",
+    //         type: "error",
+    //       });
+    //     }
+    //     break;
+
+    //   case "tradingAccount":
+    //     if (!value) {
+    //       errors.push({
+    //         field,
+    //         message: "Trading account selection is required",
+    //         type: "error",
+    //       });
+    //     }
+    //     break;
+
+    //   case "strategyAssignment":
+    //     if (!value) {
+    //       errors.push({
+    //         field,
+    //         message: "Strategy assignment is required",
+    //         type: "error",
+    //       });
+    //     }
+    //     break;
+
+    //   case "underlyingSymbol":
+    //     if (!value) {
+    //       errors.push({
+    //         field,
+    //         message: "Underlying symbol is required",
+    //         type: "error",
+    //       });
+    //     } else if (!/^[A-Z]{1,5}$/.test(value)) {
+    //       errors.push({
+    //         field,
+    //         message: "Symbol must be 1-5 uppercase letters",
+    //         type: "error",
+    //       });
+    //     }
+    //     break;
+
+    //   case "tradeType":
+    //     if (!value) {
+    //       errors.push({
+    //         field,
+    //         message: "Trade type selection is required",
+    //         type: "error",
+    //       });
+    //     }
+    //     break;
+
+    //   case "quantity":
+    //     if (!value || value <= 0) {
+    //       errors.push({
+    //         field,
+    //         message: "Quantity must be greater than 0",
+    //         type: "error",
+    //       });
+    //     } else if (value > 1000) {
+    //       errors.push({
+    //         field,
+    //         message: "Quantity cannot exceed 1000 for safety",
+    //         type: "warning",
+    //       });
+    //     } else if (value > 100) {
+    //       errors.push({
+    //         field,
+    //         message: "Large quantities may impact liquidity",
+    //         type: "warning",
+    //       });
+    //     }
+    //     break;
+
+    //   case "maxTradesPerDay":
+    //     if (!value || value <= 0) {
+    //       errors.push({
+    //         field,
+    //         message: "Must allow at least 1 trade per day",
+    //         type: "error",
+    //       });
+    //     } else if (value > 20) {
+    //       errors.push({
+    //         field,
+    //         message: "More than 20 trades per day is not recommended",
+    //         type: "warning",
+    //       });
+    //     } else if (value > 10) {
+    //       errors.push({
+    //         field,
+    //         message: "High frequency trading increases risk",
+    //         type: "info",
+    //       });
+    //     }
+    //     break;
+
+    //   case "maxConcurrentTrades":
+    //     if (!value || value <= 0) {
+    //       errors.push({
+    //         field,
+    //         message: "Must allow at least 1 concurrent trade",
+    //         type: "error",
+    //       });
+    //     } else if (value > 10) {
+    //       errors.push({
+    //         field,
+    //         message: "Too many concurrent trades increases risk",
+    //         type: "warning",
+    //       });
+    //     }
+    //     break;
+
+    //   case "minimumPriceToEnter":
+    //     if (value < 0) {
+    //       errors.push({
+    //         field,
+    //         message: "Minimum price cannot be negative",
+    //         type: "error",
+    //       });
+    //     } else if (
+    //       value > config.entryFilters.maximumPriceToEnter &&
+    //       config.entryFilters.maximumPriceToEnter > 0
+    //     ) {
+    //       errors.push({
+    //         field,
+    //         message: "Minimum price cannot exceed maximum price",
+    //         type: "error",
+    //       });
+    //     }
+    //     break;
+
+    //   case "maximumPriceToEnter":
+    //     if (value < 0) {
+    //       errors.push({
+    //         field,
+    //         message: "Maximum price cannot be negative",
+    //         type: "error",
+    //       });
+    //     } else if (
+    //       value < config.entryFilters.minimumPriceToEnter &&
+    //       value > 0
+    //     ) {
+    //       errors.push({
+    //         field,
+    //         message: "Maximum price cannot be less than minimum price",
+    //         type: "error",
+    //       });
+    //     } else if (value > 10000) {
+    //       errors.push({
+    //         field,
+    //         message: "Very high price limits may not be practical",
+    //         type: "warning",
+    //       });
+    //     }
+    //     break;
+
+    //   case "strikeTarget":
+    //     if (value < 0) {
+    //       errors.push({
+    //         field,
+    //         message: "Strike target cannot be negative",
+    //         type: "error",
+    //       });
+    //     }
+    //     break;
+
+    //   case "sizeRatio":
+    //     if (!value || value <= 0) {
+    //       errors.push({
+    //         field,
+    //         message: "Size ratio must be greater than 0",
+    //         type: "error",
+    //       });
+    //     } else if (value > 10) {
+    //       errors.push({
+    //         field,
+    //         message: "Large size ratios may impact execution",
+    //         type: "warning",
+    //       });
+    //     }
+    //     break;
+    // }
 
     return errors;
   };
@@ -1123,7 +1148,7 @@ export function BotCreateWizard() {
   };
 
   const getFieldClassName = (field: string, baseClassName: string): string => {
-    if (hasFieldError(field)) {
+    if (!bot.name) {
       return `${baseClassName} border-red-500 bg-red-50/10`;
     }
     if (hasFieldWarning(field)) {
@@ -1330,7 +1355,7 @@ export function BotCreateWizard() {
       })
       .catch(error => {
         console.error('Error fetching data:', error);
-        alert(error.response.data.detail);
+        alert("Input Bot Name or Select Strategy or Account");
       });
   }
   const editStrategy = () => {
@@ -1594,7 +1619,7 @@ export function BotCreateWizard() {
                 <div>
                   <label className="block text-sm text-gray-400 mb-2">
                     Bot Name
-                    {hasFieldError("botName") && (
+                    {!bot.name && (
                       <span className="text-red-400 ml-1">*</span>
                     )}
                   </label>
@@ -1617,7 +1642,7 @@ export function BotCreateWizard() {
                       "w-full bg-slate-700 border rounded px-3 py-2 text-white text-sm"
                     )}
                   />
-                  {hasFieldError("botName") && (
+                  {!bot.name && (
                     <p className="text-red-400 text-xs mt-1 flex items-center">
                       <svg
                         className="w-3 h-3 mr-1"
@@ -1630,7 +1655,7 @@ export function BotCreateWizard() {
                           clipRule="evenodd"
                         />
                       </svg>
-                      {getFieldError("botName")}
+                      {"Bot name is required"}
                     </p>
                   )}
                   {hasFieldWarning("botName") && (
@@ -1660,9 +1685,9 @@ export function BotCreateWizard() {
                   </label>
                   <select
                     value={config.tradingAccount}
-                    onChange={(e) =>
-                      handleInputChange("tradingAccount", e.target.value)
-                    }
+                    // onChange={(e) =>
+                    //   // handleInputChange("tradingAccount", e.target.value)
+                    // }
                     onBlur={() =>
                       setTouchedFields(
                         (prev) => new Set([...prev, "tradingAccount"])

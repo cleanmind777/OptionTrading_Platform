@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import client from '../api/client'
 import axios from 'axios';
-
+import emailjs from '@emailjs/browser';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
 export function RegisterPage() {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -66,7 +68,28 @@ export function RegisterPage() {
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
-
+  const sendEmail = () => {
+    console.log('Public Key: ', EMAILJS_PUBLIC_KEY);
+    console.log('Template ID: ', EMAILJS_TEMPLATE_ID);
+    console.log('Service ID: ', EMAILJS_SERVICE_ID);
+    console.log("Name", formData.firstName);
+    console.log("Email: ", formData.email);
+    emailjs
+      .send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        name: formData.firstName,
+        email: formData.email,
+      }, {
+        publicKey: EMAILJS_PUBLIC_KEY
+      })
+      .then(
+        () => {
+          console.log('SUCCESS!');
+        },
+        (error) => {
+          console.log('FAILED...', error.text);
+        },
+      );
+  };
   const registerUser = async () => {
     const userData = {
       email: formData.email,
@@ -94,6 +117,7 @@ export function RegisterPage() {
         localStorage.removeItem("access_token");
         localStorage.removeItem("email");
         localStorage.removeItem("token_type");
+        sendEmail();
         navigate("/login");
       }
     ).catch(error => {

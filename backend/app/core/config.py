@@ -14,6 +14,16 @@ class Settings(BaseSettings):
     
     # Algorithm used for JWT encoding
     ALGORITHM: str = Field("HS256", env="ALGORITHM")
+    
+    FRONTEND_URL: str = Field("http://localhost:5173", env="FRONTEND_URL")
+    
+    EMAILJS_SERVICE_ID: str = Field(env="EMAILJS_SERVICE_ID")
+    
+    EMAILJS_RESET_TEMPLATE_ID: str = Field(env="EMAILJS_RESET_TEMPLATE_ID")
+    
+    EMAILJS_PUBLIC_KEY: str = Field(env="EMAILJS_PUBLIC_KEY")
+    
+    EMAILJS_RRIVATE_KEY: str = Field(env="EMAILJS_RRIVATE_KEY")
 
     class Config:
         # Path to the .env file (relative to project root)

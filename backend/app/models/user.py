@@ -74,6 +74,7 @@ class User(Base):
     bots_created = Column(Integer, nullable=False, default=0)
     disabled = Column(Boolean, default=False)
     is_verified = Column(Boolean, default=False)
+    reset_token = Column(String, nullable=True)
     # group_id = Column(UUID(as_uuid=True), nullable=True)
     # group_display_name = Column(String, nullable=True)
     # group_admin = Column(Boolean, nullable=True, default=False)

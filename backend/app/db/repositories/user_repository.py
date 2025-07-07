@@ -4,6 +4,7 @@ from app.models.user import User
 from app.schemas.user import UserCreate
 from app.core.security import hash_password
 import json
+import secrets
 
 def get_user_by_email(db: Session, email: str):
     return db.query(User).filter(User.email == email).first()
@@ -128,3 +129,19 @@ def delete_unverified_users(db: Session, expire_hours: int):
     users.delete(synchronize_session=False)
     db.commit()
     return count
+
+def set_reset_token(db: Session, user: User):
+    token = secrets.token_urlsafe(32)
+    user.reset_token = token
+    db.commit()
+    db.refresh(user)
+    return token
+
+def reset_password(db: Session, token: str, new_password: str):
+    user = db.query(User).filter(User.reset_token == token).first()
+    if user:
+        user.hashed_password = hash_password(new_password)  # Hash this in production!
+        user.reset_token = None
+        db.commit()
+        return True
+    return False

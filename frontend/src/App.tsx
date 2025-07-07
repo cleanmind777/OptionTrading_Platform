@@ -43,6 +43,8 @@ import { VideoVault } from "./pages/support/VideoVault";
 import { DiscordCommunity } from "./pages/support/DiscordCommunity";
 import { AccountVsMarketPerformance } from "./pages/performance/AccountVsMarketPerformance";
 import { EmailPrefs } from "./pages/account/EmailPrefs";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import { MainNavigation } from "./components/MainNavigation";
 // import PrivateRoute from "./components/PrivateRoute";
 import { Navigation } from "./components/Navigation";
@@ -104,6 +106,8 @@ function App() {
         <main className="pt-16">
           <Routes>
             <Route path="/" element={<HomePage onLogin={handleLogin} />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route
               path="/login"
               element={

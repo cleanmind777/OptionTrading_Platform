@@ -112,3 +112,9 @@ class UserInfo(UserBase):
     model_config = {
         "from_attributes": True,  # replaces orm_mode=True
     }
+    
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+class ResetPasswordRequest(BaseModel):
+    password: str

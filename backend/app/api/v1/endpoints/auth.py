@@ -8,13 +8,18 @@ from datetime import timedelta
 from app.models.user import User
 from uuid import UUID
 
-from app.schemas.user import UserCreate, UserResponse, Token, LoginRequest, UserInfo
+from app.schemas.user import UserCreate, UserResponse, Token, LoginRequest, UserInfo, ForgotPasswordRequest, ResetPasswordRequest
 from app.services.user_service import register_user, authenticate_user, get_account_id, get_user_info, get_user_by_email
 from app.dependencies.database import get_db
 from app.core.security import create_access_token
 from app.core.config import settings
+from pydantic import BaseModel, EmailStr, ConfigDict
+from app.db.repositories.user_repository import reset_password, set_reset_token
+from app.utils.email import send_reset_email
 
 router = APIRouter()
+
+FRONTEND_URL = settings.FRONTEND_URL
 
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def sign_up(user_create: UserCreate, db: Session = Depends(get_db)):
@@ -75,3 +80,21 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
 @router.post("/signout")
 def sign_out():
     return {"msg": "Sign out handled client-side by deleting the token"}
+
+
+@router.post("/forgot-password")
+def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    user = get_user_by_email(db, request.email)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    token = set_reset_token(db, user)
+    reset_link = f"{FRONTEND_URL}/reset-password/{token}"
+    send_reset_email(user.email, reset_link)
+    return {"message": "Password reset link sent"}
+
+@router.patch("/reset-password/{token}")
+def reset_password_endpoint(token: str, request: ResetPasswordRequest, db: Session = Depends(get_db)):
+    success = reset_password(db, token, request.password)
+    if success:
+        return {"message": "Password updated"}
+    raise HTTPException(status_code=400, detail="Invalid or expired token")

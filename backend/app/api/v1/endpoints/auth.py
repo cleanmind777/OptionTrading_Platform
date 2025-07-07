@@ -20,7 +20,7 @@ router = APIRouter()
 def sign_up(user_create: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user_create.email).first()
     if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=400, detail="Email already registered")  
     return register_user(db, user_create)
 
 # @router.post("/token", response_model=Token)

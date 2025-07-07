@@ -108,3 +108,23 @@ def user_update_discord(db: Session, email: str, new_discord: str):
     db.commit()
     db.refresh(db_user)
     return db_user
+
+def verify_user(db: Session, user_id: int):
+    user = db.query(User).filter(User.id == user_id).first()
+    if user:
+        user.is_verified = True
+        db.commit()
+        db.refresh(user)
+    return user
+
+def delete_unverified_users(db: Session, expire_hours: int):
+    from datetime import datetime, timedelta
+    threshold = datetime.utcnow() - timedelta(hours=expire_hours)
+    users = db.query(User).filter(
+        User.is_verified == False,
+        User.created_at < threshold
+    )
+    count = users.count()
+    users.delete(synchronize_session=False)
+    db.commit()
+    return count

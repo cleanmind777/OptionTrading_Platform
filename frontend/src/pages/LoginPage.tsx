@@ -27,6 +27,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           withCredentials: true,
         }).then(response => {
+          console.log("11111111111111111111111111111111111111111111111111111")
           console.log('Login successful:', response)
           console.log("Cookie", Cookies.get('access_token'))
           localStorage.setItem("userinfo", JSON.stringify(response.data))

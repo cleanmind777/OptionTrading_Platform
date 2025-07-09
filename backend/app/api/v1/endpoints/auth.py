@@ -43,11 +43,13 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     user = authenticate_user(db, form_data.username, form_data.password)
     print(user)
     if user == None:
+        print("111111111111111111111")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    print("2222222222222222222222")
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires

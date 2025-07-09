@@ -14,15 +14,15 @@ base.Base.metadata.create_all(bind=engine)
 app = FastAPI(title="My FastAPI App")
 
 origins = [
-    "http://localhost:5173",  # Your frontend's URL
-    # Add more origins if needed
+    "http://localhost:5173",  # Your frontend origin
 ]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],            # Do NOT use ["*"] with credentials!
-    allow_credentials=True,           # This must be True for cookies/auth
-    allow_methods=["*"],              # Allow all HTTP methods
-    allow_headers=["*"],              # Allow all headers
+    allow_origins=origins,           # Must match frontend origin exactly
+    allow_credentials=True,          # Important for cookies/auth credentials
+    allow_methods=["*"],             # Allow all HTTP methods
+    allow_headers=["*"],             # Allow all headers
 )
 
 app.include_router(api_router, prefix="/api/v1")

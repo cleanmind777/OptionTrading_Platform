@@ -51,6 +51,13 @@ export function RegisterPage() {
       newErrors.email = 'Please enter a valid email address'
     }
 
+    if (formData.phone != "") {
+      if (!phoneRegex.test(formData.phone)) {
+        newErrors.phone = 'Please enter a valid Phone number'
+      }
+    }
+
+
     if (!formData.password) {
       newErrors.password = 'Password is required'
     } else if (formData.password.length < 8) {
@@ -134,6 +141,7 @@ export function RegisterPage() {
       // Handle registration logic here
     }
   }
+  const phoneRegex = /^[0-9]{10}$/; // Accepts only 10-digit numbers
 
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center py-12 px-4">
@@ -238,8 +246,10 @@ export function RegisterPage() {
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="Phone Number (Optional)"
-                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className={`w-full px-4 py-3 bg-slate-700 border rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 ${errors.phone ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-600 focus:border-blue-500 focus:ring-blue-500'
+                  }`}
               />
+              {errors.phone && <p className="text-red-400 text-xs mt-1">{errors.phone}</p>}
             </div>
 
             {/* Password Fields */}

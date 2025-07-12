@@ -1352,13 +1352,17 @@ export function ImportBots() {
     // You would typically make an API call here to run the test
     // Example: await testBotStrategy(config)
   };
-  const editBot = () => {
-    const params = bot;
-    params.user_id = userInfo.id
-    params.strategy_id = strategy.id
+  const editBot = (changeInfo: JSON) => {
+    const params = {
+      "bot": bot,
+      "strategy_change_info": changeInfo
+    };
+    params.bot.user_id = userInfo.id
+    params.bot.strategy_id = strategy.id
     axios.post(`${BACKEND_URL}/bot/edit`, params)
       .then(response => {
         alert("Successful")
+        setBots(response.data);
       })
       .catch(error => {
         // console.error('Error fetching data:', error);
@@ -1382,14 +1386,16 @@ export function ImportBots() {
     const params = JSON.stringify(strategy);
     axios.post(`${BACKEND_URL}/strategy/edit`, strategy)
       .then(response => {
-        setStrategies(response.data);
-        localStorage.setItem('strategies', response.data);
+        setStrategies(response.data.strategies);
+        localStorage.setItem('strategies', response.data.strategies);
         setShowCreateStrategyModal(false);
+        editBot(response.data.change_info);
       })
       .catch(error => {
         console.error('Error fetching data:', error);
         alert(error.response.data.detail);
       });
+
   }
   const getStrategy = async (strategy_id: String) => {
     const params = {
@@ -1685,12 +1691,6 @@ export function ImportBots() {
               <button
                 onClick={() => {
                   editStrategy();
-                  if (editCreate == 1) {
-                    createBot();
-                  }
-                  else if (editCreate == -1) {
-                    editBot();
-                  }
                 }}
                 // disabled={
                 //   !validationResult.isValid ||

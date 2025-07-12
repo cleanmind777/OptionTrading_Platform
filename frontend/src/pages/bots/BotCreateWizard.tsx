@@ -1362,8 +1362,8 @@ export function BotCreateWizard() {
     const params = JSON.stringify(strategy);
     axios.post(`${BACKEND_URL}/strategy/edit`, strategy)
       .then(response => {
-        setStrategies(response.data);
-        localStorage.setItem('strategies', response.data);
+        setStrategies(response.data.strategies);
+        localStorage.setItem('strategies', response.data.strategies);
         setShowCreateStrategyModal(false);
       })
       .catch(error => {

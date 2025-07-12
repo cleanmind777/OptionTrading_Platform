@@ -871,18 +871,21 @@ export function EditSingleBot() {
         alert(error.response.data.detail);
       });
   }
+  const [strategyChangeInfo, setStrategyChangeInfo] = useState({})
   const editStrategy = () => {
     const params = JSON.stringify(strategy);
     axios.post(`${BACKEND_URL}/strategy/edit`, strategy)
       .then(response => {
-        setStrategies(response.data);
-        localStorage.setItem('strategies', response.data);
+        setStrategies(response.data.strategies);
+        localStorage.setItem('strategies', response.data.strategies);
         setShowCreateStrategyModal(false);
+        editBot(response.data.change_info);
       })
       .catch(error => {
         console.error('Error fetching data:', error);
         alert(error.response.data.detail);
       });
+
   }
   const createBot = () => {
     const params = bot;
@@ -897,10 +900,13 @@ export function EditSingleBot() {
         alert(error.response.data.detail);
       });
   }
-  const editBot = () => {
-    const params = bot;
-    params.user_id = userInfo.id
-    params.strategy_id = strategy.id
+  const editBot = (changeInfo: JSON) => {
+    const params = {
+      "bot": bot,
+      "strategy_change_info": changeInfo
+    };
+    params.bot.user_id = userInfo.id
+    params.bot.strategy_id = strategy.id
     axios.post(`${BACKEND_URL}/bot/edit`, params)
       .then(response => {
         alert("Successful")
@@ -1500,7 +1506,8 @@ export function EditSingleBot() {
     // console.log(bots)
     console.log("Strategy: ", strategy.id)
     console.log("Bot Strategy: ", bot.strategy_id)
-  }, [bots, strategies, strategy])
+    console.log("strategyChangeInfo", strategyChangeInfo)
+  }, [bots, strategies, strategy, strategyChangeInfo])
   useEffect(() => {
     getBot();
   }, [selectedBot])
@@ -1803,7 +1810,7 @@ export function EditSingleBot() {
                 <button
                   onClick={() => {
                     editStrategy();
-                    editBot();
+
                   }}
                   // disabled={
                   //   !validationResult.isValid ||

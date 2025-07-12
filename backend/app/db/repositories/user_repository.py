@@ -16,7 +16,7 @@ def create_user(db: Session, user_create: UserCreate):
     db_user = User(
         email=user_create.email,
         first_name=user_create.first_name,
-        last_name=user_create.first_name,
+        last_name=user_create.last_name,
         phone_number=user_create.phone_number,
         hashed_password=hash_password(user_create.password),
         disabled=False,

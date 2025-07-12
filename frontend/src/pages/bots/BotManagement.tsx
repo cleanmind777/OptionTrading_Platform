@@ -492,7 +492,7 @@ export function BotManagement() {
                   </th>
                 </tr>
                 {bots && bots.map((item, key) => (
-                  <tr>
+                  <tr key={key}>
                     <td className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                       {item.name}
                     </td>

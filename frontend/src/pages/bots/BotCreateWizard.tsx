@@ -1685,9 +1685,9 @@ export function BotCreateWizard() {
                   </label>
                   <select
                     value={config.tradingAccount}
-                    // onChange={(e) =>
-                    //   // handleInputChange("tradingAccount", e.target.value)
-                    // }
+                    onChange={(e) =>
+                      handleInputChange("tradingAccount", e.target.value)
+                    }
                     onBlur={() =>
                       setTouchedFields(
                         (prev) => new Set([...prev, "tradingAccount"])
@@ -1698,7 +1698,7 @@ export function BotCreateWizard() {
                       "w-full bg-slate-700 border rounded px-3 py-2 text-white text-sm"
                     )}
                   >
-                    <option value="">
+                    <option key={0} value="">
                       Select the account this bot should use for trading
                     </option>
                     {/* <option value="account1">Account 1</option>
@@ -1750,8 +1750,8 @@ export function BotCreateWizard() {
                     }
                     className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm"
                   >
-                    <option value="" disabled>Select Strategy</option>
-                    <option value={"create"}>Create New Strategy</option>
+                    <option key={"disabled"} value="" disabled>Select Strategy</option>
+                    <option key={"create"} value={"create"}>Create New Strategy</option>
                     {strategies.map((item, key) => (
                       <option key={key} value={item.id}>
                         {item.name}
@@ -1861,7 +1861,7 @@ export function BotCreateWizard() {
                     }}
                     className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm"
                   >
-                    <option value="" disabled>Select Symbol</option>
+                    <option key="disabled" value="" disabled>Select Symbol</option>
                     {symbols.map((item, key) => (
                       <option key={key} value={item}>
                         {item}
@@ -1906,11 +1906,11 @@ export function BotCreateWizard() {
                     }
                     className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm"
                   >
-                    <option value="" disabled>Select Trade Type</option>
-                    <option value="Single Leg">Single Leg</option>
-                    <option value="Vertical Spread">Vertical Spread</option>
-                    <option value="Condor">Condor</option>
-                    <option value="Custom">Custom</option>
+                    <option key="" value="" disabled>Select Trade Type</option>
+                    <option key="Single Leg" value="Single Leg">Single Leg</option>
+                    <option key="Vertical Spread" value="Vertical Spread">Vertical Spread</option>
+                    <option key="Condor" value="Condor">Condor</option>
+                    <option key="Custom" value="Custom">Custom</option>
                   </select>
                   <p className="text-xs text-gray-500 mt-1">
                     Trade template design for options legs
@@ -1949,11 +1949,11 @@ export function BotCreateWizard() {
                     }
                     className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm"
                   >
-                    <option value={0} disabled>Select Leg Count</option>
-                    <option value={"1"}>One</option>
-                    <option value={"2"}>Two</option>
-                    <option value={"3"}>Three</option>
-                    <option value={"4"}>Four</option>
+                    <option key="0" value={0} disabled>Select Leg Count</option>
+                    <option key="1" value={"1"}>One</option>
+                    <option key="2" value={"2"}>Two</option>
+                    <option key="3" value={"3"}>Three</option>
+                    <option key="4" value={"4"}>Four</option>
                   </select>
                   <p className="text-xs text-gray-500 mt-1">
                     Number of legs for the position
@@ -2062,6 +2062,7 @@ export function BotCreateWizard() {
               {strategy.legs?.map((item, index) => (
                 <div
                   className="grid grid-cols-[5%_15%_15%_7%_9%_5%_15%_9%_10%_5%] gap-2 text-sm text-gray-400 flex-1 h-[50px] items-center"
+                  key={index}
                 >
                   <div className="flex items-center">
                     <span className="text-white font-medium">
@@ -2084,23 +2085,22 @@ export function BotCreateWizard() {
                       }}
                       className="w-full bg-slate-700 border border-slate-600 rounded px-1 py-1 text-white text-sm"
                     >
-                      <option value="Target Type" disabled>Target Type</option>
-                      <option value="Delta">Delta</option>
-                      <option value="Premium">Premium</option>
-                      <option value="Premium as % of Underlying">Premium as % of Underlying</option>
-                      <option value="Minium Premium">Minimum Premium</option>
-                      <option value="Percent ITM">Percent ITM</option>
-                      <option value="Percent OTM">Percent OTM</option>
-                      <option value="Points ITM">Points ITM</option>
-                      <option value="Points OTM">Points OTM</option>
-                      <option value="Points ITM from Open">Points ITM from Open</option>
-                      <option value="Points OTM from Open">Points OTM from Open</option>
-                      <option value="Percent ITM from Open">Percent ITM from Open</option>
-                      <option value="Percent OTM from Open">Percent OTM from Open</option>
-                      <option value="Vertical Width">Vertical Width</option>
-                      <option value="Vertical Width (Exact)">Vertical Width (Exact)</option>
-                      <option value="Vertical Width (Underlying %)">Vertical Width (Underlying %)</option>
-                      <option value="Exact">Exact</option>
+                      <option key="Target Type" value="Target Type" disabled>Target Type</option>
+                      <option key="Delta" value="Delta">Delta</option>
+                      <option key="Premium" value="Premium">Premium</option>
+                      <option key="Premium as % of Underlying" value="Premium as % of Underlying">Premium as % of Underlying</option>
+                      <option key="Minium Premium" value="Minium Premium">Minimum Premium</option>
+                      <option key="Percent ITM" value="Percent ITM">Percent ITM</option>
+                      <option key="Points ITM" value="Points ITM">Points ITM</option>
+                      <option key="Points OTM" value="Points OTM">Points OTM</option>
+                      <option key="Points ITM from Open" value="Points ITM from Open">Points ITM from Open</option>
+                      <option key="Points OTM from Open" value="Points OTM from Open">Points OTM from Open</option>
+                      <option key="Percent ITM from Open" value="Percent ITM from Open">Percent ITM from Open</option>
+                      <option key="Percent OTM from Open" value="Percent OTM from Open">Percent OTM from Open</option>
+                      <option key="Vertical Width" value="Vertical Width">Vertical Width</option>
+                      <option key="Vertical Width (Exact)" value="Vertical Width (Exact)">Vertical Width (Exact)</option>
+                      <option key="Vertical Width (Underlying %)" value="Vertical Width (Underlying %)">Vertical Width (Underlying %)</option>
+                      <option key="Exact" value="Exact">Exact</option>
                     </select>
                   </div>
                   <div className="flex items-center">
@@ -2312,8 +2312,8 @@ export function BotCreateWizard() {
                       }}
                       className="w-full bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm"
                     >
-                      <option value="Exact">Exact</option>
-                      <option value="Target">Target</option>
+                      <option key="Exact" value="Exact">Exact</option>
+                      <option key="Target" value="Target">Target</option>
                     </select>
                     <div className="flex items-center">
                       <input
@@ -2668,14 +2668,14 @@ export function BotCreateWizard() {
                             })
                             }
                             className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm">
-                            <option value="" disabled>Hr</option>
-                            <option value={9}>9</option>
-                            <option value={10}>10</option>
-                            <option value={11}>11</option>
-                            <option value={12}>12</option>
-                            <option value={1}>1</option>
-                            <option value={2}>2</option>
-                            <option value={3}>3</option>
+                            <option key="" value="" disabled>Hr</option>
+                            <option key="9" value={9}>9</option>
+                            <option key="10" value={10}>10</option>
+                            <option key="11" value={11}>11</option>
+                            <option key="12" value={12}>12</option>
+                            <option key="1" value={1}>1</option>
+                            <option key="2" value={2}>2</option>
+                            <option key="3" value={3}>3</option>
                           </select>
                           {/* <input
                       type="text"
@@ -2693,9 +2693,9 @@ export function BotCreateWizard() {
                             })
                             }
                             className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm">
-                            <option value="" disabled>Min</option>
+                            <option key="" value="" disabled>Min</option>
                             {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59].map((min) => (
-                              <option value={min}>{min}</option>
+                              <option key={min} value={min}>{min}</option>
                             ))}
                           </select>
                           {/* <input
@@ -2714,9 +2714,9 @@ export function BotCreateWizard() {
                             })
                             }
                             className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm">
-                            <option value="" disabled>Sec</option>
+                            <option key="" value="" disabled>Sec</option>
                             {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59].map((sec) => (
-                              <option value={sec}>{sec}</option>
+                              <option key={sec} value={sec}>{sec}</option>
                             ))}
                           </select>
                         </div>
@@ -2745,15 +2745,14 @@ export function BotCreateWizard() {
                             })
                             }
                             className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm">
-                            <option value="" disabled>Hr</option>
-                            <option value={9}>9</option>
-                            <option value={10}>10</option>
-                            <option value={11}>11</option>
-                            <option value={12}>12</option>
-                            <option value={1}>1</option>
-                            <option value={2}>2</option>
-                            <option value={3}>3</option>
-                            <option value={3}>3</option>
+                            <option key="" value="" disabled>Hr</option>
+                            <option key="9" value={9}>9</option>
+                            <option key="10" value={10}>10</option>
+                            <option key="11" value={11}>11</option>
+                            <option key="12" value={12}>12</option>
+                            <option key="1" value={1}>1</option>
+                            <option key="2" value={2}>2</option>
+                            <option key="3" value={3}>3</option>
                           </select>
                           {/* <input
                       type="text"
@@ -2771,9 +2770,9 @@ export function BotCreateWizard() {
                             })
                             }
                             className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm">
-                            <option value="" disabled>Min</option>
+                            <option key="" value="" disabled>Min</option>
                             {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59].map((min) => (
-                              <option value={min}>{min}</option>
+                              <option key={min} value={min}>{min}</option>
                             ))}
                           </select>
                           {/* <input
@@ -2792,9 +2791,9 @@ export function BotCreateWizard() {
                             })
                             }
                             className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm">
-                            <option value="" disabled>Sec</option>
+                            <option key="" value="" disabled>Sec</option>
                             {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59].map((sec) => (
-                              <option value={sec}>{sec}</option>
+                              <option key={sec} value={sec}>{sec}</option>
                             ))}
                           </select>
                         </div>
@@ -2814,7 +2813,7 @@ export function BotCreateWizard() {
                           "FRI",
                         ].map((day, index) => (
                           <button
-                            key={day}
+                            key={index}
                             //   setStrategy({
                             //   ...strategy,
                             //   legs: strategy.legs.map((leg, i) =>
@@ -2951,9 +2950,9 @@ export function BotCreateWizard() {
                             }
                             className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm mb-2"
                           >
-                            <option value={0}>No Randomization</option>
+                            <option key="" value={0}>No Randomization</option>
                             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24].map((random_value) => (
-                              <option value={Number(random_value * 5)}>{`±${random_value * 5}s`}</option>
+                              <option key={random_value} value={Number(random_value * 5)}>{`±${random_value * 5}s`}</option>
                             ))}
                           </select>
                         </div>
@@ -2975,7 +2974,7 @@ export function BotCreateWizard() {
                             className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm mb-2"
                           >
                             {time.map((item, index) => (
-                              <option value={Number(index * 10)}>{item}</option>
+                              <option key={index} value={Number(index * 10)}>{item}</option>
                             ))}
                             {/* <option value=>0s</option>
                             <option value="30s">30s</option>
@@ -3070,15 +3069,15 @@ export function BotCreateWizard() {
                           })
                           }
                           className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm">
-                          <option value="" disabled>Hr</option>
-                          <option value={9}>9</option>
-                          <option value={10}>10</option>
-                          <option value={11}>11</option>
-                          <option value={12}>12</option>
-                          <option value={1}>1</option>
-                          <option value={2}>2</option>
-                          <option value={3}>3</option>
-                          <option value={4}>4</option>
+                          <option key="" value="" disabled>Hr</option>
+                          <option key="9" value={9}>9</option>
+                          <option key="10" value={10}>10</option>
+                          <option key="11" value={11}>11</option>
+                          <option key="12" value={12}>12</option>
+                          <option key="1" value={1}>1</option>
+                          <option key="2" value={2}>2</option>
+                          <option key="3" value={3}>3</option>
+                          <option key="4" value={4}>4</option>
                         </select>
                         {/* <label className="block text-sm font-medium text-gray-300 content-center">
                           MIN
@@ -3093,9 +3092,9 @@ export function BotCreateWizard() {
                             }
                           })}
                           className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm">
-                          <option value="" disabled>Min</option>
+                          <option key="" value="" disabled>Min</option>
                           {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59].map((min) => (
-                            <option value={min}>{min}</option>
+                            <option key={min} value={min}>{min}</option>
                           ))}
                         </select>
                       </div>
@@ -4334,10 +4333,10 @@ export function BotCreateWizard() {
                             })
                             }
                             className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm">
-                            <option value="" disabled>Time</option>
+                            <option key="" value="" disabled>Time</option>
                             {/* <option value="DISABLED">DISABLED</option> */}
                             {time1.map((time) => (
-                              <option value={time}>{time}</option>
+                              <option key={time} value={time}>{time}</option>
                             ))}
                           </select>
                         </div>
@@ -6368,9 +6367,9 @@ export function BotCreateWizard() {
                                   }
                                   className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm"
                                 >
-                                  <option value="" disabled>Select Type</option>
-                                  <option value="Simple">Simple</option>
-                                  <option value="Exponential">Exponential</option>
+                                  <option key="" value="" disabled>Select Type</option>
+                                  <option key="Simple" value="Simple">Simple</option>
+                                  <option key="Exponential" value="Exponential">Exponential</option>
                                 </select>
                               </div>
                               <div>
@@ -6395,11 +6394,11 @@ export function BotCreateWizard() {
                                   }
                                   className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm"
                                 >
-                                  <option value="" disabled>Select Period Type</option>
-                                  <option value="Daily at Close">Daily at Close</option>
-                                  <option value="Day">Day</option>
-                                  <option value="Hour">Hour</option>
-                                  <option value="Minute">Minute</option>
+                                  <option key="" value="" disabled>Select Period Type</option>
+                                  <option key="Daily at Close" value="Daily at Close">Daily at Close</option>
+                                  <option key="Day" value="Day">Day</option>
+                                  <option key="Hour" value="Hour">Hour</option>
+                                  <option key="Minute" value="Minute">Minute</option>
                                 </select>
                               </div>
                               <div>
@@ -6641,9 +6640,9 @@ export function BotCreateWizard() {
                                   }
                                   className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm"
                                 >
-                                  <option value="" disabled>Select Type</option>
-                                  <option value="Simple">Simple</option>
-                                  <option value="Exponential">Exponential</option>
+                                  <option key="" value="" disabled>Select Type</option>
+                                  <option key="Simple" value="Simple">Simple</option>
+                                  <option key="Exponential" value="Exponential">Exponential</option>
                                 </select>
                               </div>
                               <div>
@@ -6668,11 +6667,11 @@ export function BotCreateWizard() {
                                   }
                                   className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm"
                                 >
-                                  <option value="" disabled>Select Period Type</option>
-                                  <option value="Daily at Close">Daily at Close</option>
-                                  <option value="Day">Day</option>
-                                  <option value="Hour">Hour</option>
-                                  <option value="Minute">Minute</option>
+                                  <option key="" value="" disabled>Select Period Type</option>
+                                  <option key="Daily at Close" value="Daily at Close">Daily at Close</option>
+                                  <option key="Day" value="Day">Day</option>
+                                  <option key="Hour" value="Hour">Hour</option>
+                                  <option key="Minute" value="Minute">Minute</option>
                                 </select>
                               </div>
 
@@ -6779,9 +6778,9 @@ export function BotCreateWizard() {
                                     }
                                     className=" bg-slate-700 border border-slate-600 text-white text-sm"
                                   >
-                                    <option value="" disabled>Select Direction</option>
-                                    <option value="Above">Above</option>
-                                    <option value="Below">Below</option>
+                                    <option key="" value="" disabled>Select Direction</option>
+                                    <option key="Above" value="Above">Above</option>
+                                    <option key="Below" value="Below">Below</option>
                                   </select>
                                   <label>Moving Average 2</label>
                                 </div>
@@ -7452,9 +7451,9 @@ export function BotCreateWizard() {
                                   }
                                   className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm"
                                 >
-                                  <option value="" disabled>Select Type</option>
-                                  <option value="Simple">Simple</option>
-                                  <option value="Exponential">Exponential</option>
+                                  <option key="" value="" disabled>Select Type</option>
+                                  <option key="Simple" value="Simple">Simple</option>
+                                  <option key="Exponential" value="Exponential">Exponential</option>
                                 </select>
                               </div>
                               <div>
@@ -7479,11 +7478,11 @@ export function BotCreateWizard() {
                                   }
                                   className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm"
                                 >
-                                  <option value="" disabled>Select Period Type</option>
-                                  <option value="Daily at Close">Daily at Close</option>
-                                  <option value="Day">Day</option>
-                                  <option value="Hour">Hour</option>
-                                  <option value="Minute">Minute</option>
+                                  <option key="" value="" disabled>Select Period Type</option>
+                                  <option key="Daily at Close" value="Daily at Close">Daily at Close</option>
+                                  <option key="Day" value="Day">Day</option>
+                                  <option key="Hour" value="Hour">Hour</option>
+                                  <option key="Minute" value="Minute">Minute</option>
                                 </select>
                               </div>
                               <div>

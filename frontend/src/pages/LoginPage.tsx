@@ -27,18 +27,18 @@ export function LoginPage({ onLogin }: LoginPageProps) {
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           withCredentials: true,
         }).then(response => {
-          console.log('Login successful:', response)
-          console.log("Cookie", Cookies.get('access_token'))
+          // console.log('Login successful:', response)
+          // console.log("Cookie", Cookies.get('access_token'))
           localStorage.setItem("userinfo", JSON.stringify(response.data))
           setUser(response.data)
           return true
         }).catch(error => {
-          console.log(error)
+          // console.log(error)
           alert("Invalid email or password")
           return false
         })
     } catch (error) {
-      console.log("error")
+      // console.log("error")
       return false
     }
   };
@@ -48,14 +48,14 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     try {
       const result = await login(email, password);
       if (result == false) {
-        console.log("Login failed")
+        // console.log("Login failed")
       }
       else {
         onLogin();
         navigate("/account-stats");
       }
     } catch (error) {
-      console.error("Login failed:", error);
+      // console.error("Login failed:", error);
     }
   };
 

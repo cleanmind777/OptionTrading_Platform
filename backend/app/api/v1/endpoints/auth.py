@@ -61,9 +61,10 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     response.set_cookie(
         key="access_token",
         value=access_token,
+        # domain="ec2-3-12-160-213.us-east-2.compute.amazonaws.com",
         # httponly=True,
         secure=False,  # Set to True in production
-        samesite="strict",
+        samesite="lax",
         max_age=1800,  # 30 minutes in seconds
     )
     response.set_cookie(

@@ -73,7 +73,7 @@ function App() {
   };
   useEffect(() => {
     const token = Cookies.get('access_token');
-    console.log("token", token);
+    // console.log("token", token);
 
     if (token) {
       setIsLoggedIn(true);
@@ -81,7 +81,7 @@ function App() {
   }, [Cookies.get('access_token')]);
   useEffect(() => {
     const token = Cookies.get('access_token');
-    console.log("token", token);
+    // console.log("token", token);
 
     if (!token) {
       setIsLoggedIn(false);

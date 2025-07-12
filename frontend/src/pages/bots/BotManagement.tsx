@@ -230,6 +230,9 @@ export function BotManagement() {
     axios.post(`${BACKEND_URL}/bot/get_bots`, params)
       .then(response => {
         setBots(response.data);
+        if (response.data == 0) {
+          alert("You don't have any bots. Plz create the new Bot")
+        }
         localStorage.setItem('bots', response.data)
       })
       .catch(error => {
@@ -492,7 +495,7 @@ export function BotManagement() {
                   </th>
                 </tr>
                 {bots && bots.map((item, key) => (
-                  <tr>
+                  <tr key={key}>
                     <td className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                       {item.name}
                     </td>

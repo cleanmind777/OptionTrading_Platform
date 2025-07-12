@@ -15,7 +15,7 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.future import select
 from datetime import timedelta
 from uuid import UUID
-from app.schemas.bot import BotCreate, BotInfo, BotFilter, BotEdit
+from app.schemas.bot import BotCreate, BotInfo, BotFilter, BotEdit, BotChange
 from app.dependencies.database import get_db
 from app.core.security import create_access_token
 from app.core.config import settings
@@ -47,64 +47,66 @@ def user_create_bot(db: Session, bot_create: BotCreate):
     db.refresh(db_bot)
     return db_bot
 
-def user_edit_bot(db: Session, bot_edit: BotEdit):
-    db_bot = db.query(Bot).filter(Bot.id == bot_edit.id).first()
+def user_edit_bot(db: Session, bot_edit: BotChange):
+    db_bot = db.query(Bot).filter(Bot.id == bot_edit.bot.id).first()
     change_info = []
-    if db_bot.name != bot_edit.name:
-        change_info.append({"name": [db_bot.name, bot_edit.name]})
-        db_bot.name = bot_edit.name
+    if db_bot.name != bot_edit.bot.name:
+        change_info.append({"name": [db_bot.name, bot_edit.bot.name]})
+        db_bot.name = bot_edit.bot.name
     
-    if db_bot.description != bot_edit.description:
-        change_info.append({"description": [db_bot.description, bot_edit.description]})
-        db_bot.description = bot_edit.description
+    if db_bot.description != bot_edit.bot.description:
+        change_info.append({"description": [db_bot.description, bot_edit.bot.description]})
+        db_bot.description = bot_edit.bot.description
     
-    if db_bot.trading_account_id != bot_edit.trading_account_id:
-        change_info.append({"trading_account_id": [db_bot.trading_account_id, bot_edit.trading_account_id]})
-        db_bot.trading_account_id = bot_edit.trading_account_id
+    if db_bot.trading_account_id != bot_edit.bot.trading_account_id:
+        change_info.append({"trading_account_id": [db_bot.trading_account_id, bot_edit.bot.trading_account_id]})
+        db_bot.trading_account_id = bot_edit.bot.trading_account_id
         
-    if db_bot.is_active != bot_edit.is_active:
-        change_info.append({"is_active": [db_bot.is_active, bot_edit.is_active]})
-        db_bot.is_active = bot_edit.is_active
+    if db_bot.is_active != bot_edit.bot.is_active:
+        change_info.append({"is_active": [db_bot.is_active, bot_edit.bot.is_active]})
+        db_bot.is_active = bot_edit.bot.is_active
         
-    if db_bot.strategy_id != bot_edit.strategy_id:
-        change_info.append({"strategy_id": [db_bot.strategy_id, bot_edit.strategy_id]})
-        db_bot.strategy_id = bot_edit.strategy_id
+    if db_bot.strategy_id != bot_edit.bot.strategy_id:
+        change_info.append({"strategy_id": [db_bot.strategy_id, bot_edit.bot.strategy_id]})
+        db_bot.strategy_id = bot_edit.bot.strategy_id
         
-    if db_bot.trade_entry != bot_edit.trade_entry:
-        change_info.append({"trade_entry": [db_bot.trade_entry, bot_edit.trade_entry]})
-        db_bot.trade_entry = bot_edit.trade_entry
+    if db_bot.trade_entry != bot_edit.bot.trade_entry:
+        change_info.append({"trade_entry": [db_bot.trade_entry, bot_edit.bot.trade_entry]})
+        db_bot.trade_entry = bot_edit.bot.trade_entry
         
-    if db_bot.trade_exit != bot_edit.trade_exit:
-        change_info.append({"trade_exit": [db_bot.trade_exit, bot_edit.trade_exit]})
-        db_bot.trade_exit = bot_edit.trade_exit
+    if db_bot.trade_exit != bot_edit.bot.trade_exit:
+        change_info.append({"trade_exit": [db_bot.trade_exit, bot_edit.bot.trade_exit]})
+        db_bot.trade_exit = bot_edit.bot.trade_exit
         
-    if db_bot.trade_stop != bot_edit.trade_stop:
-        change_info.append({"trade_stop": [db_bot.trade_stop, bot_edit.trade_stop]})
-        db_bot.trade_stop = bot_edit.trade_stop
+    if db_bot.trade_stop != bot_edit.bot.trade_stop:
+        change_info.append({"trade_stop": [db_bot.trade_stop, bot_edit.bot.trade_stop]})
+        db_bot.trade_stop = bot_edit.bot.trade_stop
         
-    if db_bot.trade_condition != bot_edit.trade_condition:
-        change_info.append({"trade_condition": [db_bot.trade_condition, bot_edit.trade_condition]})
-        db_bot.trade_condition = bot_edit.trade_condition
+    if db_bot.trade_condition != bot_edit.bot.trade_condition:
+        change_info.append({"trade_condition": [db_bot.trade_condition, bot_edit.bot.trade_condition]})
+        db_bot.trade_condition = bot_edit.bot.trade_condition
         
-    if db_bot.bot_dependencies != bot_edit.bot_dependencies:
-        change_info.append({"bot_dependencies": [db_bot.bot_dependencies, bot_edit.bot_dependencies]})
-        db_bot.bot_dependencies = bot_edit.bot_dependencies
-        
+    if db_bot.bot_dependencies != bot_edit.bot.bot_dependencies:
+        change_info.append({"bot_dependencies": [db_bot.bot_dependencies, bot_edit.bot.bot_dependencies]})
+        db_bot.bot_dependencies = bot_edit.bot.bot_dependencies
+    if bot_edit.strategy_change_info != []:
+        change_info.append({"strategy": bot_edit.strategy_change_info})
     db.updated_at = func.now()
     db.commit()
     db.refresh(db_bot)
     user_id = db_bot.user.id
     if change_info != {}:
         db_bot_setting_history = BotsSettingHistory(
-            bot_id = bot_edit.id,
+            bot_id = bot_edit.bot.id,
             user_id = user_id,
             change_info = change_info
         )
         db.add(db_bot_setting_history)
         db.commit()
         db.refresh(db_bot_setting_history)
+        print(change_info)
         print(db_bot_setting_history)
-    db_bots = db.query(Bot).filter(Bot.user_id == bot_edit.user_id).all()
+    db_bots = db.query(Bot).filter(Bot.user_id == bot_edit.bot.user_id).all()
     return db_bots
 
 async def user_get_bots(db: Session, bot_filters: BotFilter):

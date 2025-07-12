@@ -871,18 +871,21 @@ export function EditSingleBot() {
         alert(error.response.data.detail);
       });
   }
+  const [strategyChangeInfo, setStrategyChangeInfo] = useState({})
   const editStrategy = () => {
     const params = JSON.stringify(strategy);
     axios.post(`${BACKEND_URL}/strategy/edit`, strategy)
       .then(response => {
-        setStrategies(response.data);
-        localStorage.setItem('strategies', response.data);
+        setStrategies(response.data.strategies);
+        localStorage.setItem('strategies', response.data.strategies);
         setShowCreateStrategyModal(false);
+        editBot(response.data.change_info);
       })
       .catch(error => {
         console.error('Error fetching data:', error);
         alert(error.response.data.detail);
       });
+
   }
   const createBot = () => {
     const params = bot;
@@ -897,10 +900,13 @@ export function EditSingleBot() {
         alert(error.response.data.detail);
       });
   }
-  const editBot = () => {
-    const params = bot;
-    params.user_id = userInfo.id
-    params.strategy_id = strategy.id
+  const editBot = (changeInfo: JSON) => {
+    const params = {
+      "bot": bot,
+      "strategy_change_info": changeInfo
+    };
+    params.bot.user_id = userInfo.id
+    params.bot.strategy_id = strategy.id
     axios.post(`${BACKEND_URL}/bot/edit`, params)
       .then(response => {
         alert("Successful")
@@ -939,6 +945,9 @@ export function EditSingleBot() {
     axios.post(`${BACKEND_URL}/bot/get_bots`, params)
       .then(response => {
         setBots(response.data);
+        if (response.data == 0) {
+          alert("You don't have any bots. Plz create the new Bot")
+        }
         localStorage.setItem('bots', response.data)
       })
       .catch(error => {
@@ -949,14 +958,20 @@ export function EditSingleBot() {
     const params = {
       id: selectedBot
     }
-    axios.get(`${BACKEND_URL}/bot/get_bot`, { params })
-      .then(response => {
-        setBot(response.data);
-        localStorage.setItem('bots', response.data)
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-      });
+    if (selectedBot == "") {
+      return 0
+    }
+    else {
+      axios.get(`${BACKEND_URL}/bot/get_bot`, { params })
+        .then(response => {
+          setBot(response.data);
+          localStorage.setItem('bots', response.data)
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
+        });
+    }
+
   }
   const [validationResult, setValidationResult] = useState<ValidationResult>({
     isValid: false,
@@ -1491,7 +1506,8 @@ export function EditSingleBot() {
     // console.log(bots)
     console.log("Strategy: ", strategy.id)
     console.log("Bot Strategy: ", bot.strategy_id)
-  }, [bots, strategies, strategy])
+    console.log("strategyChangeInfo", strategyChangeInfo)
+  }, [bots, strategies, strategy, strategyChangeInfo])
   useEffect(() => {
     getBot();
   }, [selectedBot])
@@ -1794,7 +1810,7 @@ export function EditSingleBot() {
                 <button
                   onClick={() => {
                     editStrategy();
-                    editBot();
+
                   }}
                   // disabled={
                   //   !validationResult.isValid ||
@@ -2064,6 +2080,7 @@ export function EditSingleBot() {
               {strategy.legs?.map((item, index) => (
                 <div
                   className="grid grid-cols-[5%_15%_15%_7%_9%_5%_15%_9%_10%_5%] gap-2 text-sm text-gray-400 flex-1 h-[50px] items-center"
+                  key={index}
                 >
                   <div className="flex items-center">
                     <span className="text-white font-medium">
@@ -2697,7 +2714,7 @@ export function EditSingleBot() {
                             className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm">
                             <option value="" disabled>Min</option>
                             {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59].map((min) => (
-                              <option value={min}>{min}</option>
+                              <option key={min} value={min}>{min}</option>
                             ))}
                           </select>
                           {/* <input
@@ -2718,7 +2735,7 @@ export function EditSingleBot() {
                             className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm">
                             <option value="" disabled>Sec</option>
                             {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59].map((sec) => (
-                              <option value={sec}>{sec}</option>
+                              <option key={sec} value={sec}>{sec}</option>
                             ))}
                           </select>
                         </div>
@@ -2775,7 +2792,7 @@ export function EditSingleBot() {
                             className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm">
                             <option value="" disabled>Min</option>
                             {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59].map((min) => (
-                              <option value={min}>{min}</option>
+                              <option key={min} value={min}>{min}</option>
                             ))}
                           </select>
                           {/* <input
@@ -2796,7 +2813,7 @@ export function EditSingleBot() {
                             className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm">
                             <option value="" disabled>Sec</option>
                             {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59].map((sec) => (
-                              <option value={sec}>{sec}</option>
+                              <option key={sec} value={sec}>{sec}</option>
                             ))}
                           </select>
                         </div>
@@ -2955,7 +2972,7 @@ export function EditSingleBot() {
                           >
                             <option value={0}>No Randomization</option>
                             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24].map((random_value) => (
-                              <option value={Number(random_value * 5)}>{`±${random_value * 5}s`}</option>
+                              <option key={random_value} value={Number(random_value * 5)}>{`±${random_value * 5}s`}</option>
                             ))}
                           </select>
                         </div>
@@ -2977,7 +2994,7 @@ export function EditSingleBot() {
                             className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm mb-2"
                           >
                             {time.map((item, index) => (
-                              <option value={Number(index * 10)}>{item}</option>
+                              <option key={index} value={Number(index * 10)}>{item}</option>
                             ))}
                             {/* <option value=>0s</option>
                             <option value="30s">30s</option>
@@ -3097,7 +3114,7 @@ export function EditSingleBot() {
                           className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm">
                           <option value="" disabled>Min</option>
                           {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59].map((min) => (
-                            <option value={min}>{min}</option>
+                            <option key={min} value={min}>{min}</option>
                           ))}
                         </select>
                       </div>
@@ -4338,8 +4355,8 @@ export function EditSingleBot() {
                             className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm">
                             <option value="" disabled>Time</option>
                             {/* <option value="DISABLED">DISABLED</option> */}
-                            {time1.map((time) => (
-                              <option value={time}>{time}</option>
+                            {time1.map((time, index) => (
+                              <option key={index} value={time}>{time}</option>
                             ))}
                           </select>
                         </div>

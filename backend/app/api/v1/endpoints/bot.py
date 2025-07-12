@@ -11,7 +11,7 @@ from app.models.bot import Bot
 
 from uuid import UUID
 from app.services.bot_service import create_bot, get_bots, get_bot, edit_bot, get_setting_history
-from app.schemas.bot import BotCreate, BotInfo, BotFilter, BotEdit
+from app.schemas.bot import BotCreate, BotInfo, BotFilter, BotEdit, BotChange
 from app.schemas.bots_setting_history import BotSettingHistoryFilter, BotSettingHistoryResponse
 from app.dependencies.database import get_db
 from app.core.security import create_access_token
@@ -27,7 +27,8 @@ def create_Bot(bot_create: BotCreate, db: Session = Depends(get_db)):
     return create_bot(db, bot_create)
 
 @router.post("/edit", status_code=status.HTTP_201_CREATED)
-def edit_Bot(bot_edit: BotEdit, db: Session = Depends(get_db)):
+def edit_Bot(bot_edit: BotChange, db: Session = Depends(get_db)):
+    print(bot_edit)
     return edit_bot(db, bot_edit)
 
 @router.post("/get_bots", status_code=status.HTTP_201_CREATED)

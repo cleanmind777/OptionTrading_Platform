@@ -1,8 +1,73 @@
 import { useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import axios from 'axios';
+import DifferenceViewer from '../../components/DifferenceViewer';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
+interface ChangeDisplayProps {
+  title: string;
+  oldValue: any;
+  newValue: any;
+  index: number;
+}
+
+const ChangeDisplay: React.FC<ChangeDisplayProps> = ({ title, oldValue, newValue, index }) => {
+  const formatBoolean = (value: boolean) => value ? "True" : "False";
+
+  return (
+    <dd key={index} className="text-gray-300">
+      <span className="font-semibold text-blue-400">{title}:</span>
+      {' '}
+      {typeof oldValue === 'boolean' && typeof newValue === 'boolean'
+        ? `${formatBoolean(oldValue)} → ${formatBoolean(newValue)}`
+        : `${JSON.stringify(oldValue)} → ${JSON.stringify(newValue)}`
+      }
+    </dd>
+  );
+};
+
+interface StrategyChangeDisplayProps {
+  strategy: any[];
+  index: number;
+}
+
+const StrategyChangeDisplay: React.FC<StrategyChangeDisplayProps> = ({ strategy, index }) => {
+  return (
+    <div key={index} className="mt-4">
+      <h3 className="font-semibold text-blue-400 mb-2">Strategy Changes:</h3>
+      <div className="space-y-2 ml-4">
+        {strategy.map((strategyChange: any, subIndex: number) => {
+          const key = Object.keys(strategyChange)[0];
+          const [oldValue, newValue] = strategyChange[key];
+
+          // Format values for display
+          const formatValue = (value: unknown): string => {
+            if (value === undefined) return 'undefined';
+            if (value === null) return 'null';
+            if (typeof value === 'boolean') return value ? 'True' : 'False';
+            if (typeof value === 'object') return JSON.stringify(value);
+            return String(value);
+          };
+          if (typeof newValue == "object") {
+            return (
+              <DifferenceViewer jsonA={oldValue} jsonB={newValue} />
+            )
+          }
+          else {
+            return (
+              <div key={subIndex} className="p-2 rounded bg-gray-50">
+                <div className="font-medium text-gray-700">{key}</div>
+                <div className="text-sm text-gray-600">
+                  {formatValue(oldValue)} → {formatValue(newValue)}
+                </div>
+              </div>
+            );
+          }
+        })}
+      </div>
+    </div>
+  );
+};
 // Helper interfaces for nested objects
 interface TradeExit {
   timed_exit: boolean;
@@ -569,6 +634,9 @@ export function BotSettingsHistory() {
     axios.post(`${BACKEND_URL}/bot/get_bots`, params)
       .then(response => {
         setBots(response.data);
+        if (response.data == 0) {
+          alert("You don't have any bots. Plz create the new Bot")
+        }
         localStorage.setItem('bots', response.data)
       })
       .catch(error => {
@@ -671,29 +739,47 @@ export function BotSettingsHistory() {
           <div className="space-y-4">
             {history.length > 0 ? (
               history.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-slate-700 p-4 rounded-lg border border-slate-600"
-                >
-                  <h3 className="font-bold text-lg">
+                <div key={item.id} className="bg-slate-700 p-4 rounded-lg border border-slate-600 shadow-lg">
+                  <h3 className="font-bold text-lg text-blue-300">
                     Bot: {item.bot_name} ({item.bot_id})
                   </h3>
-                  <p className="text-sm text-gray-400">
+                  <p className="text-sm text-gray-400 mb-2">
                     Changed at: {format(new Date(item.changed_at), 'yyyy-MM-dd HH:mm:ss')}
                   </p>
                   <div className="mt-2">
-                    <h4 className="font-medium">Changes:</h4>
-                    <ul className="list-disc pl-5">
+                    <h4 className="font-medium text-blue-200">Changes:</h4>
+                    <dl className="pl-5 space-y-1">
                       {item.change_info.map((change: any, index: number) => {
-                        const key = Object.keys(change)[0]
-                        const [oldValue, newValue] = change[key]
-                        return (
-                          <li key={index}>
-                            <span className="font-semibold">{key}:</span> {oldValue} → {newValue}
-                          </li>
-                        )
+                        const key = Object.keys(change)[0];
+                        if (key !== "strategy") {
+                          const [oldValue, newValue] = change[key];
+                          if (typeof newValue == 'boolean' || typeof newValue == 'number' || typeof newValue == 'string') {
+                            return (
+                              <ChangeDisplay
+                                title={key}
+                                oldValue={oldValue}
+                                newValue={newValue}
+                                index={index}
+                              />
+                            );
+                          }
+                          else {
+                            return (
+                              <DifferenceViewer jsonA={oldValue} jsonB={newValue} />
+                            );
+                          }
+                        }
+                        else {
+                          return (
+                            <StrategyChangeDisplay
+                              key={key}
+                              strategy={change[key]}
+                              index={index}
+                            />
+                          );
+                        }
                       })}
-                    </ul>
+                    </dl>
                   </div>
                 </div>
               ))

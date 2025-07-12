@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from datetime import datetime
 from uuid import UUID
 import json
@@ -19,7 +19,10 @@ class BotCreate(BaseModel):
 
 class BotEdit(BotCreate):
     id: UUID
-
+    
+class BotChange(BaseModel):
+    bot: BotEdit
+    strategy_change_info : Optional[List[Dict[str, Any]]] = None
 class BotInfo(BotCreate):
     id: UUID
     created_at: Optional[datetime] = None

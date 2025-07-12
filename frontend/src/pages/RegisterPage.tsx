@@ -51,6 +51,13 @@ export function RegisterPage() {
       newErrors.email = 'Please enter a valid email address'
     }
 
+    if (formData.phone != "") {
+      if (!phoneRegex.test(formData.phone)) {
+        newErrors.phone = 'Please enter a valid Phone number'
+      }
+    }
+
+
     if (!formData.password) {
       newErrors.password = 'Password is required'
     } else if (formData.password.length < 8) {
@@ -69,11 +76,11 @@ export function RegisterPage() {
     return Object.keys(newErrors).length === 0
   }
   const sendEmail = () => {
-    console.log('Public Key: ', EMAILJS_PUBLIC_KEY);
-    console.log('Template ID: ', EMAILJS_TEMPLATE_ID);
-    console.log('Service ID: ', EMAILJS_SERVICE_ID);
-    console.log("Name", formData.firstName);
-    console.log("Email: ", formData.email);
+    // console.log('Public Key: ', EMAILJS_PUBLIC_KEY);
+    // console.log('Template ID: ', EMAILJS_TEMPLATE_ID);
+    // console.log('Service ID: ', EMAILJS_SERVICE_ID);
+    // console.log("Name", formData.firstName);
+    // console.log("Email: ", formData.email);
     emailjs
       .send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
         name: formData.firstName,
@@ -112,7 +119,7 @@ export function RegisterPage() {
     // }
     await axios.post(`${BACKEND_URL}/auth/signup`, userData).then(
       response => {
-        console.log('Registration successful:', response.data)
+        // console.log('Registration successful:', response.data)
         localStorage.removeItem("access_id");
         localStorage.removeItem("access_token");
         localStorage.removeItem("email");
@@ -121,7 +128,13 @@ export function RegisterPage() {
         navigate("/login");
       }
     ).catch(error => {
-      alert(error.response.data.detail)
+      if (error.response.data.detail == "Email already registered") {
+        alert(error.response.data.detail);
+      }
+      else {
+        alert('Something went wrong, please try later');
+      }
+
     })
   }
 
@@ -129,11 +142,12 @@ export function RegisterPage() {
     e.preventDefault()
     if (validateForm()) {
       registerUser();
-      console.log("Backend_URL: ", BACKEND_URL)
-      console.log('Registration data:', formData)
+      // console.log("Backend_URL: ", BACKEND_URL)
+      // console.log('Registration data:', formData)
       // Handle registration logic here
     }
   }
+  const phoneRegex = /^[0-9]{10}$/; // Accepts only 10-digit numbers
 
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center py-12 px-4">
@@ -238,8 +252,10 @@ export function RegisterPage() {
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="Phone Number (Optional)"
-                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className={`w-full px-4 py-3 bg-slate-700 border rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 ${errors.phone ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-600 focus:border-blue-500 focus:ring-blue-500'
+                  }`}
               />
+              {errors.phone && <p className="text-red-400 text-xs mt-1">{errors.phone}</p>}
             </div>
 
             {/* Password Fields */}

@@ -14,7 +14,9 @@ base.Base.metadata.create_all(bind=engine)
 app = FastAPI(title="My FastAPI App")
 
 origins = [
-    "http://localhost:5173",  # Your frontend origin
+    "http://localhost:5173",
+    "http://3.12.160.213",
+    "http://ec2-3-12-160-213.us-east-2.compute.amazonaws.com"  # Your frontend origin
 ]
 
 app.add_middleware(

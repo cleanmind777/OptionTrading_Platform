@@ -664,6 +664,9 @@ export function ImportBots() {
     axios.post(`${BACKEND_URL}/bot/get_bots`, params)
       .then(response => {
         setBots(response.data);
+        if (response.data == 0) {
+          alert("You don't have any bots. Plz create the new Bot")
+        }
         localStorage.setItem('bots', response.data)
       })
       .catch(error => {

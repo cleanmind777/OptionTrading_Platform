@@ -18,7 +18,7 @@ class Backtest(Base):
     end_date = Column(DateTime, nullable=False)
     strategy_id = Column(UUID(as_uuid=True), ForeignKey("strategies.id"), nullable=False)
     bot_id = Column(UUID(as_uuid=True), ForeignKey("bots.id"), nullable=False)
-    result = Column(JSON, nullable=True, default={})
+    result = Column(JSON, nullable=True)
     
     user = relationship("User", back_populates="backtests")
     strategy = relationship('Strategy', back_populates='backtests')

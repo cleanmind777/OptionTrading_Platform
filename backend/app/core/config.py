@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     EMAILJS_PUBLIC_KEY: str = Field(env="EMAILJS_PUBLIC_KEY")
     
     EMAILJS_RRIVATE_KEY: str = Field(env="EMAILJS_RRIVATE_KEY")
+    
+    POLYGON_API_KEY : str = Field(env="POLYGON_API_KEY")
 
     class Config:
         # Path to the .env file (relative to project root)

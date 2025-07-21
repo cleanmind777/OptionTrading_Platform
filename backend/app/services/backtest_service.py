@@ -13,9 +13,3 @@ async def create_backtest(db: Session, backtest_task: BacktestTask):
 
 def finish_backtest(db: Session, id: UUID, result: json):
     return user_finish_backtest(db, id, result)
-
-# def get_backtest(db: Session, token: UUID):
-#     return user_get_backtest(db, token)
-
-# def remove_bactest(db: Session, token: UUID):
-#     return user_remove_backtest(db, token)

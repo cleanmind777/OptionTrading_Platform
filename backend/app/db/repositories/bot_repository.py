@@ -31,7 +31,7 @@ def user_create_bot(db: Session, bot_create: BotCreate):
         user_id = bot_create.user_id,
         name = bot_create.name,
         description = bot_create.description,
-        trading_account_id = bot_create.trading_account_id,
+        trading_account_id = safe_uuid(bot_create.trading_account_id),
         is_active = bot_create.is_active,
         created_at = func.now(),
         updated_at = func.now(),

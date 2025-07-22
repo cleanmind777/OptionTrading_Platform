@@ -46,6 +46,8 @@ import { EmailPrefs } from "./pages/account/EmailPrefs";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import { MainNavigation } from "./components/MainNavigation";
+import BacktestList from "./pages/backtest/BacktestList"
+import BacktestPlay from "./pages/backtest/BacktestPlay";
 // import PrivateRoute from "./components/PrivateRoute";
 import { Navigation } from "./components/Navigation";
 import { CookiesProvider } from 'react-cookie';
@@ -310,7 +312,28 @@ function App() {
               element={<AccountVsMarketPerformance />}
             />
             <Route path="/email-preferences" element={<EmailPrefs />} />
+            <Route
+              path="/backtest/list"
+              element={
+                isLoggedIn ? (
+                  <BacktestList />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/backtest/play"
+              element={
+                isLoggedIn ? (
+                  <BacktestPlay />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
           </Routes>
+
         </main>
       </div>
     </Router>

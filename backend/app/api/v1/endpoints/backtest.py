@@ -15,7 +15,7 @@ from app.core.security import create_access_token
 from app.core.config import settings
 from app.utils.backtest import backtest
 import os
-from datetime import datetime
+from datetime import datetime, date
 from multiprocessing import Process
 from app.services.bot_service import create_bot, get_bots, get_bot, edit_bot, get_setting_history
 from app.services.strategy_service import create_strategy, get_all_strategies, get_strategy, edit_strategy
@@ -24,6 +24,11 @@ router = APIRouter()
 
 @router.post("/start", status_code=status.HTTP_201_CREATED)
 async def start_backtest(backtest_task: BacktestTask, db: Session = Depends(get_db)):
+    user_id: UUID
+    print(backtest_task.user_id)
+    print(backtest_task.bot_id)
+    print(backtest_task.user_id)
+    print(backtest_task.strategy_id)
     token = await create_backtest(db, backtest_task)
     id = token.id
     bot = await get_bot(db, backtest_task.bot_id)

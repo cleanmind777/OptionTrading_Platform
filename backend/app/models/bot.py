@@ -16,7 +16,7 @@ class Bot(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, onupdate=func.now())
-    trading_account_id = Column(UUID(as_uuid=True), ForeignKey('trading_accounts.id'))
+    trading_account_id = Column(UUID(as_uuid=True), ForeignKey('trading_accounts.id'), nullable=True)
     strategy_id = Column(UUID(as_uuid=True), ForeignKey("strategies.id"), nullable=False)
     trade_entry = Column(JSON, nullable=True, default={
         "enter_by" : "BOT SETTINGS",
@@ -295,6 +295,7 @@ class Bot(Base):
     strategy = relationship('Strategy', back_populates='bots')
     bot_setting_history = relationship("BotsSettingHistory", back_populates="bot")
     trading_account = relationship("TradingAccount", back_populates="bots")
+    backtests = relationship("Backtest", back_populates="bot")
     
     
     

@@ -112,3 +112,17 @@ CREATE TABLE group_users (
     user_id UUID REFERENCES users(id),
     PRIMARY KEY (group_id, user_id)
 );
+
+
+CREATE TABLE backtests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id),
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+    finished_at TIMESTAMP WITHOUT TIME ZONE,
+    start_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    end_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    strategy_id UUID NOT NULL REFERENCES strategies(id),
+    bot_id UUID NOT NULL REFERENCES bots(id),
+    result JSON DEFAULT '{}'
+);

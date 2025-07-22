@@ -84,3 +84,4 @@ class User(Base):
     groups = relationship('Group', secondary=group_users, back_populates='users')
     trading_accounts = relationship("TradingAccount", back_populates="user")
     bot_setting_history = relationship("BotsSettingHistory", back_populates="user")
+    backtests = relationship("Backtest", back_populates="user")

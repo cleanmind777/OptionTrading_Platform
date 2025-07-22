@@ -38,4 +38,5 @@ class Strategy(Base):
     legs = Column(JSON, nullable=True, default=legssample)
     user = relationship("User", back_populates="strategies")
     bots = relationship("Bot", back_populates="strategy")
+    backtests = relationship("Backtest", back_populates="strategy")
     

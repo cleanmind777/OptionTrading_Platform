@@ -54,9 +54,13 @@ async def user_create_backtest(db: Session, backtest_task: BacktestTask):
     db.refresh(db_backtest)
     return db_backtest
 
-async def user_get_backtest(db: Session, id: UUID):
-    db_backtest = db.query(Backtest).filter(Backtest.id == id).first()
+def user_get_backtest(token: UUID, db: Session):
+    db_backtest = db.query(Backtest).filter(Backtest.id == token).first()
     return db_backtest
+
+def user_get_backtests(user_id: UUID, db: Session):
+    db_backtests = db.query(Backtest).filter(Backtest.user_id == user_id).all()
+    return db_backtests
 
 def user_finish_backtest(session: Session, id: UUID, result: Dict[str, Any]):
     db_backtest = session.query(Backtest).filter(Backtest.id == id).first()

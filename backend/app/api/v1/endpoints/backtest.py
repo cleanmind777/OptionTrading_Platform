@@ -8,7 +8,7 @@ from datetime import timedelta
 from app.models.strategy import Strategy
 from app.models.user import User
 from uuid import UUID
-from app.services.backtest_service import create_backtest
+from app.services.backtest_service import create_backtest, get_backtest, get_backtests
 from app.schemas.backtest import BacktestCreate, BacktestTask
 from app.dependencies.database import get_db
 from app.core.security import create_access_token
@@ -17,31 +17,37 @@ from app.utils.backtest import backtest
 import os
 from datetime import datetime
 from multiprocessing import Process
+from app.services.bot_service import create_bot, get_bots, get_bot, edit_bot, get_setting_history
+from app.services.strategy_service import create_strategy, get_all_strategies, get_strategy, edit_strategy
 # from app.utils.backtest import add
 router = APIRouter()
 
-# @router.get("/add")
-# def enqueue_add(x: int, y: int, db: Session = Depends(get_db)):
-#     try:
-#         res = add(x, y, db)  # 非同期でタスクがキューに登録される
-#         return {"task_id": res.id, "status": "queued"}
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-
 @router.post("/start", status_code=status.HTTP_201_CREATED)
-async def start_backtest(backtest_task: BacktestTask, background_task: BackgroundTasks, db: Session = Depends(get_db)):
+async def start_backtest(backtest_task: BacktestTask, db: Session = Depends(get_db)):
     token = await create_backtest(db, backtest_task)
     id = token.id
-    strategy_parameters = {
-        # Example overrides:
-        "underlying_symbol": "AAPL",
-        "option_type": "put",
-        "long_short": "long",
-        "target_delta": 0.25,
-        "days_to_expiry": 30,
-        "days_before_exit": 7,
-        "investment_pct": 0.20,
-    }
+    bot = await get_bot(db, backtest_task.bot_id)
+    strategy = get_strategy(db, backtest_task.strategy_id)
+    strategy_parameters  = {
+            "symbol": "AAPL",
+            "profit_target_type": "percent",      # Uses Percent Profit Target logic
+            "profit_target_value": 0.80,          # 80 % profit
+            "investment_pct": 0.10,
+            "days_before_exit": 5,
+            "legs": [
+                {
+                    "option_type": "call",
+                    "long_short": "long",
+                    "strike_price": None,      # pick via delta
+                    "target_delta": 0.25,
+                    "size_ratio": 1,
+                    "dte_type": "Target",
+                    "dte_value": 30,
+                    "dte_min": 25,
+                    "dte_max": 40
+                }
+            ]
+        }
     start_date = datetime(2025, 5, 3)  # Keep within last 2yrs for Polygon
     end_date = datetime(2025, 6, 29)
     print("ID: ", id)
@@ -51,11 +57,18 @@ async def start_backtest(backtest_task: BacktestTask, background_task: Backgroun
     return {"token": token}
 
 
-# @router.get('/get-result/{token}')
-# async def get_result(token: str):
-#     result = get_backtest(token)
-#     if not result:
-#         return {"status": "not found"}
-#     return result
+@router.get('/get-result/{token}')
+def get_result(token: str, db: Session = Depends(get_db)):
+    result = get_backtest(token, db)
+    if not result:
+        return {"status": "not found"}
+    return result
+
+@router.get('/get-all-results')
+def get_all_results(user_id: UUID, db: Session = Depends(get_db)):
+    result = get_backtests(user_id, db)
+    if not result:
+        return {"status": "not found"}
+    return result
 
 

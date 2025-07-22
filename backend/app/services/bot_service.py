@@ -16,7 +16,7 @@ def edit_bot(db: Session, bot_edit: BotChange) -> Bot:
 async def get_bots(db: Session, bot_filters: BotFilter):
     return await user_get_bots(db, bot_filters)
 
-async def get_bot(db: Session, id: UUID):
+async def get_bot(db: Session, id: UUID) -> Bot:
     return await user_get_bot(db, id)
 
 async def get_setting_history(db: Session, filter: BotSettingHistoryFilter):

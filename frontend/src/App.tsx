@@ -49,17 +49,27 @@ import { MainNavigation } from "./components/MainNavigation";
 import BacktestList from "./pages/backtest/BacktestList"
 import BacktestPlay from "./pages/backtest/BacktestPlay";
 // import PrivateRoute from "./components/PrivateRoute";
-import { Navigation } from "./components/Navigation";
 import { CookiesProvider } from 'react-cookie';
 import Cookies from 'js-cookie';
 // In your index.js or App.js
 <CookiesProvider>
-  <App />
+  <ConfigProvider
+    theme={{
+      components: {
+        Select: {
+          selectorBg: "#000000"
+        },
+      },
+    }}
+  >
+    <App />
+  </ConfigProvider>
 </CookiesProvider>
 
 // import { NotificationProvider } from "./contexts/NotificationContext";
 // import { ToastNotifications } from "./components/ToastNotifications";
 import "./App.css";
+import { ConfigProvider } from "antd";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(Cookies.get('access_token') ? true : false);

@@ -55,8 +55,11 @@ async def start_backtest(backtest_task: BacktestTask, db: Session = Depends(get_
                 }
             ]
         }
-    start_date = datetime(2025, 5, 3)  # Keep within last 2yrs for Polygon
-    end_date = datetime(2025, 6, 29)
+    # start_date = backtest_task.start_date  # Keep within last 2yrs for Polygon
+    # end_date = backtest_task.end_date
+    start_date = datetime.combine(backtest_task.start_date, datetime.min.time())
+    end_date = datetime.combine(backtest_task.end_date, datetime.min.time())
+    # end_date = datetime.strptime(backtest_task.end_date, "%Y-%m-%d").date()
     print("ID: ", id)
     p = Process(target=backtest, args=(params, start_date, end_date, id))
     p.start()

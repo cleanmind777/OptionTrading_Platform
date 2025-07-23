@@ -10,18 +10,30 @@ interface BacktestLog {
     bot_id: string;
     strategy_id: string;
     is_active: boolean;
-    result: JSON;
+    result: BacktestResult;
     start_date: string;
     end_date: string;
     created_at: string;
     finished_at: string;
 }
 
+interface BacktestResult {
+    cagr: number;
+    volatility: number;
+    sharpe: number;
+    max_drawdown: {
+        drawdown: number;
+        date: string;
+    };
+    romad: number;
+    total_return: number;
+}
+
 const BacktestList = () => {
     const [backtestLogs, setBacktestLogs] = useState<BacktestLog[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [selectedResult, setSelectedResult] = useState<JSON | null>(null); // State for selected result
+    const [selectedResult, setSelectedResult] = useState<BacktestResult | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
     const userInfo = JSON.parse(localStorage.getItem("userinfo")!);
 
@@ -42,7 +54,7 @@ const BacktestList = () => {
     };
 
     // Open modal with result data
-    const handleRowClick = (result: JSON) => {
+    const handleRowClick = (result: BacktestResult) => {
         setSelectedResult(result);
         setIsModalOpen(true);
     };
@@ -118,7 +130,7 @@ const BacktestList = () => {
                 <div className="text-red-500 text-lg mb-4">Error: {error}</div>
                 <button
                     onClick={getAllBacktests}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-300 transition-colors"
                 >
                     Try Again
                 </button>
@@ -127,12 +139,12 @@ const BacktestList = () => {
     }
 
     return (
-        <div className="container mx-auto px-4 py-8 bg-gray-50 min-h-screen">
+        <div className="container mx-auto px-4 py-8 bg-slate-900 min-h-screen">
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-gray-800">Backtest Logs</h1>
+                <h1 className="text-3xl font-bold text-white">Backtest Logs</h1>
                 <button
                     onClick={getAllBacktests}
-                    className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                    className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-300 transition-colors"
                 >
                     <RefreshIcon className="h-5 w-5 mr-2" />
                     Refresh
@@ -144,78 +156,78 @@ const BacktestList = () => {
                     No backtest logs found
                 </div>
             ) : (
-                <div className="overflow-x-auto bg-white rounded-lg shadow-lg">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-100">
+                <div className="overflow-x-auto bg-slate-800 rounded-lg shadow-lg">
+                    <table className="min-w-full divide-y divide-gray-700">
+                        <thead className="bg-slate-800">
                             <tr>
                                 <th
-                                    className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider cursor-pointer"
+                                    className="px-6 py-4 text-left text-sm font-semibold text-gray-300 uppercase tracking-wider cursor-pointer"
                                     onClick={() => handleSort('id')}
                                 >
                                     ID{getSortIndicator('id')}
                                 </th>
                                 <th
-                                    className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider cursor-pointer"
+                                    className="px-6 py-4 text-left text-sm font-semibold text-gray-300 uppercase tracking-wider cursor-pointer"
                                     onClick={() => handleSort('bot_id')}
                                 >
                                     Bot ID{getSortIndicator('bot_id')}
                                 </th>
                                 <th
-                                    className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider cursor-pointer"
+                                    className="px-6 py-4 text-left text-sm font-semibold text-gray-300 uppercase tracking-wider cursor-pointer"
                                     onClick={() => handleSort('start_date')}
                                 >
                                     Start Date{getSortIndicator('start_date')}
                                 </th>
                                 <th
-                                    className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider cursor-pointer"
+                                    className="px-6 py-4 text-left text-sm font-semibold text-gray-300 uppercase tracking-wider cursor-pointer"
                                     onClick={() => handleSort('end_date')}
                                 >
                                     End Date{getSortIndicator('end_date')}
                                 </th>
                                 <th
-                                    className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider cursor-pointer"
+                                    className="px-6 py-4 text-left text-sm font-semibold text-gray-300 uppercase tracking-wider cursor-pointer"
                                     onClick={() => handleSort('created_at')}
                                 >
                                     Created At{getSortIndicator('created_at')}
                                 </th>
                                 <th
-                                    className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider cursor-pointer"
+                                    className="px-6 py-4 text-left text-sm font-semibold text-gray-300 uppercase tracking-wider cursor-pointer"
                                     onClick={() => handleSort('finished_at')}
                                 >
                                     Finished At{getSortIndicator('finished_at')}
                                 </th>
                                 <th
-                                    className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider cursor-pointer"
+                                    className="px-6 py-4 text-left text-sm font-semibold text-gray-300 uppercase tracking-wider cursor-pointer"
                                     onClick={() => handleSort('is_active')}
                                 >
                                     Status{getSortIndicator('is_active')}
                                 </th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200">
-                            {sortedLogs.map(log => (
+                        <tbody className="divide-y divide-gray-700">
+                            {sortedLogs.length && sortedLogs.map(log => (
                                 <tr
                                     key={log.id}
                                     onClick={() => handleRowClick(log.result)}
-                                    className="hover:bg-gray-50 transition-colors cursor-pointer"
+                                    className="hover:bg-slate-500 transition-colors cursor-pointer"
                                 >
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                                         {log.id}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-300">
                                         {log.bot_id}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                                         {new Date(log.start_date).toLocaleDateString()}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                                         {new Date(log.end_date).toLocaleDateString()}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                                         {new Date(log.created_at).toLocaleString()}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                        {new Date(log.finished_at).toLocaleString()}
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                        {log.finished_at && new Date(log.finished_at).toLocaleString()}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <span
@@ -233,14 +245,14 @@ const BacktestList = () => {
             )}
 
             {/* Modal for displaying result */}
-            {isModalOpen && (
+            {isModalOpen && selectedResult && (  // Add null check for selectedResult
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                        <div className="flex justify-between items-center p-6 border-b border-gray-200">
-                            <h2 className="text-xl font-semibold text-gray-800">Backtest Result</h2>
+                    <div className="bg-gray-700 rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <div className="flex justify-between items-center p-6 border-b border-gray-700">
+                            <h2 className="text-xl font-semibold text-white">Backtest Result</h2>
                             <button
                                 onClick={closeModal}
-                                className="text-gray-500 hover:text-gray-700 transition-colors"
+                                className="text-gray-500 hover:text-gray-300 transition-colors"
                             >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -259,14 +271,58 @@ const BacktestList = () => {
                             </button>
                         </div>
                         <div className="p-6">
-                            <pre className="text-sm text-gray-700 whitespace-pre-wrap">
-                                {JSON.stringify(selectedResult, null, 2)}
-                            </pre>
+                            <div className="space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="p-4 bg-blue-400/10 rounded-lg">
+                                        <div className="text-sm text-blue-300">CAGR</div>
+                                        <div className="text-xl font-semibold text-blue-800">
+                                            {((selectedResult?.cagr * 100 || 0)).toFixed(2)}%
+                                        </div>
+                                    </div>
+                                    <div className="p-4 bg-green-400/10 rounded-lg">
+                                        <div className="text-sm text-green-300">Volatility</div>
+                                        <div className="text-xl font-semibold text-green-800">
+                                            {((selectedResult?.volatility || 0) * 100).toFixed(2)}%
+                                        </div>
+                                    </div>
+                                    <div className="p-4 bg-purple-400/10 rounded-lg">
+                                        <div className="text-sm text-purple-300">Sharpe Ratio</div>
+                                        <div className="text-xl font-semibold text-purple-800">
+                                            {(selectedResult?.sharpe || 0).toFixed(3)}
+                                        </div>
+                                    </div>
+                                    <div className="p-4 bg-yellow-400/10 rounded-lg">
+                                        <div className="text-sm text-yellow-300">ROMAD</div>
+                                        <div className="text-xl font-semibold text-yellow-800">
+                                            {(selectedResult?.romad || 0).toFixed(3)}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="p-4 bg-red-400/10 rounded-lg">
+                                        <div className="text-sm text-red-300">Max Drawdown</div>
+                                        <div className="text-xl font-semibold text-red-800">
+                                            {((selectedResult?.max_drawdown?.drawdown || 0) * 100).toFixed(2)}%
+                                        </div>
+                                        <div className="text-xs text-gray-500 mt-1">
+                                            {selectedResult?.max_drawdown?.date ?
+                                                new Date(selectedResult.max_drawdown.date).toLocaleString() :
+                                                ''}
+                                        </div>
+                                    </div>
+                                    <div className="p-4 bg-indigo-400/10 rounded-lg">
+                                        <div className="text-sm text-indigo-300">Total Return</div>
+                                        <div className="text-xl font-semibold text-indigo-800">
+                                            {((selectedResult?.total_return || 0) * 100).toFixed(2)}%
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div className="p-6 border-t border-gray-200">
                             <button
                                 onClick={closeModal}
-                                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-300 transition-colors"
                             >
                                 Close
                             </button>

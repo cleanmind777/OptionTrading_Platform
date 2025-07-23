@@ -77,3 +77,60 @@ body {
 .animate-carousel:hover {
   animation-play-state: paused;
 }
+
+.custom-select .ant-select-selector {
+  background-color: #1e293b !important; /* your desired background color */
+  color: white !important; /* text color */
+}
+
+.custom-select .ant-select-selection-placeholder {
+  color: #a1a1aa !important; /* placeholder color */
+}
+
+.ant-select-item-option-content {
+  color: white !important;
+}
+
+.custom-select .ant-select-selection-item {
+  color: white !important;
+}
+
+.ant-select-item-option-selected {
+  background-color: #1e293b !important;
+}
+
+/* Background color of the RangePicker input box */
+.custom-range-picker.ant-picker {
+  background-color: #1e293b !important;  /* substitute your desired background color */
+  color: white !important;               /* text color */
+  width: 100%;
+}
+
+/* Text color inside the input fields */
+.custom-range-picker .ant-picker-input > input {
+  color: white !important;
+}
+
+/* Placeholder text color */
+.custom-range-picker .ant-picker-input > input::placeholder {
+  color: white !important;
+}
+
+.custom-range-picker .ant-picker-separator,
+.custom-range-picker .ant-picker-separator .anticon {
+  color: white !important;
+  fill: white !important; /* for SVG fill */
+  stroke: white !important; /* if SVG uses stroke */
+}
+
+/* Optional: border and focus styles */
+.custom-range-picker.ant-picker:hover,
+.custom-range-picker.ant-picker-focused {
+  border-color: #3b82f6 !important;   /* e.g., blue border on hover/focus */
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5) !important;
+}
+
+/* The calendar icon color */
+.custom-range-picker .ant-picker-suffix {
+  color: #3b82f6 !important;
+}

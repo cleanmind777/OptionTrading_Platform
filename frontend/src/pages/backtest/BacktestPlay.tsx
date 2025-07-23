@@ -393,19 +393,19 @@ const BacktestPlay: React.FC = () => {
     };
 
     return (
-        <div className="max-w-3xl mx-auto my-10 px-6 animate-fade-in">
-            <Title level={2} className="text-center mb-8 text-white font-semibold tracking-tight">
+        <div className="max-w-3xl mx-auto my-10 px-6 animate-fade-in ">
+            <Title level={2} className="text-center mb-8 !text-white font-semibold tracking-tight">
                 Backtest Playground
             </Title>
 
-            <Card className="rounded-xl shadow-lg bg-gradient-to-br from-white to-gray-50 mb-6">
+            <Card className="rounded-xl shadow-lg bg-slate-800 mb-6 border border-slate-700">
                 <Space direction="vertical" size="middle" className="w-full">
                     <div>
-                        <label className="block mb-2 text-gray-600 font-medium">
+                        <label className="block mb-2 text-gray-300 hover:text-white font-medium">
                             Select Trading Bot
                         </label>
                         <Select
-                            className="w-full"
+                            className="w-full custom-select"
                             placeholder="Search and select a bot..."
                             onChange={setSelectedBot}
                             options={bots.map(bot => ({
@@ -417,16 +417,17 @@ const BacktestPlay: React.FC = () => {
                             showSearch
                             optionFilterProp="label"
                             notFoundContent={fetchingBots ? 'Loading bots...' : 'No bots available'}
-                            suffixIcon={<SearchOutlined className="text-blue-600" />}
+                            suffixIcon={<SearchOutlined className="text-white" />}
+                            dropdownStyle={{ backgroundColor: '#334155', color: "white" }}
                         />
                     </div>
 
                     <div>
-                        <label className="block mb-2 text-gray-600 font-medium">
+                        <label className="block mb-2 text-gray-300 hover:text-white font-medium">
                             Select Date Range
                         </label>
                         <RangePicker
-                            className="w-full"
+                            className="custom-range-picker"
                             onChange={handleDateChange}
                             size="large"
                             disabledDate={disabledDate}
@@ -437,8 +438,9 @@ const BacktestPlay: React.FC = () => {
                             ]}
                             allowClear={false}
                             placeholder={['Start Date', 'End Date']}
-                            suffixIcon={<CalendarOutlined className="text-blue-600" />}
+                            suffixIcon={<CalendarOutlined className="text-white" />}
                         />
+
                     </div>
 
                     <Button
@@ -448,7 +450,7 @@ const BacktestPlay: React.FC = () => {
                         disabled={!selectedBot || !dateRange}
                         size="large"
                         block
-                        className="h-12 text-lg font-medium bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 transition-all transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl"
+                        className="!border !border-slate-700 h-12 !text-gray-300 hover:!text-white text-lg font-medium bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 transition-all transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl"
                     >
                         {loading ? 'Running Backtest...' : 'Run Backtest'}
                     </Button>

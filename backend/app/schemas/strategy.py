@@ -11,7 +11,16 @@ class StrategyCreate(BaseModel):
 class StrategyBase(StrategyCreate):
     id: Optional[UUID] = None
     description: Optional[str] = None
-    
+
+class Leg(BaseModel):
+    strike_target_type : Optional[str] = None
+    strike_target_value: Optional[List[Any]] = None
+    option_type : Optional[str] = None
+    long_or_short: Optional[str] = None
+    size_ratio: Optional[Any] = None
+    days_to_expiration_type: Optional[str] = None
+    days_to_expiration_value: Optional[List[Any]] = None
+
 class StrategyInfo(StrategyBase):
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None

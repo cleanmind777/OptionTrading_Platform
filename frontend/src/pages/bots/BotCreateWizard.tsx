@@ -2091,6 +2091,7 @@ export function BotCreateWizard() {
                       <option key="Premium as % of Underlying" value="Premium as % of Underlying">Premium as % of Underlying</option>
                       <option key="Minium Premium" value="Minium Premium">Minimum Premium</option>
                       <option key="Percent ITM" value="Percent ITM">Percent ITM</option>
+                      <option key="Percent ITM" value="Percent OTM">Percent OTM</option>
                       <option key="Points ITM" value="Points ITM">Points ITM</option>
                       <option key="Points OTM" value="Points OTM">Points OTM</option>
                       <option key="Points ITM from Open" value="Points ITM from Open">Points ITM from Open</option>
@@ -2184,7 +2185,7 @@ export function BotCreateWizard() {
                                 ...strategy,
                                 legs: strategy.legs.map((leg, i) =>
                                   i === index
-                                    ? { ...leg, strike_target_value: [Number(e.target.value), item.strike_target_value[1], item.strike_target_value[2]] }
+                                    ? { ...leg, strike_target_value: [item.strike_target_value[0], item.strike_target_value[1], Number(e.target.value)] }
                                     : leg
                                 ),
                               });

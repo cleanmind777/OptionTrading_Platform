@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional, Dict, Any, List
-from datetime import datetime
+from datetime import datetime, date
 from uuid import UUID
 import json
 
@@ -21,7 +21,7 @@ class BacktestTask(BaseModel):
     user_id: UUID
     bot_id: UUID
     strategy_id: UUID
-    start_date: datetime
-    end_date: datetime
+    start_date: date
+    end_date: date
     
     

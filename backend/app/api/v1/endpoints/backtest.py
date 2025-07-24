@@ -14,8 +14,9 @@ from app.dependencies.database import get_db
 from app.core.security import create_access_token
 from app.core.config import settings
 from app.utils.backtest import backtest
+from app.utils.parameter import convert_params
 import os
-from datetime import datetime
+from datetime import datetime, date
 from multiprocessing import Process
 from app.services.bot_service import create_bot, get_bots, get_bot, edit_bot, get_setting_history
 from app.services.strategy_service import create_strategy, get_all_strategies, get_strategy, edit_strategy
@@ -24,12 +25,18 @@ router = APIRouter()
 
 @router.post("/start", status_code=status.HTTP_201_CREATED)
 async def start_backtest(backtest_task: BacktestTask, db: Session = Depends(get_db)):
+    user_id: UUID
+    print(backtest_task.user_id)
+    print(backtest_task.bot_id)
+    print(backtest_task.user_id)
+    print(backtest_task.strategy_id)
     token = await create_backtest(db, backtest_task)
     id = token.id
     bot = await get_bot(db, backtest_task.bot_id)
     strategy = get_strategy(db, backtest_task.strategy_id)
+    params = convert_params(bot, strategy)
     strategy_parameters  = {
-            "symbol": "AAPL",
+            "symbol": strategy.symbol,
             "profit_target_type": "percent",      # Uses Percent Profit Target logic
             "profit_target_value": 0.80,          # 80 % profit
             "investment_pct": 0.10,
@@ -48,10 +55,13 @@ async def start_backtest(backtest_task: BacktestTask, db: Session = Depends(get_
                 }
             ]
         }
-    start_date = datetime(2025, 5, 3)  # Keep within last 2yrs for Polygon
-    end_date = datetime(2025, 6, 29)
+    # start_date = backtest_task.start_date  # Keep within last 2yrs for Polygon
+    # end_date = backtest_task.end_date
+    start_date = datetime.combine(backtest_task.start_date, datetime.min.time())
+    end_date = datetime.combine(backtest_task.end_date, datetime.min.time())
+    # end_date = datetime.strptime(backtest_task.end_date, "%Y-%m-%d").date()
     print("ID: ", id)
-    p = Process(target=backtest, args=(strategy_parameters, start_date, end_date, id))
+    p = Process(target=backtest, args=(params, start_date, end_date, id))
     p.start()
     # background_task.add_task(backtest)
     return {"token": token}

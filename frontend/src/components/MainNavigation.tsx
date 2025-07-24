@@ -150,6 +150,14 @@ export function MainNavigation({
       ],
     },
     {
+      name: "BACKTESTING",
+      items: [
+        { name: "PLAY", link: "/backtest/play" },
+        { name: "LOGS", link: "/backtest/list" },
+        // { name: "Strategy Backtesting", link: "/strategies/backtest" },
+      ],
+    },
+    {
       name: "SUPPORT",
       items: [
         { name: "Video Vault", link: "/support/video-vault" },

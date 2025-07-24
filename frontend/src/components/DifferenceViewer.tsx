@@ -1,6 +1,6 @@
 import React from 'react';
 import { CompareValuesWithDetailedDifferences } from 'object-deep-compare';
-import { ChevronRightIcon } from '@heroicons/react/24/solid';
+import { ChevronRightIcon } from '@heroicons/react/solid';
 
 type DiffType = 'changed' | 'added' | 'removed';
 
@@ -54,10 +54,10 @@ const DifferenceViewer: React.FC<DifferenceViewerProps> = ({ jsonA, jsonB, class
                             <div key={idx} className="p-3 rounded-lg hover:bg-gray-50 transition-colors">
                                 <div className="flex items-start space-x-3">
                                     <div className={`flex-shrink-0 w-2 h-2 rounded-full mt-2 ${diff.type === 'added'
-                                            ? 'bg-green-400'
-                                            : diff.type === 'removed'
-                                                ? 'bg-red-400'
-                                                : 'bg-blue-400'
+                                        ? 'bg-green-400'
+                                        : diff.type === 'removed'
+                                            ? 'bg-red-400'
+                                            : 'bg-blue-400'
                                         }`}></div>
                                     <div className="flex-1">
                                         <div className="text-sm font-medium text-gray-700">

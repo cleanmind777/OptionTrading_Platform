@@ -8,7 +8,7 @@ from datetime import timedelta
 from app.models.strategy import Strategy
 from app.models.user import User
 from uuid import UUID
-from app.services.backtest_service import create_backtest, get_backtest, get_backtests
+from app.services.backtest_service import create_backtest, get_backtest, get_backtests, get_tearsheet_html, get_trades_html, get_indicators_html
 from app.schemas.backtest import BacktestCreate, BacktestTask
 from app.dependencies.database import get_db
 from app.core.security import create_access_token
@@ -82,3 +82,23 @@ def get_all_results(user_id: UUID, db: Session = Depends(get_db)):
     return result
 
 
+@router.get('/get-tearsheet-html')
+def get_Tearsheet_html(backtest_id: UUID):
+    result = get_tearsheet_html(backtest_id)
+    if not result:
+        return {"status": "not found"}
+    return result
+
+@router.get('/get-trades-html')
+def get_Trades_html(backtest_id: UUID):
+    result = get_trades_html(backtest_id)
+    if not result:
+        return {"status": "not found"}
+    return result
+
+@router.get('/get-indicators-html')
+def get_Indicators_html(backtest_id: UUID):
+    result = get_indicators_html(backtest_id)
+    if not result:
+        return {"status": "not found"}
+    return result

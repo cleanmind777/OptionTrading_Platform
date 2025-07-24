@@ -14,6 +14,7 @@ from uuid import UUID
 from app.db.repositories.backtest_repository import user_finish_backtest
 from sqlalchemy.orm import Session
 from app.dependencies.database import get_db
+from app.core.config import settings
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from app.db.session import engine
 from app.models import base
@@ -47,7 +48,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 
-DATABASE_URL = "postgresql://postgres:hpscks0518@localhost:5432/tradig1"
+DATABASE_URL = settings.DATABASE_URL
 
 engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
@@ -75,6 +76,77 @@ def remove_log():
             os.remove(file_path)  # delete the file
             print(f"{filename} is removed")
 
+def move_result(id: UUID):
+    # Source directory where the file currently is
+    source_dir = r'logs'
+    # Destination directory where you want to move and rename the file
+    dest_dir = r'result_source'
+
+    try:
+        # Make sure destination directory exists
+        os.makedirs(dest_dir, exist_ok=True)
+
+        # Check if source directory exists
+        if not os.path.exists(source_dir):
+            raise FileNotFoundError(f"Source directory '{source_dir}' does not exist")
+
+        # Loop through files in the source directory
+        files_found = False
+        for filename in os.listdir(source_dir):
+            if filename.endswith('_tearsheet.html'):
+                source_path = os.path.join(source_dir, filename)
+                dest_path = os.path.join(dest_dir, f'{id}_tearsheet.html')
+                
+                # Check if source file exists
+                if not os.path.exists(source_path):
+                    print(f"Warning: File '{source_path}' not found")
+                    continue
+                
+                # Move and rename the file
+                shutil.move(source_path, dest_path)
+                
+                print(f"Moved and renamed file '{filename}' to '{dest_path}'")
+                files_found = True
+                break  # stop after the first match
+        # for filename in os.listdir(source_dir):
+        #     if filename.endswith('_indicators.html'):
+        #         source_path = os.path.join(source_dir, filename)
+        #         dest_path = os.path.join(dest_dir, f'{id}_indicators.html')
+                
+        #         # Check if source file exists
+        #         if not os.path.exists(source_path):
+        #             print(f"Warning: File '{source_path}' not found")
+        #             continue
+                
+        #         # Move and rename the file
+        #         shutil.move(source_path, dest_path)
+                
+        #         print(f"Moved and renamed file '{filename}' to '{dest_path}'")
+        #         files_found = True
+        #         break  # stop after the first match
+        # for filename in os.listdir(source_dir):
+        #     if filename.endswith('_trades.html'):
+        #         source_path = os.path.join(source_dir, filename)
+        #         dest_path = os.path.join(dest_dir, f'{id}_trades.html')
+                
+        #         # Check if source file exists
+        #         if not os.path.exists(source_path):
+        #             print(f"Warning: File '{source_path}' not found")
+        #             continue
+                
+        #         # Move and rename the file
+        #         shutil.move(source_path, dest_path)
+                
+        #         print(f"Moved and renamed file '{filename}' to '{dest_path}'")
+        #         files_found = True
+        #         break  # stop after the first match        
+        if not files_found:
+            print("No file ending with '_tearsheet.html' found.")
+
+    except PermissionError as e:
+        print(f"Permission error: {e}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 """
 CustomizedSingleLegStrategy ➜ now supports *optional* multi-leg trades **and** an
 early-exit Profit Target
@@ -491,6 +563,7 @@ def backtest(strategy_parameters: json, start_date: datetime, end_date:datetime,
                 parameters=strategy_parameters,
             )
             user_finish_backtest(session, id, results)
+            move_result(id)
             # save_backtest_output_detailed(session, results, "flex_opt_test")
             print("Back-test finished – results saved with prefix 'flex_opt_test_*'.")
 

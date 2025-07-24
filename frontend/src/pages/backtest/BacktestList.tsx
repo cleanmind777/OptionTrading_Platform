@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import axios, { AxiosError } from 'axios';
 import { FaSyncAlt as RefreshIcon, FaExclamationCircle as ExclamationCircleIcon } from 'react-icons/fa';
-
+import SpecialEmbed from '../../components/SpecialEmbed';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 interface BacktestLog {
@@ -31,6 +31,7 @@ interface BacktestResult {
 
 const BacktestList = () => {
     const [backtestLogs, setBacktestLogs] = useState<BacktestLog[]>([]);
+    const [backtest, setBacktest] = useState<BacktestLog>();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedResult, setSelectedResult] = useState<BacktestResult | null>(null);
@@ -115,6 +116,47 @@ const BacktestList = () => {
         getAllBacktests();
     }, []);
 
+    useEffect(() => {
+
+    }, [backtest])
+
+    const [isTearsheetOpen, setIsTearsheetOpen] = useState(false); // Add this state
+
+    // Add this handler
+    const handleTearsheetClick = () => {
+        setIsTearsheetOpen(true);
+    };
+
+    // Add this handler
+    const closeTearsheet = () => {
+        setIsTearsheetOpen(false);
+    };
+    const [isTradesOpen, setIsTradesOpen] = useState(false); // Add this state
+
+    // Add this handler
+    const handleTradesClick = () => {
+        setIsTradesOpen(true);
+    };
+
+    // Add this handler
+    const closeTrades = () => {
+        setIsTradesOpen(false);
+    };
+    const [isIndicatorsOpen, setIsIndicatorsOpen] = useState(false); // Add this state
+
+    // Add this handler
+    const handleIndicatorsClick = () => {
+        setIsIndicatorsOpen(true);
+    };
+
+    // Add this handler
+    const closeIndicators = () => {
+        setIsIndicatorsOpen(false);
+    };
+    const handleSelectBacktest = (selectedBacktest: BacktestLog) => {
+        setBacktest(selectedBacktest);
+        setIsTearsheetOpen(true);
+    };
     if (loading) {
         return (
             <div className="flex justify-center items-center min-h-screen bg-gray-50">
@@ -208,7 +250,10 @@ const BacktestList = () => {
                             {sortedLogs.length && sortedLogs.map(log => (
                                 <tr
                                     key={log.id}
-                                    onClick={() => handleRowClick(log.result)}
+                                    onClick={() => {
+                                        handleRowClick(log.result);
+                                        setBacktest(log);
+                                    }}
                                     className="hover:bg-slate-500 transition-colors cursor-pointer"
                                 >
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
@@ -319,13 +364,54 @@ const BacktestList = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="p-6 border-t border-gray-200">
+
+                        <div className="p-6 border-t border-gray-200 flex justify-between">
+                            {backtest && (
+                                <button
+                                    onClick={() => handleSelectBacktest(backtest)}
+                                    className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-300 transition-colors"
+                                >
+                                    TEARSHEET
+                                </button>
+                            )}
+
                             <button
                                 onClick={closeModal}
                                 className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-300 transition-colors"
                             >
                                 Close
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {isTearsheetOpen && backtest && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-lg shadow-lg c max-h-[90vh] overflow-y-auto">
+                        <div className="flex justify-between items-center p-6 border-b border-gray-700">
+                            <h2 className="text-xl font-semibold text-white">Tearsheet</h2>
+                            <button
+                                onClick={closeTearsheet}
+                                className="text-gray-500 hover:text-gray-300 transition-colors"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-6 w-6"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M6 18L18 6M6 6l12 12"
+                                    />
+                                </svg>
+                            </button>
+                        </div>
+                        <div className="p-6">
+                            <SpecialEmbed url="/get-tearsheet-html" id={backtest.id} />
                         </div>
                     </div>
                 </div>

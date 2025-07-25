@@ -20,6 +20,8 @@ from typing import Optional, Dict, Any, List
 import numpy as np
 import datetime
 import pandas as pd
+from fastapi.responses import FileResponse
+from pathlib import Path
 
 def make_json_serializable(obj):
     if isinstance(obj, (datetime.datetime, datetime.date, pd.Timestamp)):
@@ -72,3 +74,22 @@ def user_finish_backtest(session: Session, id: UUID, result: Dict[str, Any]):
     db_backtest = session.query(Backtest).filter(Backtest.id == id).first()
     print("is_Active: ", db_backtest.is_active)
     return db_backtest
+
+def user_get_tearsheet_html(backtest_id: UUID):
+    file_path = Path(f"result_source/{backtest_id}_tearsheet.html")
+    return FileResponse(file_path, media_type="text/html")
+
+def user_get_trades_html(backtest_id: UUID):
+    file_path = Path(f"result_source/{backtest_id}_trades.html")
+    return FileResponse(file_path, media_type="text/html")
+
+def user_get_indicators_html(backtest_id: UUID):
+    file_path = Path(f"result_source/{backtest_id}_indicators.html")
+    if not file_path.is_file():
+    # File does not exist - raise an exception with an appropriate HTTP status code
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Indicators HTML file not found"
+        )
+    # If file exists, return it
+    return FileResponse(file_path, media_type="text/html")

@@ -20,6 +20,7 @@ from app.utils.email import send_reset_email
 router = APIRouter()
 
 FRONTEND_URL = settings.FRONTEND_URL
+DOMAIN = settings.DOMAIN
 
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def sign_up(user_create: UserCreate, db: Session = Depends(get_db)):
@@ -61,7 +62,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     response.set_cookie(
         key="access_token",
         value=access_token,
-        # domain="ec2-3-12-160-213.us-east-2.compute.amazonaws.com",
+        domain=DOMAIN,
         # httponly=True,
         secure=False,  # Set to True in production
         samesite="lax",

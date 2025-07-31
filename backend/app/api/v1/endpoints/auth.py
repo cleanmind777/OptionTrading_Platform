@@ -62,7 +62,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     response.set_cookie(
         key="access_token",
         value=access_token,
-        domain=DOMAIN,
+        # domain=DOMAIN,
         # httponly=True,
         secure=False,  # Set to True in production
         samesite="lax",

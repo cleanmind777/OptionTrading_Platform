@@ -17,29 +17,25 @@ export function LoginPage({ onLogin }: LoginPageProps) {
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     const params = new URLSearchParams();
     params.append('username', email);
     params.append('password', password);
     try {
-      await axios.post(`${BACKEND_URL}/auth/login`, params,
+      const response = await axios.post(
+        `${BACKEND_URL}/auth/login`,
+        params,
         {
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           withCredentials: true,
-        }).then(response => {
-          // console.log('Login successful:', response)
-          // console.log("Cookie", Cookies.get('access_token'))
-          localStorage.setItem("userinfo", JSON.stringify(response.data))
-          setUser(response.data)
-          return true
-        }).catch(error => {
-          // console.log(error)
-          alert("Invalid email or password")
-          return false
-        })
+        }
+      );
+      localStorage.setItem("userinfo", JSON.stringify(response.data));
+      setUser(response.data); // Make sure setUser is in scope!
+      return true;
     } catch (error) {
-      // console.log("error")
-      return false
+      alert("Invalid email or password");
+      return false;
     }
   };
 

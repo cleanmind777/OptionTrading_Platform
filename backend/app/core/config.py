@@ -28,7 +28,17 @@ class Settings(BaseSettings):
     POLYGON_API_KEY : str = Field(env="POLYGON_API_KEY")
     
     DOMAIN : str = Field(env="DOMAIN")
+    
+    SCHWAB_CLIENT_ID : str = Field(env="SCHWAB_CLIENT_ID")
+    
+    SCHWAB_CLIENT_SECRET : str = Field(env="SCHWAB_CLIENT_SECRET")
+    
+    SCHWAB_ACCESS_TOKEN : str = Field(env="SCHWAB_ACCESS_TOKEN")
 
+    SCHWAB_API_BASE_URL : str = Field(env="SCHWAB_API_BASE_URL")
+    
+    SCHWAB_API_MARKET_URL : str = Field(env="SCHWAB_API_MARKET_URL")
+    
     class Config:
         # Path to the .env file (relative to project root)
         env_file = ".env"

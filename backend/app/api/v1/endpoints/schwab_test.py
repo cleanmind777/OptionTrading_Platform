@@ -12,16 +12,16 @@ def get_account_accountnumbers():
     return schwab_account.get_accounts_accountnumbers()
 
 @router.get("/accounts", status_code=status.HTTP_201_CREATED)
-def get_accounts(fields: str):
+def get_accounts(fields: Optional[str] = None):
     return schwab_account.get_accounts(fields)
 
 @router.get("/accounts/account_number", status_code=status.HTTP_201_CREATED)
-def get_accounts_from_accountnumber(account_number: str, fields: str):
+def get_accounts_from_accountnumber(account_number: str, fields: Optional[str] = None):
     return schwab_account.get_accounts_from_accountnumber(account_number, fields)
 
 @router.get("/accounts/account_number/orders", status_code=status.HTTP_201_CREATED)
-def get_accounts_accountnumber_orders(account_number : str, max_results: int, from_entered_time: datetime, to_entered_time : datetime):
-    return schwab_account.get_accounts_accountnumber_orders(account_number, max_results, from_entered_time, to_entered_time)
+def get_accounts_accountnumber_orders(account_number : str, from_entered_time: datetime, to_entered_time : datetime,  max_results: Optional[int] = None):
+    return schwab_account.get_accounts_accountnumber_orders(account_number, from_entered_time, to_entered_time, max_results)
 
 @router.post("/accounts/account_number/orders", status_code=status.HTTP_201_CREATED)
 def post_accounts_accountnumber_orders(account_number: str, order: dict):
@@ -40,16 +40,16 @@ def put_accounts_accountnumber_orders_orderid(account_number : str, order_id: in
     return schwab_account.put_accounts_accountnumber_orders_orderid(account_number, order_id, order)
 
 @router.get("/orders", status_code=status.HTTP_201_CREATED)
-def get_orders(max_results: int, from_entered_time: datetime, to_entered_time : datetime):
-    return schwab_account.get_orders(max_results, from_entered_time, to_entered_time)
+def get_orders(from_entered_time: datetime, to_entered_time : datetime, max_results: Optional[int] = None):
+    return schwab_account.get_orders(from_entered_time, to_entered_time, max_results)
 
 @router.post("/accounts/account_number/preview_order", status_code=status.HTTP_201_CREATED)
 def post_accounts_accountnumber_previeworder(account_number: str, order: dict):
     return schwab_account.post_accounts_accountnumber_previeworder(account_number, order)
 
 @router.get("/accounts/account_number/transactions", status_code=status.HTTP_201_CREATED)
-def get_accounts_accountnumber_transactions(account_number: str, start_date: datetime, end_date : datetime, symbol: str, types: TransactionTypeEnum):
-    return schwab_account.get_accounts_accountnumber_transactions(account_number, start_date, end_date, symbol, types)
+def get_accounts_accountnumber_transactions(account_number: str, start_date: datetime, end_date : datetime, types: TransactionTypeEnum, symbol: Optional[str] = None):
+    return schwab_account.get_accounts_accountnumber_transactions(account_number, start_date, end_date, types, symbol)
 
 @router.get("/accounts/account_number/transactions/transaction_id", status_code=status.HTTP_201_CREATED)
 def get_accounts_accountnumber_transactions_transactionid(account_number: str, transaction_id: int):

@@ -45,11 +45,12 @@ class SchwabAccountAPI:
                 return None  # or {}
         except requests.exceptions.HTTPError as e:
             raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
-    def get_accounts(self, fields : str):
+    def get_accounts(self, fields: Optional[str] = None):
         url = f'{self.BASE_URL}/accounts'
-        parameter = {
-            'fields' : fields
-        }
+        parameter = {}
+        if fields:
+            parameter['fields'] = fields
+        
         try:
             resp = requests.get(url, headers=self.get_headers(), params=parameter)
             resp.raise_for_status()
@@ -66,11 +67,11 @@ class SchwabAccountAPI:
         except requests.exceptions.HTTPError as e:
             raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
     
-    def get_accounts_from_accountnumber(self, account_number : str, fields : str):
+    def get_accounts_from_accountnumber(self, account_number : str, fields: Optional[str] = None):
         url = f'{self.BASE_URL}/accounts/{account_number}'
-        parameter = {
-            'fields' : fields
-        }
+        parameter = {}
+        if fields:
+            parameter['fields'] = fields
         try:
             resp = requests.get(url, headers=self.get_headers(), params=parameter)
             resp.raise_for_status()
@@ -87,17 +88,17 @@ class SchwabAccountAPI:
         except requests.exceptions.HTTPError as e:
             raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
     
-    def get_accounts_accountnumber_orders(self, account_number : str, max_results: int, from_entered_time: datetime, to_entered_time : datetime):
+    def get_accounts_accountnumber_orders(self, account_number : str, from_entered_time: datetime, to_entered_time : datetime, max_results: Optional[int] = None):
         url = f'{self.BASE_URL}/accounts/{account_number}/orders'
         parameter = {
-            'maxResults' : max_results,
             'fromEnteredTime' : from_entered_time,
             'toEnteredTime' : to_entered_time
         }
+        if max_results:
+            parameter['maxResults'] = max_results
         try:
             resp = requests.get(url, headers=self.get_headers(), params=parameter)
             resp.raise_for_status()
-            
             if resp.content:
                 try:
                     return resp.json()
@@ -179,13 +180,14 @@ class SchwabAccountAPI:
         except requests.exceptions.HTTPError as e:
             raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
     
-    def get_orders(self, max_results: int, from_entered_time: datetime, to_entered_time : datetime):
+    def get_orders(self, from_entered_time: datetime, to_entered_time : datetime, max_results: Optional[int] = None):
         url = f'{self.BASE_URL}/orders'
         parameter = {
-            'maxResults' : max_results,
             'fromEnteredTime' : from_entered_time,
             'toEnteredTime' : to_entered_time
         }
+        if max_results:
+            parameter['maxResults'] = max_results
         try:
             resp = requests.get(url, headers=self.get_headers(), params=parameter)
             resp.raise_for_status()
@@ -219,14 +221,16 @@ class SchwabAccountAPI:
         except requests.exceptions.HTTPError as e:
             raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
             
-    def get_accounts_accountnumber_transactions(self, account_number: str, start_date: datetime, end_date : datetime, symbol: str, types: TransactionTypeEnum):
+    def get_accounts_accountnumber_transactions(self, account_number: str, start_date: datetime, end_date : datetime, types: TransactionTypeEnum, symbol: Optional[str] = None):
         url = f'{self.BASE_URL}/accounts/{account_number}/transactions'
+        print(types)
         parameter = {
             'startDate' : start_date,
             'endDate' : end_date,
-            'symbol' : symbol,
             'types' : types
         }
+        if symbol:
+            parameter['symbol'] = symbol
         try:
             resp = requests.get(url, headers=self.get_headers(), params=parameter)
             resp.raise_for_status()

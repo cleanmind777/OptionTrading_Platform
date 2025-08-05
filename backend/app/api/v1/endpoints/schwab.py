@@ -1,7 +1,9 @@
 import requests
 from app.core.config import settings
 import json
-from datetime import datetime
+from datetime import datetime, date
+from typing import Optional
+from fastapi import HTTPException
 
 SCHWAB_API_BASE_URL = settings.SCHWAB_API_BASE_URL
 SCHWAB_API_MARKET_URL = settings.SCHWAB_API_MARKET_URL
@@ -28,52 +30,62 @@ class SchwabAccountAPI:
     
     def get_accounts_accountnumbers(self):
         url = f'{self.BASE_URL}/accounts/accountNumbers'
-        resp = requests.get(url, headers=self.get_headers())
-        resp.raise_for_status()
-        
-        if resp.content:
-            try:
-                return resp.json()
-            except ValueError:  # includes simplejson.decoder.JSONDecodeError
-                # Log error, raise custom error, or return raw text
-                raise ValueError(f"Response content is not valid JSON: {resp.text}")
-        else:
-            # No content to decode.
-            return None  # or {}
-    
+        try:
+            resp = requests.get(url, headers=self.get_headers())
+            resp.raise_for_status()
+            
+            if resp.content:
+                try:
+                    return resp.json()
+                except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    # Log error, raise custom error, or return raw text
+                    raise ValueError(f"Response content is not valid JSON: {resp.text}")
+            else:
+                # No content to decode.
+                return None  # or {}
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
     def get_accounts(self, fields : str):
         url = f'{self.BASE_URL}/accounts'
         parameter = {
             'fields' : fields
         }
-        resp = requests.get(url, headers=self.get_headers(), params=parameter)
-        resp.raise_for_status()
-        if resp.content:
-            try:
-                return resp.json()
-            except ValueError:  # includes simplejson.decoder.JSONDecodeError
-                # Log error, raise custom error, or return raw text
-                raise ValueError(f"Response content is not valid JSON: {resp.text}")
-        else:
-            # No content to decode.
-            return None  # or {}
+        try:
+            resp = requests.get(url, headers=self.get_headers(), params=parameter)
+            resp.raise_for_status()
+            
+            if resp.content:
+                try:
+                    return resp.json()
+                except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    # Log error, raise custom error, or return raw text
+                    raise ValueError(f"Response content is not valid JSON: {resp.text}")
+            else:
+                # No content to decode.
+                return None  # or {}
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
     
     def get_accounts_from_accountnumber(self, account_number : str, fields : str):
         url = f'{self.BASE_URL}/accounts/{account_number}'
         parameter = {
             'fields' : fields
         }
-        resp = requests.get(url, headers=self.get_headers(), params=parameter)
-        resp.raise_for_status()
-        if resp.content:
-            try:
-                return resp.json()
-            except ValueError:  # includes simplejson.decoder.JSONDecodeError
-                # Log error, raise custom error, or return raw text
-                raise ValueError(f"Response content is not valid JSON: {resp.text}")
-        else:
-            # No content to decode.
-            return None  # or {}
+        try:
+            resp = requests.get(url, headers=self.get_headers(), params=parameter)
+            resp.raise_for_status()
+            
+            if resp.content:
+                try:
+                    return resp.json()
+                except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    # Log error, raise custom error, or return raw text
+                    raise ValueError(f"Response content is not valid JSON: {resp.text}")
+            else:
+                # No content to decode.
+                return None  # or {}
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
     
     def get_accounts_accountnumber_orders(self, account_number : str, max_results: int, from_entered_time: datetime, to_entered_time : datetime):
         url = f'{self.BASE_URL}/accounts/{account_number}/orders'
@@ -82,74 +94,90 @@ class SchwabAccountAPI:
             'fromEnteredTime' : from_entered_time,
             'toEnteredTime' : to_entered_time
         }
-        resp = requests.get(url, headers=self.get_headers(), params=parameter)
-        resp.raise_for_status()
-        if resp.content:
-            try:
-                return resp.json()
-            except ValueError:  # includes simplejson.decoder.JSONDecodeError
-                # Log error, raise custom error, or return raw text
-                raise ValueError(f"Response content is not valid JSON: {resp.text}")
-        else:
-            # No content to decode.
-            return None  # or {}
+        try:
+            resp = requests.get(url, headers=self.get_headers(), params=parameter)
+            resp.raise_for_status()
+            
+            if resp.content:
+                try:
+                    return resp.json()
+                except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    # Log error, raise custom error, or return raw text
+                    raise ValueError(f"Response content is not valid JSON: {resp.text}")
+            else:
+                # No content to decode.
+                return None  # or {}
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
     
     def post_accounts_accountnumber_orders(self, account_number: str, order: dict):
         url = f'{self.BASE_URL}/accounts/{account_number}/orders'
-        resp = requests.post(url, headers=self.get_headers(), json=order)
-        resp.raise_for_status()
-        if resp.content:
-            try:
-                return resp.json()
-            except ValueError:  # includes simplejson.decoder.JSONDecodeError
-                # Log error, raise custom error, or return raw text
-                raise ValueError(f"Response content is not valid JSON: {resp.text}")
-        else:
-            # No content to decode.
-            return None  # or {}
-    
+        try:
+            resp = requests.post(url, headers=self.get_headers(), json=order)
+            resp.raise_for_status()
+            if resp.content:
+                try:
+                    return resp.json()
+                except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    # Log error, raise custom error, or return raw text
+                    raise ValueError(f"Response content is not valid JSON: {resp.text}")
+            else:
+                # No content to decode.
+                return None  # or {}
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
     
     def get_accounts_accountnumber_orders_orderid(self, account_number : str, order_id: int):
         url = f'{self.BASE_URL}/accounts/{account_number}/orders/{order_id}'
-        resp = requests.get(url, headers=self.get_headers())
-        resp.raise_for_status()
-        if resp.content:
-            try:
-                return resp.json()
-            except ValueError:  # includes simplejson.decoder.JSONDecodeError
-                # Log error, raise custom error, or return raw text
-                raise ValueError(f"Response content is not valid JSON: {resp.text}")
-        else:
-            # No content to decode.
-            return None  # or {}
+        try:
+            resp = requests.get(url, headers=self.get_headers())
+            resp.raise_for_status()
+            
+            if resp.content:
+                try:
+                    return resp.json()
+                except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    # Log error, raise custom error, or return raw text
+                    raise ValueError(f"Response content is not valid JSON: {resp.text}")
+            else:
+                # No content to decode.
+                return None  # or {}
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
     
     def delete_accounts_accountnumber_orders_orderid(self, account_number : str, order_id: int):
         url = f'{self.BASE_URL}/accounts/{account_number}/orders/{order_id}'
         resp = requests.delete(url, headers=self.get_headers())
-        resp.raise_for_status()
-        if resp.content:
-            try:
-                return resp.json()
-            except ValueError:  # includes simplejson.decoder.JSONDecodeError
-                # Log error, raise custom error, or return raw text
-                raise ValueError(f"Response content is not valid JSON: {resp.text}")
-        else:
-            # No content to decode.
-            return None  # or {}
+        try:
+            resp.raise_for_status()
+            if resp.content:
+                try:
+                    return resp.json()
+                except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    # Log error, raise custom error, or return raw text
+                    raise ValueError(f"Response content is not valid JSON: {resp.text}")
+            else:
+                # No content to decode.
+                return None  # or {}
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
     
     def put_accounts_accountnumber_orders_orderid(self, account_number : str, order_id: int, order: dict):
         url = f'{self.BASE_URL}/accounts/{account_number}/orders/{order_id}'
-        resp = requests.put(url, headers=self.get_headers(), json=order)
-        resp.raise_for_status()
-        if resp.content:
-            try:
-                return resp.json()
-            except ValueError:  # includes simplejson.decoder.JSONDecodeError
-                # Log error, raise custom error, or return raw text
-                raise ValueError(f"Response content is not valid JSON: {resp.text}")
-        else:
-            # No content to decode.
-            return None  # or {}
+        try:
+            resp = requests.put(url, headers=self.get_headers(), json=order)
+            resp.raise_for_status()
+            if resp.content:
+                try:
+                    return resp.json()
+                except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    # Log error, raise custom error, or return raw text
+                    raise ValueError(f"Response content is not valid JSON: {resp.text}")
+            else:
+                # No content to decode.
+                return None  # or {}
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
     
     def get_orders(self, max_results: int, from_entered_time: datetime, to_entered_time : datetime):
         url = f'{self.BASE_URL}/orders'
@@ -158,32 +186,39 @@ class SchwabAccountAPI:
             'fromEnteredTime' : from_entered_time,
             'toEnteredTime' : to_entered_time
         }
-        resp = requests.get(url, headers=self.get_headers(), params=parameter)
-        resp.raise_for_status()
-        if resp.content:
-            try:
-                return resp.json()
-            except ValueError:  # includes simplejson.decoder.JSONDecodeError
-                # Log error, raise custom error, or return raw text
-                raise ValueError(f"Response content is not valid JSON: {resp.text}")
-        else:
-            # No content to decode.
-            return None  # or {}
+        try:
+            resp = requests.get(url, headers=self.get_headers(), params=parameter)
+            resp.raise_for_status()
+            
+            if resp.content:
+                try:
+                    return resp.json()
+                except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    # Log error, raise custom error, or return raw text
+                    raise ValueError(f"Response content is not valid JSON: {resp.text}")
+            else:
+                # No content to decode.
+                return None  # or {}
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
     
     def post_accounts_accountnumber_previeworder(self, account_number: str, order: dict):
         url = f'{self.BASE_URL}/accounts/{account_number}/previewOrder'
-        resp = requests.post(url, headers=self.get_headers(), json=order)
-        resp.raise_for_status()
-        if resp.content:
-            try:
-                return resp.json()
-            except ValueError:  # includes simplejson.decoder.JSONDecodeError
-                # Log error, raise custom error, or return raw text
-                raise ValueError(f"Response content is not valid JSON: {resp.text}")
-        else:
-            # No content to decode.
-            return None  # or {}
-    
+        try:
+            resp = requests.post(url, headers=self.get_headers(), json=order)
+            resp.raise_for_status()
+            if resp.content:
+                try:
+                    return resp.json()
+                except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    # Log error, raise custom error, or return raw text
+                    raise ValueError(f"Response content is not valid JSON: {resp.text}")
+            else:
+                # No content to decode.
+                return None  # or {}
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
+            
     def get_accounts_accountnumber_transactions(self, account_number: str, start_date: datetime, end_date : datetime, symbol: str, types: str):
         url = f'{self.BASE_URL}/accounts/{account_number}/transactions'
         parameter = {
@@ -192,45 +227,57 @@ class SchwabAccountAPI:
             'symbol' : symbol,
             'types' : types
         }
-        resp = requests.get(url, headers=self.get_headers(), params=parameter)
-        resp.raise_for_status()
-        if resp.content:
-            try:
-                return resp.json()
-            except ValueError:  # includes simplejson.decoder.JSONDecodeError
-                # Log error, raise custom error, or return raw text
-                raise ValueError(f"Response content is not valid JSON: {resp.text}")
-        else:
-            # No content to decode.
-            return None  # or {}
+        try:
+            resp = requests.get(url, headers=self.get_headers(), params=parameter)
+            resp.raise_for_status()
+            
+            if resp.content:
+                try:
+                    return resp.json()
+                except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    # Log error, raise custom error, or return raw text
+                    raise ValueError(f"Response content is not valid JSON: {resp.text}")
+            else:
+                # No content to decode.
+                return None  # or {}
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
     
     def get_accounts_accountnumber_transactions_transactionid(self, account_number: str, transaction_id: str):
         url = f'{self.BASE_URL}/accounts/{account_number}/transactions/{transaction_id}'
-        resp = requests.get(url, headers=self.get_headers())
-        resp.raise_for_status()
-        if resp.content:
-            try:
-                return resp.json()
-            except ValueError:  # includes simplejson.decoder.JSONDecodeError
-                # Log error, raise custom error, or return raw text
-                raise ValueError(f"Response content is not valid JSON: {resp.text}")
-        else:
-            # No content to decode.
-            return None  # or {}
+        try:
+            resp = requests.get(url, headers=self.get_headers())
+            resp.raise_for_status()
+            
+            if resp.content:
+                try:
+                    return resp.json()
+                except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    # Log error, raise custom error, or return raw text
+                    raise ValueError(f"Response content is not valid JSON: {resp.text}")
+            else:
+                # No content to decode.
+                return None  # or {}
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
     
     def get_userpreference(self):
         url = f'{self.BASE_URL}/userPreference'
-        resp = requests.get(url, headers=self.get_headers())
-        resp.raise_for_status()
-        if resp.content:
-            try:
-                return resp.json()
-            except ValueError:  # includes simplejson.decoder.JSONDecodeError
-                # Log error, raise custom error, or return raw text
-                raise ValueError(f"Response content is not valid JSON: {resp.text}")
-        else:
-            # No content to decode.
-            return None  # or {}
+        try:
+            resp = requests.get(url, headers=self.get_headers())
+            resp.raise_for_status()
+            
+            if resp.content:
+                try:
+                    return resp.json()
+                except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    # Log error, raise custom error, or return raw text
+                    raise ValueError(f"Response content is not valid JSON: {resp.text}")
+            else:
+                # No content to decode.
+                return None  # or {}
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
     
     
     
@@ -250,3 +297,329 @@ class SchwabMarketAPI:
         resp = requests.get(url, headers=self.get_headers())
         resp.raise_for_status()
         return resp.json()
+    
+    def get_quotes(self, symbols = None, fields = None, indicative = None):
+        url = f'{self.BASE_URL}/quotes'
+        
+        params = {}
+        if symbols:
+            params['symbols'] = symbols
+        if fields:
+            params['fields'] = fields
+        if indicative:
+            params["indicative"] = str(indicative).lower()
+            
+        try:
+            resp = requests.get(url, headers=self.get_headers(), params=params)
+            resp.raise_for_status()
+            
+            if resp.content:
+                try:
+                    return resp.json()
+                except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    # Log error, raise custom error, or return raw text
+                    raise ValueError(f"Response content is not valid JSON: {resp.text}")
+            else:
+                # No content to decode.
+                return None  # or {}
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
+        
+    def get_symbolid_quotes(self, symbol_id : str, fields : Optional[str] = None):
+        url = f'{self.BASE_URL}/{symbol_id}/quotes'
+        
+        params = {}
+        if fields:
+            params['fields'] = fields
+            
+        try:
+            resp = requests.get(url, headers=self.get_headers(), params=params)
+            resp.raise_for_status()
+            
+            if resp.content:
+                try:
+                    return resp.json()
+                except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    # Log error, raise custom error, or return raw text
+                    raise ValueError(f"Response content is not valid JSON: {resp.text}")
+            else:
+                # No content to decode.
+                return None  # or {}
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
+        
+    def get_chains(
+        self, 
+        symbol : str, 
+        contract_type : Optional[str] = None,  
+        strike_count : Optional[int] = None, 
+        include_underlying_quote : Optional[bool] = None, 
+        strategy : Optional[str] = None,
+        interval : Optional[float] = None,
+        strike : Optional[float] = None,
+        range : Optional[str] = None,
+        from_date : Optional[date] = None,
+        to_date : Optional[date] = None,
+        volatility : Optional[float]  = None,
+        underlying_price : Optional[float]  = None,
+        interest_rate : Optional[float]  = None,
+        days_to_expiration : Optional[int] = None,
+        exp_month : Optional[str] = None,
+        option_type : Optional[str] = None,
+        entitlement : Optional[str] = None
+        ):
+        url = f'{self.BASE_URL}/chains'
+        
+        params = {
+            'symbol' : symbol
+        }
+        if contract_type:
+            params['contractType'] = contract_type
+        if strike_count:
+            params['strikeCount'] = strike_count
+        if include_underlying_quote:
+            params['includeUnderlyingQuote'] = include_underlying_quote
+        if strategy:
+            params['strategy'] = strategy
+        if interval:
+            params['interval'] = interval
+        if strike:
+            params['strike'] = strike
+        if range:
+            params['range'] = range
+        if from_date:
+            params['fromDate'] = from_date
+        if to_date:
+            params['toDate'] = to_date
+        if volatility:
+            params['volatility'] = volatility
+        if underlying_price:
+            params['underlyingPrice'] = underlying_price
+        if interest_rate:
+            params['interestRate'] = interest_rate
+        if days_to_expiration:
+            params['daysToExpiration'] = days_to_expiration
+        if exp_month:
+            params['expMonth'] = exp_month 
+        if option_type:
+            params['optionType'] = option_type 
+        if entitlement:
+            params['entitlement'] = entitlement
+            
+        try:
+            resp = requests.get(url, headers=self.get_headers(), params=params)
+            resp.raise_for_status()
+            
+            if resp.content:
+                try:
+                    return resp.json()
+                except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    # Log error, raise custom error, or return raw text
+                    raise ValueError(f"Response content is not valid JSON: {resp.text}")
+            else:
+                # No content to decode.
+                return None  # or {}
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
+    
+    def get_expirationchain(self, symbol : str):
+        url = f'{self.BASE_URL}/expirationchain'
+        params = {
+            'symbol' : symbol
+        }
+        try:
+            resp = requests.get(url, headers=self.get_headers(), params=params)
+            resp.raise_for_status()
+            
+            if resp.content:
+                try:
+                    return resp.json()
+                except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    # Log error, raise custom error, or return raw text
+                    raise ValueError(f"Response content is not valid JSON: {resp.text}")
+            else:
+                # No content to decode.
+                return None  # or {}
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
+        
+    def get_pricehistory(
+        self,
+        symbol : str,
+        period_type : Optional[str] = None,
+        period : Optional[int] = None,
+        frequency_type : Optional[str] = None,
+        frequency : Optional[int] = None,
+        start_date : Optional[int] = None,
+        end_date : Optional[int] = None,
+        need_extended_hours_data : Optional[bool] = None,
+        need_previous_close : Optional[bool] = None
+        ):
+        url = f'{self.BASE_URL}/pricehistory'
+        params = {
+            'symbol' : symbol
+        }
+        if period_type:
+            params['periodType'] = period_type
+        if period:
+            params['period'] = period
+        if period_type:
+            params['periodType'] = period_type
+        if frequency_type:
+            params['frequencyType'] = frequency_type
+        if frequency:
+            params['frequency'] = frequency
+        if start_date:
+            params['startDate'] = start_date
+        if end_date:
+            params['endDate'] = end_date
+        if need_extended_hours_data:
+            params['needExtendedHoursData'] = need_extended_hours_data
+        if need_previous_close:
+            params['needPreviousClose'] = need_previous_close
+        try:
+            resp = requests.get(url, headers=self.get_headers(), params=params)
+            resp.raise_for_status()
+            
+            if resp.content:
+                try:
+                    return resp.json()
+                except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    # Log error, raise custom error, or return raw text
+                    raise ValueError(f"Response content is not valid JSON: {resp.text}")
+            else:
+                # No content to decode.
+                return None  # or {}
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
+        
+    def get_movers_symbolid(
+        self,
+        symbol_id : str,
+        sort : Optional[str] = None,
+        frequency : Optional[int] = None
+    ):
+        url = f'{self.BASE_URL}/movers/{symbol_id}'
+        params = {}
+        if sort:
+            params['sort'] = sort
+        if frequency:
+            params['frequency'] = frequency
+        
+        try:
+            resp = requests.get(url, headers=self.get_headers(), params=params)
+            resp.raise_for_status()
+            
+            if resp.content:
+                try:
+                    return resp.json()
+                except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    # Log error, raise custom error, or return raw text
+                    raise ValueError(f"Response content is not valid JSON: {resp.text}")
+            else:
+                # No content to decode.
+                return None  # or {}
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
+    
+    def get_markets(
+        self,
+        markets : str,
+        date : Optional[str] = None
+    ):
+        url = f'{self.BASE_URL}/markets'
+        params = {
+            'markets' : markets
+        }
+        if date:
+            params['date'] = date
+        
+        try:
+            resp = requests.get(url, headers=self.get_headers(), params=params)
+            resp.raise_for_status()
+            
+            if resp.content:
+                try:
+                    return resp.json()
+                except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    # Log error, raise custom error, or return raw text
+                    raise ValueError(f"Response content is not valid JSON: {resp.text}")
+            else:
+                # No content to decode.
+                return None  # or {}
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
+        
+    def get_markets_marketid(
+        self,
+        market_id : str,
+        date : Optional[str] = None,
+    ):
+        url = f'{self.BASE_URL}/markets/{market_id}'
+        params = {}
+        if date:
+            params['date'] = date
+        
+        try:
+            resp = requests.get(url, headers=self.get_headers(), params=params)
+            resp.raise_for_status()
+            
+            if resp.content:
+                try:
+                    return resp.json()
+                except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    # Log error, raise custom error, or return raw text
+                    raise ValueError(f"Response content is not valid JSON: {resp.text}")
+            else:
+                # No content to decode.
+                return None  # or {}
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
+    
+    def get_instruments(
+        self,
+        symbol : str,
+        projection : str,
+    ):
+        url = f'{self.BASE_URL}/instruments'
+        params = {
+            'symbol' : symbol,
+            'projection' : projection
+        }
+                
+        try:
+            resp = requests.get(url, headers=self.get_headers(), params=params)
+            resp.raise_for_status()
+            
+            if resp.content:
+                try:
+                    return resp.json()
+                except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    # Log error, raise custom error, or return raw text
+                    raise ValueError(f"Response content is not valid JSON: {resp.text}")
+            else:
+                # No content to decode.
+                return None  # or {}
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
+        
+    def get_instruments_cusipid(
+        self,
+        cusip_id : str,
+    ):
+        url = f'{self.BASE_URL}/instruments/{cusip_id}'  
+        try:
+            resp = requests.get(url, headers=self.get_headers())
+            resp.raise_for_status()
+            
+            if resp.content:
+                try:
+                    return resp.json()
+                except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    # Log error, raise custom error, or return raw text
+                    raise ValueError(f"Response content is not valid JSON: {resp.text}")
+            else:
+                # No content to decode.
+                return None  # or {}
+        except requests.exceptions.HTTPError as e:
+            raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")

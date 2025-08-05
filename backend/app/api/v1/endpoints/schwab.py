@@ -4,7 +4,7 @@ import json
 from datetime import datetime, date
 from typing import Optional
 from fastapi import HTTPException
-
+from app.models.enums import TransactionTypeEnum, OptionStrategyEnum, SortEnum, SymbolIdEnum, ContractTypeEnum, EntitlementEnum, PeriodTypeEnum, FrequencyTypeEnum, FrequencyEnum, MarketsEnum, MarketIDEnum, ProjectionEnum, ExpMonthEnum
 SCHWAB_API_BASE_URL = settings.SCHWAB_API_BASE_URL
 SCHWAB_API_MARKET_URL = settings.SCHWAB_API_MARKET_URL
 SCHWAB_CLIENT_ID = settings.SCHWAB_CLIENT_ID
@@ -219,7 +219,7 @@ class SchwabAccountAPI:
         except requests.exceptions.HTTPError as e:
             raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
             
-    def get_accounts_accountnumber_transactions(self, account_number: str, start_date: datetime, end_date : datetime, symbol: str, types: str):
+    def get_accounts_accountnumber_transactions(self, account_number: str, start_date: datetime, end_date : datetime, symbol: str, types: TransactionTypeEnum):
         url = f'{self.BASE_URL}/accounts/{account_number}/transactions'
         parameter = {
             'startDate' : start_date,
@@ -243,7 +243,7 @@ class SchwabAccountAPI:
         except requests.exceptions.HTTPError as e:
             raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
     
-    def get_accounts_accountnumber_transactions_transactionid(self, account_number: str, transaction_id: str):
+    def get_accounts_accountnumber_transactions_transactionid(self, account_number: str, transaction_id: int):
         url = f'{self.BASE_URL}/accounts/{account_number}/transactions/{transaction_id}'
         try:
             resp = requests.get(url, headers=self.get_headers())
@@ -325,7 +325,7 @@ class SchwabMarketAPI:
         except requests.exceptions.HTTPError as e:
             raise HTTPException(status_code=resp.status_code, detail=f"Downstream API error: {resp.text}")
         
-    def get_symbolid_quotes(self, symbol_id : str, fields : Optional[str] = None):
+    def get_symbolid_quotes(self, symbol_id : SymbolIdEnum, fields : Optional[str] = None):
         url = f'{self.BASE_URL}/{symbol_id}/quotes'
         
         params = {}
@@ -351,10 +351,10 @@ class SchwabMarketAPI:
     def get_chains(
         self, 
         symbol : str, 
-        contract_type : Optional[str] = None,  
+        contract_type : Optional[ContractTypeEnum] = None,  
         strike_count : Optional[int] = None, 
         include_underlying_quote : Optional[bool] = None, 
-        strategy : Optional[str] = None,
+        strategy : Optional[OptionStrategyEnum] = None,
         interval : Optional[float] = None,
         strike : Optional[float] = None,
         range : Optional[str] = None,
@@ -364,9 +364,9 @@ class SchwabMarketAPI:
         underlying_price : Optional[float]  = None,
         interest_rate : Optional[float]  = None,
         days_to_expiration : Optional[int] = None,
-        exp_month : Optional[str] = None,
+        exp_month : Optional[ExpMonthEnum] = None,
         option_type : Optional[str] = None,
-        entitlement : Optional[str] = None
+        entitlement : Optional[EntitlementEnum] = None
         ):
         url = f'{self.BASE_URL}/chains'
         
@@ -378,7 +378,7 @@ class SchwabMarketAPI:
         if strike_count:
             params['strikeCount'] = strike_count
         if include_underlying_quote:
-            params['includeUnderlyingQuote'] = include_underlying_quote
+            params['includeUnderlyingQuote'] = str(include_underlying_quote).lower()
         if strategy:
             params['strategy'] = strategy
         if interval:
@@ -446,10 +446,10 @@ class SchwabMarketAPI:
     def get_pricehistory(
         self,
         symbol : str,
-        period_type : Optional[str] = None,
+        period_type : Optional[PeriodTypeEnum] = None,
         period : Optional[int] = None,
-        frequency_type : Optional[str] = None,
-        frequency : Optional[int] = None,
+        frequency_type : Optional[FrequencyTypeEnum] = None,
+        frequency : Optional[FrequencyEnum] = None,
         start_date : Optional[int] = None,
         end_date : Optional[int] = None,
         need_extended_hours_data : Optional[bool] = None,
@@ -474,9 +474,9 @@ class SchwabMarketAPI:
         if end_date:
             params['endDate'] = end_date
         if need_extended_hours_data:
-            params['needExtendedHoursData'] = need_extended_hours_data
+            params['needExtendedHoursData'] = str(need_extended_hours_data).lower()
         if need_previous_close:
-            params['needPreviousClose'] = need_previous_close
+            params['needPreviousClose'] = str(need_previous_close).lower()
         try:
             resp = requests.get(url, headers=self.get_headers(), params=params)
             resp.raise_for_status()
@@ -495,11 +495,11 @@ class SchwabMarketAPI:
         
     def get_movers_symbolid(
         self,
-        symbol_id : str,
-        sort : Optional[str] = None,
-        frequency : Optional[int] = None
-    ):
-        url = f'{self.BASE_URL}/movers/{symbol_id}'
+        symbol_id : SymbolIdEnum,
+        sort : Optional[SortEnum] = None,
+        frequency : Optional[FrequencyEnum] = None
+    ):  
+        url = f'{self.BASE_URL}/movers/{symbol_id.value}'
         params = {}
         if sort:
             params['sort'] = sort
@@ -524,7 +524,7 @@ class SchwabMarketAPI:
     
     def get_markets(
         self,
-        markets : str,
+        markets : MarketsEnum,
         date : Optional[str] = None
     ):
         url = f'{self.BASE_URL}/markets'
@@ -552,10 +552,11 @@ class SchwabMarketAPI:
         
     def get_markets_marketid(
         self,
-        market_id : str,
+        market_id : MarketIDEnum,
         date : Optional[str] = None,
     ):
-        url = f'{self.BASE_URL}/markets/{market_id}'
+        url = f'{self.BASE_URL}/markets/{market_id.value}'
+        print(url)
         params = {}
         if date:
             params['date'] = date
@@ -579,7 +580,7 @@ class SchwabMarketAPI:
     def get_instruments(
         self,
         symbol : str,
-        projection : str,
+        projection : ProjectionEnum,
     ):
         url = f'{self.BASE_URL}/instruments'
         params = {

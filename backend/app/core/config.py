@@ -39,6 +39,8 @@ class Settings(BaseSettings):
     
     SCHWAB_API_MARKET_URL : str = Field(env="SCHWAB_API_MARKET_URL")
     
+    REDIS_URL : str = Field(env="REDIS_URL")
+    
     class Config:
         # Path to the .env file (relative to project root)
         env_file = ".env"

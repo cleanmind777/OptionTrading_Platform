@@ -126,3 +126,31 @@ CREATE TABLE backtests (
     bot_id UUID NOT NULL REFERENCES bots(id),
     result JSON DEFAULT '{}'
 );
+
+CREATE TABLE trading_tasks (
+    id VARCHAR NOT NULL,
+    user_id UUID NOT NULL REFERENCES users(id),
+    bot_id UUID NOT NULL REFERENCES bots(id),
+    trading_account_id UUID REFERENCES trading_accounts(id),
+    is_active BOOLEAN DEFAULT TRUE,
+    symbol VARCHAR,
+    total_profit FLOAT 0,
+    win_trades_count INTEGER DEFAULT 0,
+    loss_trades_count INTEGER DEFAULT 0,
+    average_win FLOAT DEFAULT 0,
+    average_loss FLOAT DEFAULT 0,
+    start_time TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+    end_time TIMESTAMP WITHOUT TIME ZONE,
+);
+
+CREATE TABLE trading_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id),
+    bot_id UUID NOT NULL REFERENCES bots(id),
+    trading_account_id UUID REFERENCES trading_accounts(id),
+    trading_task_id VARCHAR REFERENCES trading_tasks(id),
+    symbol VARCHAR,
+    profit FLOAT 0,
+    win_loss BOOLEAN,
+    time TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+);

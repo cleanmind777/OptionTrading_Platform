@@ -134,7 +134,7 @@ CREATE TABLE trading_tasks (
     trading_account_id UUID REFERENCES trading_accounts(id),
     is_active BOOLEAN DEFAULT TRUE,
     symbol VARCHAR,
-    total_profit FLOAT 0,
+    total_profit FLOAT DEFAULT 0,
     win_trades_count INTEGER DEFAULT 0,
     loss_trades_count INTEGER DEFAULT 0,
     average_win FLOAT DEFAULT 0,
@@ -150,7 +150,7 @@ CREATE TABLE trading_logs (
     trading_account_id UUID REFERENCES trading_accounts(id),
     trading_task_id VARCHAR REFERENCES trading_tasks(id),
     symbol VARCHAR,
-    profit FLOAT 0,
+    profit FLOAT DEFAULT 0,
     win_loss BOOLEAN,
-    time TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+    trade_time TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
 );

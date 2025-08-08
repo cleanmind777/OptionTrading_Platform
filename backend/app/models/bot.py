@@ -304,6 +304,7 @@ class Bot(Base):
     trading_account = relationship("TradingAccount", back_populates="bots")
     backtests = relationship("Backtest", back_populates="bot")
     trading_tasks = relationship("TradingTask", back_populates="bot")
-    trading_logs = relationship("TradingLog", back_populates="bot")    
+    trading_logs = relationship("TradingLog", back_populates="bot")
+
     
     

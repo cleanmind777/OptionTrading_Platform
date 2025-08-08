@@ -13,7 +13,7 @@ class TradingLog(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     trading_account_id = Column(UUID(as_uuid=True), ForeignKey('trading_accounts.id'), nullable=True)
     bot_id = Column(UUID(as_uuid=True), ForeignKey('bots.id'), nullable=False)
-    trading_task_id = Column(UUID(as_uuid=True), ForeignKey('bots.id'), nullable=True)
+    trading_task_id = Column(UUID(as_uuid=True), ForeignKey('trading_tasks.id'), nullable=True)
     symbol = Column(String, nullable=True)
     win_loss = Column(Boolean, nullable=True)
     profit = Column(Float, nullable=True, default=0.0)

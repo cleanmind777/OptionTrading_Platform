@@ -26,7 +26,7 @@ class TradingTask(Base):
     user = relationship("User", back_populates="trading_tasks")
     bot = relationship("Bot", back_populates="trading_tasks")
     trading_account = relationship("TradingAccount", back_populates="trading_tasks")
-    trading_logs = relationship("TradingTasks", back_populates="trading_task")
+    trading_logs = relationship("TradingLog", back_populates="trading_task")
     
     
     

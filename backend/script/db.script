@@ -77,7 +77,14 @@ CREATE TABLE bots (
     trade_exit JSON,
     trade_stop JSON,
     trade_condition JSON,
-    bot_dependencies JSON
+    bot_dependencies JSON,
+    current_status VARCHAR,
+    total_profit FLOAT DEFAULT 0,
+    win_rate FLOAT DEFAULT 0,
+    win_trades_count INTEGER DEFAULT 0,
+    loss_trades_count INTEGER DEFAULT 0,
+    average_win FLOAT DEFAULT 0,
+    average_loss FLOAT DEFAULT 0
 );
 
 
@@ -129,7 +136,7 @@ CREATE TABLE backtests (
 
 CREATE TABLE trading_tasks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    celery_id VARCHAR NOT NULL,
+    celery_id VARCHAR,
     user_id UUID NOT NULL REFERENCES users(id),
     bot_id UUID NOT NULL REFERENCES bots(id),
     trading_account_id UUID REFERENCES trading_accounts(id),

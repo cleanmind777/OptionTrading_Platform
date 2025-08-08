@@ -9,7 +9,8 @@ class TradingTask(Base):
     __tablename__ = "trading_tasks"
     # __table_args__ = {'extend_existing': True}
     
-    id = Column(String, primary_key=True, nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    celery_id = Column(String, nullable=True)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     trading_account_id = Column(UUID(as_uuid=True), ForeignKey('trading_accounts.id'), nullable=True)
     bot_id = Column(UUID(as_uuid=True), ForeignKey('bots.id'), nullable=False)

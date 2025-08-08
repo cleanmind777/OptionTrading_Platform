@@ -128,7 +128,8 @@ CREATE TABLE backtests (
 );
 
 CREATE TABLE trading_tasks (
-    id VARCHAR NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    celery_id VARCHAR NOT NULL,
     user_id UUID NOT NULL REFERENCES users(id),
     bot_id UUID NOT NULL REFERENCES bots(id),
     trading_account_id UUID REFERENCES trading_accounts(id),
@@ -140,7 +141,7 @@ CREATE TABLE trading_tasks (
     average_win FLOAT DEFAULT 0,
     average_loss FLOAT DEFAULT 0,
     start_time TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
-    end_time TIMESTAMP WITHOUT TIME ZONE,
+    end_time TIMESTAMP WITHOUT TIME ZONE
 );
 
 CREATE TABLE trading_logs (
@@ -148,9 +149,9 @@ CREATE TABLE trading_logs (
     user_id UUID NOT NULL REFERENCES users(id),
     bot_id UUID NOT NULL REFERENCES bots(id),
     trading_account_id UUID REFERENCES trading_accounts(id),
-    trading_task_id VARCHAR REFERENCES trading_tasks(id),
+    trading_task_id UUID REFERENCES trading_tasks(id),
     symbol VARCHAR,
     profit FLOAT DEFAULT 0,
     win_loss BOOLEAN,
-    trade_time TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+    trade_time TIMESTAMP WITHOUT TIME ZONE DEFAULT now()
 );

@@ -1,4 +1,4 @@
-import time
+import time, random
 from uuid import UUID
 from celery.contrib.abortable import AbortableTask
 from celery_app import celery_app
@@ -45,7 +45,12 @@ def trading(self, bot_id: str, trading_task_id: str):
             price_history = [candle['close'] for candle in price_hist_resp['candles']]
             current_price = price_history[-1]
             is_bullish, ma5 = bullish_signal(price_history)
-            
+
+            # Real-time Price for Demo SSE
+            data = {"price": random.uniform(100,200)}
+            # Update task state with data (this will be accessible from FastAPI)
+            self.update_state(state='PROGRESS', meta=data)
+
             print(f"Current Price for {trading_task.symbol}: {current_price}")
             print(f"5-day Moving Average: {ma5}")
             print(f"Bullish Signal: is_bullish" )

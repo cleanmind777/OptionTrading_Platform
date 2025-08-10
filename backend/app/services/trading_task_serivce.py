@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from app.db.repositories.trading_task_repository import user_create_trading_task, user_get_trading_task_status, user_stop_trading_task, user_add_celery_id_to_trading_task, user_add_win_trade
+from app.db.repositories.trading_task_repository import user_create_trading_task, user_get_trading_task_status, user_stop_trading_task, user_add_celery_id_to_trading_task, user_add_win_trade, user_get_active_trading_tasks
 import json
 from uuid import UUID
 
@@ -18,3 +18,6 @@ def add_celery_id_to_trading_task(db: Session, trading_task_id: str, celery_id: 
 
 def add_win_trade(db: Session, trading_task_id: str):
     return user_add_win_trade(db, trading_task_id)
+
+def get_active_trading_tasks(db: Session, user_id: UUID):
+    return user_get_active_trading_tasks(db, user_id)

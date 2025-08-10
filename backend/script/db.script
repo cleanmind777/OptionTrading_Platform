@@ -79,6 +79,7 @@ CREATE TABLE bots (
     trade_condition JSON,
     bot_dependencies JSON,
     current_status VARCHAR,
+    current_trading_task_id UUID,
     total_profit FLOAT DEFAULT 0,
     win_rate FLOAT DEFAULT 0,
     win_trades_count INTEGER DEFAULT 0,

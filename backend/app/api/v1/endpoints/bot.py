@@ -49,3 +49,7 @@ async def get_Setting_history(filter: BotSettingHistoryFilter, db: Session = Dep
         )
         for entry in history
     ]
+
+@router.post("/get_bots_for_trading_dashboard", status_code=status.HTTP_201_CREATED)
+async def get_Bots(bot_filters: BotFilter, db: Session = Depends(get_db)):
+    return await get_bots(db, bot_filters)

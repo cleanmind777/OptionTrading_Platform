@@ -292,6 +292,7 @@ class Bot(Base):
         "disabled_bots_shouldbe_ignored" : True
     })
     current_status = Column(String, nullable=True, default="DISABLED")
+    current_trading_task_id = Column(UUID(as_uuid=True), nullable=True)
     total_profit = Column(Float, nullable=True, default=0.0)
     win_rate = Column(Float, nullable=True, default=0.0)
     win_trades_count = Column(Integer, nullable=True, default=0)

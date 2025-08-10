@@ -37,3 +37,8 @@ class BotFilter(BaseModel):
     entryDay: Optional[str] = None
     symbol: Optional[str] = None
     webhookPartial: Optional[str] = None
+
+class BotForTradingDashboard(BaseModel):
+    id: UUID
+    
+    

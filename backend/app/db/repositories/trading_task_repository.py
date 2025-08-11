@@ -46,7 +46,8 @@ def user_stop_trading_task(db: Session, trading_task_id: str):
     bot.is_active = False
     db.commit()
     db.refresh(bot)
-    return trading_task
+    x = trading_task
+    return x
 
 def user_add_celery_id_to_trading_task(db: Session, trading_task_id: str, celery_id: str):
     trading_task = db.query(TradingTask).filter(TradingTask.id == trading_task_id).first()

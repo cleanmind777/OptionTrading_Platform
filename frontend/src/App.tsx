@@ -5,7 +5,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { HomePage, } from "./pages/HomePage";
+import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { TradingDashboard } from "./pages/trades/TradingDashboard";
@@ -19,6 +19,7 @@ import { CreateTrancheBots } from "./pages/bots/CreateTrancheBots";
 import { BotPerformance } from "./pages/bots/BotPerformance";
 import { BotSharedBots } from "./pages/bots/BotSharedBots";
 import { BotActivity } from "./pages/bots/BotActivity";
+import BotMonitor from "./pages/bots/BotMonitor";
 import { BotDayPlanner } from "./pages/bots/BotDayPlanner";
 import { TradeLog } from "./pages/trades/TradeLog";
 import { OpenPositions } from "./pages/trades/OpenPositions";
@@ -46,25 +47,25 @@ import { EmailPrefs } from "./pages/account/EmailPrefs";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import { MainNavigation } from "./components/MainNavigation";
-import BacktestList from "./pages/backtest/BacktestList"
+import BacktestList from "./pages/backtest/BacktestList";
 import BacktestPlay from "./pages/backtest/BacktestPlay";
 // import PrivateRoute from "./components/PrivateRoute";
-import { CookiesProvider } from 'react-cookie';
-import Cookies from 'js-cookie';
+import { CookiesProvider } from "react-cookie";
+import Cookies from "js-cookie";
 // In your index.js or App.js
 <CookiesProvider>
   <ConfigProvider
     theme={{
       components: {
         Select: {
-          selectorBg: "#000000"
+          selectorBg: "#000000",
         },
       },
     }}
   >
     <App />
   </ConfigProvider>
-</CookiesProvider>
+</CookiesProvider>;
 
 // import { NotificationProvider } from "./contexts/NotificationContext";
 // import { ToastNotifications } from "./components/ToastNotifications";
@@ -72,7 +73,9 @@ import "./App.css";
 import { ConfigProvider } from "antd";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(Cookies.get('access_token') ? true : false);
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    Cookies.get("access_token") ? true : false
+  );
   const handleLogin = () => {
     setIsLoggedIn(true);
   };
@@ -84,21 +87,21 @@ function App() {
     setIsLoggedIn(false);
   };
   useEffect(() => {
-    const token = Cookies.get('access_token');
+    const token = Cookies.get("access_token");
     // console.log("token", token);
 
     if (token) {
       setIsLoggedIn(true);
     }
-  }, [Cookies.get('access_token')]);
+  }, [Cookies.get("access_token")]);
   useEffect(() => {
-    const token = Cookies.get('access_token');
+    const token = Cookies.get("access_token");
     // console.log("token", token);
 
     if (!token) {
       setIsLoggedIn(false);
     }
-  }, [isLoggedIn])
+  }, [isLoggedIn]);
   // useEffect(() => {
   //   const token = Cookies.get('access_token');
   //   if (token) {
@@ -134,7 +137,11 @@ function App() {
             <Route
               path="/dashboard"
               element={
-                isLoggedIn ? <TradingDashboard /> : <Navigate to="/login" replace />
+                isLoggedIn ? (
+                  <TradingDashboard />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
               }
             />
             <Route
@@ -163,6 +170,12 @@ function App() {
               path="/broker-auth"
               element={
                 isLoggedIn ? <BrokerAuth /> : <Navigate to="/login" replace />
+              }
+            />
+            <Route
+              path="/bots/monitor/:id"
+              element={
+                isLoggedIn ? <BotMonitor /> : <Navigate to="/login" replace />
               }
             />
             <Route
@@ -325,25 +338,16 @@ function App() {
             <Route
               path="/backtest/list"
               element={
-                isLoggedIn ? (
-                  <BacktestList />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
+                isLoggedIn ? <BacktestList /> : <Navigate to="/login" replace />
               }
             />
             <Route
               path="/backtest/play"
               element={
-                isLoggedIn ? (
-                  <BacktestPlay />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
+                isLoggedIn ? <BacktestPlay /> : <Navigate to="/login" replace />
               }
             />
           </Routes>
-
         </main>
       </div>
     </Router>

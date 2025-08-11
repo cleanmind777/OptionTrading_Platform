@@ -10,8 +10,8 @@ from datetime import timedelta
 from app.models.bot import Bot
 
 from uuid import UUID
-from app.services.bot_service import create_bot, get_bots, get_bot, edit_bot, get_setting_history
-from app.schemas.bot import BotCreate, BotInfo, BotFilter, BotEdit, BotChange
+from app.services.bot_service import create_bot, get_bots, get_bot, edit_bot, get_setting_history, get_bots_for_trading_dashboard
+from app.schemas.bot import BotCreate, BotInfo, BotFilter, BotEdit, BotChange, BotForTradingDashboard
 from app.schemas.bots_setting_history import BotSettingHistoryFilter, BotSettingHistoryResponse
 from app.dependencies.database import get_db
 from app.core.security import create_access_token
@@ -50,6 +50,6 @@ async def get_Setting_history(filter: BotSettingHistoryFilter, db: Session = Dep
         for entry in history
     ]
 
-@router.post("/get_bots_for_trading_dashboard", status_code=status.HTTP_201_CREATED)
-async def get_Bots(bot_filters: BotFilter, db: Session = Depends(get_db)):
-    return await get_bots(db, bot_filters)
+@router.get("/get_bots_for_trading_dashboard", status_code=status.HTTP_201_CREATED)
+async def get_Bots_for_trading_dashboard(user_id: UUID, db: Session = Depends(get_db)):
+    return await get_bots_for_trading_dashboard(db, user_id)

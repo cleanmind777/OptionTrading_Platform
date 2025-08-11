@@ -20,6 +20,7 @@
     "date-fns": "^4.1.0",
     "jotai": "^2.12.5",
     "js-cookie": "^3.0.5",
+    "lightweight-charts": "^5.0.8",
     "object-deep-compare": "^2.0.0",
     "react": "^18.3.1",
     "react-cookie": "^8.0.1",

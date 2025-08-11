@@ -40,5 +40,12 @@ class BotFilter(BaseModel):
 
 class BotForTradingDashboard(BaseModel):
     id: UUID
+    name: Optional[str] = None
+    is_active: Optional[str] = None
+    strategy_name: Optional[str] = None
+    total_profit: Optional[float] = None
+    win_rate: Optional[float] = None
+    total_trades_count: Optional[int] = None
+    trading_account_name: Optional[str] = None
     
     

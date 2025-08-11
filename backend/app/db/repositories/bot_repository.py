@@ -8,7 +8,10 @@ from app.models.bot import Bot
 from app.models.strategy import Strategy
 from app.models.bots_setting_history import BotsSettingHistory
 from app.schemas.bot import BotCreate, BotFilter
-from app.schemas.bots_setting_history import BotSettingHistoryCreate, BotSettingHistoryFilter
+from app.schemas.bots_setting_history import (
+    BotSettingHistoryCreate,
+    BotSettingHistoryFilter,
+)
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.encoders import jsonable_encoder
@@ -21,31 +24,34 @@ from app.core.security import create_access_token
 from app.core.config import settings
 from sqlalchemy import cast, JSON
 
+
 def safe_uuid(val):
     if not val or str(val).strip() == "":
         return None
     return val
 
+
 def user_create_bot(db: Session, bot_create: BotCreate):
     db_bot = Bot(
-        user_id = bot_create.user_id,
-        name = bot_create.name,
-        description = bot_create.description,
-        trading_account_id = safe_uuid(bot_create.trading_account_id),
-        is_active = bot_create.is_active,
-        created_at = func.now(),
-        updated_at = func.now(),
-        strategy_id = bot_create.strategy_id,
-        trade_entry = bot_create.trade_entry,
-        trade_exit = bot_create.trade_exit,
-        trade_stop = bot_create.trade_stop,
-        trade_condition = bot_create.trade_condition,
-        bot_dependencies = bot_create.bot_dependencies,
+        user_id=bot_create.user_id,
+        name=bot_create.name,
+        description=bot_create.description,
+        trading_account_id=safe_uuid(bot_create.trading_account_id),
+        is_active=bot_create.is_active,
+        created_at=func.now(),
+        updated_at=func.now(),
+        strategy_id=bot_create.strategy_id,
+        trade_entry=bot_create.trade_entry,
+        trade_exit=bot_create.trade_exit,
+        trade_stop=bot_create.trade_stop,
+        trade_condition=bot_create.trade_condition,
+        bot_dependencies=bot_create.bot_dependencies,
     )
     db.add(db_bot)
     db.commit()
     db.refresh(db_bot)
     return db_bot
+
 
 def user_edit_bot(db: Session, bot_edit: BotChange):
     db_bot = db.query(Bot).filter(Bot.id == bot_edit.bot.id).first()
@@ -53,41 +59,63 @@ def user_edit_bot(db: Session, bot_edit: BotChange):
     if db_bot.name != bot_edit.bot.name:
         change_info.append({"name": [db_bot.name, bot_edit.bot.name]})
         db_bot.name = bot_edit.bot.name
-    
+
     if db_bot.description != bot_edit.bot.description:
-        change_info.append({"description": [db_bot.description, bot_edit.bot.description]})
+        change_info.append(
+            {"description": [db_bot.description, bot_edit.bot.description]}
+        )
         db_bot.description = bot_edit.bot.description
-    
+
     if db_bot.trading_account_id != bot_edit.bot.trading_account_id:
-        change_info.append({"trading_account_id": [db_bot.trading_account_id, bot_edit.bot.trading_account_id]})
+        change_info.append(
+            {
+                "trading_account_id": [
+                    db_bot.trading_account_id,
+                    bot_edit.bot.trading_account_id,
+                ]
+            }
+        )
         db_bot.trading_account_id = bot_edit.bot.trading_account_id
-        
+
     if db_bot.is_active != bot_edit.bot.is_active:
         change_info.append({"is_active": [db_bot.is_active, bot_edit.bot.is_active]})
         db_bot.is_active = bot_edit.bot.is_active
-        
+
     if db_bot.strategy_id != bot_edit.bot.strategy_id:
-        change_info.append({"strategy_id": [db_bot.strategy_id, bot_edit.bot.strategy_id]})
+        change_info.append(
+            {"strategy_id": [db_bot.strategy_id, bot_edit.bot.strategy_id]}
+        )
         db_bot.strategy_id = bot_edit.bot.strategy_id
-        
+
     if db_bot.trade_entry != bot_edit.bot.trade_entry:
-        change_info.append({"trade_entry": [db_bot.trade_entry, bot_edit.bot.trade_entry]})
+        change_info.append(
+            {"trade_entry": [db_bot.trade_entry, bot_edit.bot.trade_entry]}
+        )
         db_bot.trade_entry = bot_edit.bot.trade_entry
-        
+
     if db_bot.trade_exit != bot_edit.bot.trade_exit:
         change_info.append({"trade_exit": [db_bot.trade_exit, bot_edit.bot.trade_exit]})
         db_bot.trade_exit = bot_edit.bot.trade_exit
-        
+
     if db_bot.trade_stop != bot_edit.bot.trade_stop:
         change_info.append({"trade_stop": [db_bot.trade_stop, bot_edit.bot.trade_stop]})
         db_bot.trade_stop = bot_edit.bot.trade_stop
-        
+
     if db_bot.trade_condition != bot_edit.bot.trade_condition:
-        change_info.append({"trade_condition": [db_bot.trade_condition, bot_edit.bot.trade_condition]})
+        change_info.append(
+            {"trade_condition": [db_bot.trade_condition, bot_edit.bot.trade_condition]}
+        )
         db_bot.trade_condition = bot_edit.bot.trade_condition
-        
+
     if db_bot.bot_dependencies != bot_edit.bot.bot_dependencies:
-        change_info.append({"bot_dependencies": [db_bot.bot_dependencies, bot_edit.bot.bot_dependencies]})
+        change_info.append(
+            {
+                "bot_dependencies": [
+                    db_bot.bot_dependencies,
+                    bot_edit.bot.bot_dependencies,
+                ]
+            }
+        )
         db_bot.bot_dependencies = bot_edit.bot.bot_dependencies
     if bot_edit.strategy_change_info != []:
         change_info.append({"strategy": bot_edit.strategy_change_info})
@@ -97,9 +125,7 @@ def user_edit_bot(db: Session, bot_edit: BotChange):
     user_id = db_bot.user.id
     if change_info != {}:
         db_bot_setting_history = BotsSettingHistory(
-            bot_id = bot_edit.bot.id,
-            user_id = user_id,
-            change_info = change_info
+            bot_id=bot_edit.bot.id, user_id=user_id, change_info=change_info
         )
         db.add(db_bot_setting_history)
         db.commit()
@@ -108,6 +134,7 @@ def user_edit_bot(db: Session, bot_edit: BotChange):
         print(db_bot_setting_history)
     db_bots = db.query(Bot).filter(Bot.user_id == bot_edit.bot.user_id).all()
     return db_bots
+
 
 async def user_get_bots(db: Session, bot_filters: BotFilter):
     # Start building the query
@@ -118,7 +145,6 @@ async def user_get_bots(db: Session, bot_filters: BotFilter):
         .filter(Bot.user_id == bot_filters.user_id)
     )
 
-    
     # Filter by is_active if not "All"
     if bot_filters.is_active == "Enabled":
         query = query.filter(Bot.is_active == True)
@@ -128,69 +154,92 @@ async def user_get_bots(db: Session, bot_filters: BotFilter):
     # Filter by symbol if not "All"
     if bot_filters.symbol != "All":
         query = query.filter(Strategy.symbol == bot_filters.symbol)
-        
+
     if bot_filters.strategy != "All":
         strategy_id = safe_uuid(getattr(bot_filters, "strategy", None))
         if strategy_id:
             query = query.filter(Bot.strategy_id == strategy_id)
-    
+
     if bot_filters.name != "":
         query = query.filter(Bot.name == bot_filters.name)
-    
+
     if bot_filters.entryDay == "All":
         query = query.filter(
-            Bot.trade_entry['days_of_week_to_enter'][0].as_boolean() == True
+            Bot.trade_entry["days_of_week_to_enter"][0].as_boolean() == True
         )
     if bot_filters.entryDay == "Monday":
         query = query.filter(
-            Bot.trade_entry['days_of_week_to_enter'][1].as_boolean() == True
+            Bot.trade_entry["days_of_week_to_enter"][1].as_boolean() == True
         )
     if bot_filters.entryDay == "Tuesday":
         query = query.filter(
-            Bot.trade_entry['days_of_week_to_enter'][2].as_boolean() == True
+            Bot.trade_entry["days_of_week_to_enter"][2].as_boolean() == True
         )
     if bot_filters.entryDay == "Wednesday":
         query = query.filter(
-            Bot.trade_entry['days_of_week_to_enter'][3].as_boolean() == True
-    )
+            Bot.trade_entry["days_of_week_to_enter"][3].as_boolean() == True
+        )
     if bot_filters.entryDay == "Thursday":
         query = query.filter(
-            Bot.trade_entry['days_of_week_to_enter'][4].as_boolean() == True
+            Bot.trade_entry["days_of_week_to_enter"][4].as_boolean() == True
         )
     if bot_filters.entryDay == "Friday":
         query = query.filter(
-            Bot.trade_entry['days_of_week_to_enter'][5].as_boolean() == True
+            Bot.trade_entry["days_of_week_to_enter"][5].as_boolean() == True
         )
 
     result = db.execute(query)
     bots = result.scalars().all()
     return bots
 
+
 async def user_get_bot(db: Session, id: UUID):
     db_bot = db.query(Bot).filter(Bot.id == id).first()
     return db_bot
 
+
 async def user_get_setting_history(db: Session, filter: BotSettingHistoryFilter):
-    query = (
-        select(BotsSettingHistory)
-        .filter(BotsSettingHistory.user_id == UUID(filter.user_id))
+    query = select(BotsSettingHistory).filter(
+        BotsSettingHistory.user_id == UUID(filter.user_id)
     )
-    
+
     if filter.bot_id != "All":
-        query = query.filter(
-            BotsSettingHistory.bot_id == UUID(filter.bot_id)
-        )
-    
+        query = query.filter(BotsSettingHistory.bot_id == UUID(filter.bot_id))
+
     if filter.from_time == None:
-        query = query.filter(
-            BotsSettingHistory.changed_at <= filter.to_time
-        )
+        query = query.filter(BotsSettingHistory.changed_at <= filter.to_time)
     else:
         query = query.filter(
             BotsSettingHistory.changed_at >= filter.from_time,
-            BotsSettingHistory.changed_at <= filter.to_time
+            BotsSettingHistory.changed_at <= filter.to_time,
         )
-        
+
     result = db.execute(query)
     history = result.scalars().all()
     return history
+
+
+async def user_get_bots_for_trading_dashboard(db: Session, user_id: UUID):
+    db_bots = (
+        db.query(Bot)
+        .filter(Bot.user_id == user_id)
+        .order_by(Bot.name)  # ascending alphabetical
+        .all()
+    )
+    bots_for_trading_dashboard = []
+    for db_bot in db_bots:
+        strategy = db.query(Strategy).filter(Strategy.id == db_bot.strategy_id).first()
+        bot = {}
+        bot["id"] = db_bot.id
+        bot["name"] = db_bot.name
+        if db_bot.is_active:
+            bot["status"] = "active"
+        else:
+            bot["status"] = "stopped"
+        bot["strategy"] = strategy.name
+        bot["pnl"] = db_bot.total_profit
+        bot["pnlPercent"] = db_bot.win_rate
+        bot["trades"] = db_bot.win_trades_count + db_bot.loss_trades_count
+        bot["account"] = "Schwab"
+        bots_for_trading_dashboard.append(bot)
+    return bots_for_trading_dashboard

@@ -40,14 +40,14 @@ const LightweightChart: React.FC = () => {
           width: 1,
           style: 0,
           visible: true,
-          labelBackgroundColor: "#222831",
+          labelBackgroundColor: "#eeeeee",
         },
         horzLine: {
           color: "#888", // Crosshair horizontal line color
           width: 1,
           style: 0,
           visible: true,
-          labelBackgroundColor: "#222831",
+          labelBackgroundColor: "#eeeeee",
         },
       },
       rightPriceScale: {

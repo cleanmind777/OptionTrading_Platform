@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import LightweightChart from "../../components/LightweightChart";
+import SseComponent from "../../components/SseComponent";
 import { Bot } from "../../types/bot";
 import { Strategy } from "../../types/strategy";
 
@@ -34,7 +35,7 @@ function BotMonitor() {
       setStrategy(data);
       localStorage.setItem("strategy", JSON.stringify(data));
     } catch (error) {
-      console.error("Error fetching strategy data:", error);
+      console.error("Error fetching strategy:", error);
     }
   };
 
@@ -43,77 +44,90 @@ function BotMonitor() {
   }, [id]);
 
   useEffect(() => {
-    if (bot) {
-      getStrategy(bot.strategy_id);
-    }
+    if (bot) getStrategy(bot.strategy_id);
   }, [bot]);
 
   if (loading) {
-    return <p style={{ color: "#ccc", textAlign: "center" }}>Loading...</p>;
+    return (
+      <p style={{ color: "#ccc", textAlign: "center", marginTop: "40px" }}>
+        Loading...
+      </p>
+    );
   }
-
   if (!bot) {
     return (
-      <p style={{ color: "#ff4d4f", textAlign: "center" }}>No data found.</p>
+      <p style={{ color: "#ff4d4f", textAlign: "center", marginTop: "40px" }}>
+        No data found.
+      </p>
     );
   }
 
   return (
     <div
       style={{
-        backgroundColor: "#121212",
+        backgroundColor: "#0D1117",
         minHeight: "100vh",
         padding: "20px",
-        color: "#e0e0e0",
+        color: "#E6EDF3",
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
       }}
     >
-      {/* Chart */}
-      <div
-        style={{
-          backgroundColor: "#1e1e1e",
-          borderRadius: "8px",
-          padding: "10px",
-          marginBottom: "20px",
-        }}
-      >
+      {/* Chart Section */}
+      <Card>
         <LightweightChart />
-      </div>
+      </Card>
 
-      {/* Bot & Strategy Info */}
-      <div
-        style={{
-          backgroundColor: "#1e1e1e",
-          borderRadius: "8px",
-          padding: "20px",
-          boxShadow: "0 0 10px rgba(0,0,0,0.5)",
-        }}
-      >
-        <h2 style={{ color: "#4cc9f0", marginBottom: "10px" }}>Bot Details</h2>
-
-        <p>
-          <strong>ID:</strong> {id}
-        </p>
-        <p>
-          <strong>Name:</strong> {bot.name}
-        </p>
-
-        <p>
-          <strong>Status:</strong> {bot.is_active ? "Active" : "Stop"}
-        </p>
-        {strategy && (
-          <p>
-            <strong>Strategy:</strong>{" "}
-            <span style={{ color: "#ffaa00" }}>{strategy.name}</span>
-          </p>
-        )}
+      {/* Bot Info & Live Price */}
+      <Card>
+        <h2 style={{ color: "#4cc9f0", marginBottom: "10px" }}>
+          📊 Bot Details
+        </h2>
+        <Divider />
 
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-            gap: "10px",
-            marginTop: "15px",
+            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+            gap: "18px",
+            alignItems: "flex-start",
+          }}
+        >
+          <InfoRow label="ID" value={id} />
+          <InfoRow label="Name" value={bot.name} />
+          {strategy && (
+            <>
+              <InfoRow label="Symbol" value={strategy.symbol} />
+              <div>
+                <strong>Live Price:</strong>
+                <div style={{ marginTop: "5px" }}>
+                  <SseComponent symbol={strategy.symbol} />
+                </div>
+              </div>
+              <InfoRow
+                label="Strategy"
+                value={strategy.name}
+                highlight="#ffaa00"
+              />
+            </>
+          )}
+          <InfoRow
+            label="Status"
+            value={bot.is_active ? "🟢 Active" : "🔴 Stopped"}
+            highlight={bot.is_active ? "#4ade80" : "#ef4444"}
+          />
+        </div>
+      </Card>
+
+      {/* Stats Section */}
+      <Card>
+        <h3 style={{ color: "#58a6ff", marginBottom: "12px" }}>
+          📈 Performance Stats
+        </h3>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
+            gap: "15px",
           }}
         >
           <StatCard
@@ -147,8 +161,68 @@ function BotMonitor() {
             color="#f97316"
           />
         </div>
-      </div>
+      </Card>
     </div>
+  );
+}
+
+/* --- Reusable Components --- */
+function Card({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      style={{
+        backgroundColor: "#161B22",
+        borderRadius: "10px",
+        padding: "20px",
+        boxShadow: "0 4px 15px rgba(0,0,0,0.5)",
+        marginBottom: "20px",
+        transition: "transform 0.2s ease-in-out, box-shadow 0.3s ease",
+      }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLElement).style.transform = "scale(1.01)";
+        (e.currentTarget as HTMLElement).style.boxShadow =
+          "0 6px 20px rgba(0,0,0,0.6)";
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLElement).style.transform = "scale(1)";
+        (e.currentTarget as HTMLElement).style.boxShadow =
+          "0 4px 15px rgba(0,0,0,0.5)";
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function Divider() {
+  return (
+    <hr
+      style={{ border: 0, borderTop: "1px solid #30363D", margin: "10px 0" }}
+    />
+  );
+}
+
+function InfoRow({
+  label,
+  value,
+  highlight,
+}: {
+  label: string;
+  value: any;
+  highlight?: string;
+}) {
+  return (
+    <p style={{ margin: 0, fontSize: "14px" }}>
+      <strong>{label}:</strong>{" "}
+      <span
+        style={{
+          color: highlight || "#E6EDF3",
+          fontWeight: highlight ? "bold" : "normal",
+        }}
+      >
+        {value}
+      </span>
+    </p>
   );
 }
 
@@ -164,13 +238,25 @@ function StatCard({
   return (
     <div
       style={{
-        backgroundColor: "#2a2a2a",
-        padding: "12px",
-        borderRadius: "6px",
+        backgroundColor: "#21262D",
+        padding: "15px",
+        borderRadius: "8px",
         textAlign: "center",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+        transition: "transform 0.2s ease-in-out, background-color 0.2s ease",
+      }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLElement).style.transform = "scale(1.05)";
+        (e.currentTarget as HTMLElement).style.backgroundColor = "#2b3137";
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLElement).style.transform = "scale(1)";
+        (e.currentTarget as HTMLElement).style.backgroundColor = "#21262D";
       }}
     >
-      <div style={{ fontSize: "14px", color: "#aaa" }}>{label}</div>
+      <div style={{ fontSize: "13px", color: "#8B949E", marginBottom: "5px" }}>
+        {label}
+      </div>
       <div style={{ fontSize: "18px", fontWeight: "bold", color }}>{value}</div>
     </div>
   );

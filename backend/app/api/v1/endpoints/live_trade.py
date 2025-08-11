@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.responses import StreamingResponse
 from datetime import datetime, date
 from typing import Optional
-import json, asyncio
+import json, asyncio, datetime, random
 from uuid import UUID
 from celery.result import AsyncResult
 from celery.contrib.abortable import AbortableAsyncResult
@@ -10,20 +10,34 @@ from sqlalchemy.orm import Session
 from app.dependencies.database import get_db
 from celery_app import celery_app
 from app.services.bot_service import get_bot
-from app.services.trading_task_serivce import create_trading_task, get_trading_task_status, stop_trading_task, add_celery_id_to_trading_task, get_active_trading_tasks
+from app.services.trading_task_serivce import (
+    create_trading_task,
+    get_trading_task_status,
+    stop_trading_task,
+    add_celery_id_to_trading_task,
+    get_active_trading_tasks,
+)
+from app.api.v1.endpoints.schwab import SchwabAccountAPI, SchwabMarketAPI
+
+schwab_account = SchwabAccountAPI()
+schwab_market = SchwabMarketAPI()
 router = APIRouter()
+
 
 @router.get("/start-trading/")
 def start_task(bot_id: str, db: Session = Depends(get_db)):
     try:
         task = create_trading_task(db, bot_id)
         if not task:
-            raise HTTPException(status_code=400, detail="Bot is already running!")  
-        trading_task = celery_app.send_task("app.tasks.live_trade.trading", args=[bot_id, task.id])
+            raise HTTPException(status_code=400, detail="Bot is already running!")
+        trading_task = celery_app.send_task(
+            "app.tasks.live_trade.trading", args=[bot_id, task.id]
+        )
         celery_id = trading_task.id
         return add_celery_id_to_trading_task(db, task.id, celery_id)
     except:
         raise HTTPException(status_code=400, detail="Server can't find bot")
+
 
 @router.get("/trading-status/{trading_task_id}")
 def get_status(trading_task_id: str, db: Session = Depends(get_db)):
@@ -33,8 +47,9 @@ def get_status(trading_task_id: str, db: Session = Depends(get_db)):
     return {
         "task_id": trading_task_result.id,
         "status": trading_task_result.status,
-        "result": trading_task_result.result if trading_task_result.ready() else None
+        "result": trading_task_result.result if trading_task_result.ready() else None,
     }
+
 
 @router.get("/stop-trading-bot-id/")
 async def stop_task(bot_id: str, db: Session = Depends(get_db)):
@@ -43,16 +58,18 @@ async def stop_task(bot_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Bot was Stopped")
     trading_task_id = bot.current_trading_task_id
     trading_task = get_trading_task_status(db, trading_task_id)
-    celery_app.control.revoke(trading_task.celery_id, terminate=True, signal='SIGKILL')
+    celery_app.control.revoke(trading_task.celery_id, terminate=True, signal="SIGKILL")
     return stop_trading_task(db, trading_task_id)
+
 
 @router.get("/stop-trading-trading-task-id/")
 def stop_task(trading_task_id: str, db: Session = Depends(get_db)):
     trading_task = get_trading_task_status(db, trading_task_id)
     # result = AbortableAsyncResult(trading_task.celery_id)
     # result.abort()
-    celery_app.control.revoke(trading_task.celery_id, terminate=True, signal='SIGKILL')
+    celery_app.control.revoke(trading_task.celery_id, terminate=True, signal="SIGKILL")
     return stop_trading_task(db, trading_task_id)
+
 
 @router.get("/stop-all-trading/")
 def stop_all_tasks(user_id: UUID, db: Session = Depends(get_db)):
@@ -60,20 +77,52 @@ def stop_all_tasks(user_id: UUID, db: Session = Depends(get_db)):
     # result = AbortableAsyncResult(trading_task.celery_id)
     # result.abort()
     for task in active_trading_tasks:
-        celery_app.control.revoke(task.celery_id, terminate=True, signal='SIGKILL')
+        celery_app.control.revoke(task.celery_id, terminate=True, signal="SIGKILL")
         stop_trading_task(db, task.id)
     return "Success"
+
 
 @router.get("/stream/{trading_task_id}")
 async def stream_task(trading_task_id: str):
     async def event_stream():
         while True:
             trading_task_result = AsyncResult(trading_task_id, app=celery_app)
-            if trading_task_result.state == 'PROGRESS':
+            if trading_task_result.state == "PROGRESS":
                 data = trading_task_result.info  # intermediate data
                 yield f"data: {json.dumps(data)}\n\n"
-            elif trading_task_result.state in ['SUCCESS', 'FAILURE', 'REVOKED']:
+            elif trading_task_result.state in ["SUCCESS", "FAILURE", "REVOKED"]:
                 yield f"data: {json.dumps({'state': trading_task_result.state, 'result': trading_task_result.result})}\n\n"
                 break
             await asyncio.sleep(1)
+
     return StreamingResponse(event_stream(), media_type="text/event-stream")
+
+
+@router.get("/current-price/{symbol}")
+async def sse_endpoint(request: Request, symbol: str):
+    async def event_generator(request: Request):
+        while True:
+            # If client disconnects, stop sending
+            if await request.is_disconnected():
+                break
+
+            # Here you generate or fetch your real-time data; example is current timestamp
+            price_hist_resp = schwab_market.get_pricehistory(
+                symbol, "day", 10, "daily", 1, None, None, None, None
+            )
+            price_history = [candle["close"] for candle in price_hist_resp["candles"]]
+            current_price = price_history[-1]
+            current_price += random.random()
+            payload = {
+                "volume": current_price - 1,
+                "price": current_price,
+            }
+
+            # Send JSON-encoded data
+            yield f"data: {json.dumps(payload)}\n\n"
+            # SSE event format: data: <message>\n\n
+            # yield f"data: {current_price}\n\n"
+            # Wait before sending next event; adjust to your needs
+            await asyncio.sleep(1)
+
+    return StreamingResponse(event_generator(request), media_type="text/event-stream")

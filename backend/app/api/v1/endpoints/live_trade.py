@@ -113,8 +113,16 @@ async def sse_endpoint(request: Request, symbol: str):
             price_history = [candle["close"] for candle in price_hist_resp["candles"]]
             current_price = price_history[-1]
             current_price += random.random()
+            option_data = schwab_market.get_quotes(symbol)
+            option_data = option_data['AAPL']
+            option_data['reference']['description'] = ""
+            option_data['symbol'] = symbol
+            option_data['quote']["askPrice"] += random.random()
+            option_data['quote']["bidPrice"] += random.random()
+            option_data['quote']["totalVolume"] += int(1000 * random.random())
+            x = 100 * random.random()
             payload = {
-                "volume": current_price - 1,
+                "quote": option_data,
                 "price": current_price,
             }
 

@@ -41,6 +41,8 @@ class Settings(BaseSettings):
     
     REDIS_URL : str = Field(env="REDIS_URL")
     
+    GOOGLE_CLIENT_ID : str = Field(env="GOOGLE_CLIENT_ID")
+    
     class Config:
         # Path to the .env file (relative to project root)
         env_file = ".env"

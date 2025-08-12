@@ -5,6 +5,7 @@ import LightweightChart from "../../components/LightweightChart";
 import TradingViewWidget from "../../components/TradingViewWidget";
 import SseComponent from "../../components/SseComponent";
 import { Bot } from "../../types/bot";
+import { StockQuoteData } from "../../types/quote"
 import { Strategy } from "../../types/strategy";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -45,9 +46,61 @@ function BotMonitor() {
   }, [id]);
 
   useEffect(() => {
-    if (bot) getStrategy(bot.strategy_id);
-  }, [bot]);
+    if (bot) {
+      getStrategy(bot.strategy_id);
+    }
 
+  }, [bot]);
+  useEffect(() => {
+    const eventSource = new EventSource(
+      `${BACKEND_URL}/live-trade/current-price/${strategy?.symbol}`
+    );
+
+    eventSource.onmessage = (event) => {
+      try {
+        const parsed = JSON.parse(event.data);
+        setData(parsed);
+      } catch (err) {
+        console.error("Error parsing SSE data:", err);
+      }
+    };
+
+    eventSource.onerror = (error) => {
+      console.error("EventSource failed:", error);
+      eventSource.close();
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  }, [strategy])
+  const [data, setData] = useState<{ price: number; quote: StockQuoteData } | null>(
+    null
+  );
+
+  // useEffect(() => {
+  //   const eventSource = new EventSource(
+  //     `${BACKEND_URL}/live-trade/current-price/${symbol}`
+  //   );
+
+  //   eventSource.onmessage = (event) => {
+  //     try {
+  //       const parsed = JSON.parse(event.data);
+  //       setData(parsed);
+  //     } catch (err) {
+  //       console.error("Error parsing SSE data:", err);
+  //     }
+  //   };
+
+  //   eventSource.onerror = (error) => {
+  //     console.error("EventSource failed:", error);
+  //     eventSource.close();
+  //   };
+
+  //   return () => {
+  //     eventSource.close();
+  //   };
+  // }, [symbol]);
   if (loading) {
     return (
       <p style={{ color: "#ccc", textAlign: "center", marginTop: "40px" }}>
@@ -100,30 +153,58 @@ function BotMonitor() {
         >
           <InfoRow label="ID" value={id} />
           <InfoRow label="Name" value={bot.name} />
+
           {strategy && (
             <>
               <InfoRow label="Symbol" value={strategy.symbol} />
-              <div>
-                <strong>Live Price:</strong>
-                <div style={{ marginTop: "5px" }}>
-                  <SseComponent symbol={strategy.symbol} />
-                </div>
-              </div>
               <InfoRow
                 label="Strategy"
                 value={strategy.name}
                 highlight="#ffaa00"
-              />
-            </>
+              /></>
           )}
           <InfoRow
             label="Status"
             value={bot.is_active ? "🟢 Active" : "🔴 Stopped"}
             highlight={bot.is_active ? "#4ade80" : "#ef4444"}
           />
+
         </div>
       </Card>
+      <Card>
+        <h3 style={{ color: "#58a6ff", marginBottom: "12px" }}>
+          💸 Option Data
+        </h3>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
+            gap: "15px",
+          }}
+        >
+          <StatCard
+            label="Current Price"
+            value={`$${data?.price}`}
+            color="#4cafef"
+          />
+          <StatCard
+            label="Bid Price"
+            value={`$${data?.quote.quote.bidPrice.toLocaleString()}`}
+            color="#4ade80"
+          />
+          <StatCard
+            label="Ask Price"
+            value={`$${data?.quote.quote.askPrice.toLocaleString()}`}
+            color="#ef4444"
+          />
+          <StatCard
+            label="Total Volume"
+            value={`${data?.quote.quote.totalVolume.toLocaleString()}`}
+            color="#a3e635"
+          />
 
+        </div>
+      </Card>
       {/* Stats Section */}
       <Card>
         <h3 style={{ color: "#58a6ff", marginBottom: "12px" }}>

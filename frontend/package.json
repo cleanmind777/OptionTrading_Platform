@@ -18,6 +18,7 @@
     "antd": "^5.26.6",
     "axios": "^1.10.0",
     "date-fns": "^4.1.0",
+    "framer-motion": "^12.23.12",
     "jotai": "^2.12.5",
     "js-cookie": "^3.0.5",
     "lightweight-charts": "^5.0.8",

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import LightweightChart from "../../components/LightweightChart";
+import TradingViewWidget from "../../components/TradingViewWidget";
 import SseComponent from "../../components/SseComponent";
 import { Bot } from "../../types/bot";
 import { Strategy } from "../../types/strategy";
@@ -73,9 +74,14 @@ function BotMonitor() {
       }}
     >
       {/* Chart Section */}
-      <Card>
-        <LightweightChart />
-      </Card>
+      {
+        strategy && (
+          <Card>
+            <TradingViewWidget symbol={strategy?.symbol} />
+          </Card>
+        )
+      }
+
 
       {/* Bot Info & Live Price */}
       <Card>
@@ -179,7 +185,7 @@ function Card({ children }: { children: React.ReactNode }) {
         transition: "transform 0.2s ease-in-out, box-shadow 0.3s ease",
       }}
       onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.transform = "scale(1.01)";
+        (e.currentTarget as HTMLElement).style.transform = "scale(1)";
         (e.currentTarget as HTMLElement).style.boxShadow =
           "0 6px 20px rgba(0,0,0,0.6)";
       }}

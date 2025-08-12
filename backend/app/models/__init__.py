@@ -4,3 +4,6 @@ from .trading_account import TradingAccount
 from .user import User
 from .strategy import Strategy
 from .group import Group
+from .trading_log import TradingLog
+from .trading_task import TradingTask
+from .backtest import Backtest

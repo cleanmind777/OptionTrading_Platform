@@ -16,43 +16,28 @@ export function HeroSection({ onLogin }: HeroSectionProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     const params = new URLSearchParams();
-    params.append('username', email); // OAuth2PasswordRequestForm expects 'username'
+    params.append('username', email);
     params.append('password', password);
     try {
-      await axios.post(`${BACKEND_URL}/auth/login`, params,
+      const response = await axios.post(
+        `${BACKEND_URL}/auth/login`,
+        params,
         {
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          withCredentials: true, // Send cookies
-        }).then(response => {
-          console.log('Login successful:', response)
-          console.log("Cookie", Cookies.get('access_token'))
-          localStorage.setItem("userinfo", JSON.stringify(response.data))
-          setUser(response.data)
-          console.log(response)
-          console.log();
-
-          // Cookies.set('access_token', response.data.access_token, { path: '/' })
-
-          return true
-        }).catch(error => {
-          alert("Invalid email or password")
-          console.log(error)
-          return false
-        })
-      // navigate("/login");
-      // Handle successful registration, e.g., redirect to login page
-      // console.log(response.data.account_id)
-      // localStorage.setItem('access_id', response.data.account_id);
-      // localStorage.setItem('access_token', response.data.access_token);
-      // const userinfo = await axios.get(`${BACKEND_URL}/user/me/?account_id=${response.data.account_id}`)
-      // console.log("errror", useAtomValue(userAtom));
+          withCredentials: true,
+        }
+      );
+      localStorage.setItem("userinfo", JSON.stringify(response.data));
+      setUser(response.data); // Make sure setUser is in scope!
+      return true;
     } catch (error) {
-      console.log("error")
-      return false
+      alert("Invalid email or password");
+      return false;
     }
   };
+
   // Auto-rotate features every 7.5 seconds
   useEffect(() => {
     const interval = setInterval(() => {

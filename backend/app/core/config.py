@@ -26,7 +26,23 @@ class Settings(BaseSettings):
     EMAILJS_RRIVATE_KEY: str = Field(env="EMAILJS_RRIVATE_KEY")
     
     POLYGON_API_KEY : str = Field(env="POLYGON_API_KEY")
+    
+    DOMAIN : str = Field(env="DOMAIN")
+    
+    SCHWAB_CLIENT_ID : str = Field(env="SCHWAB_CLIENT_ID")
+    
+    SCHWAB_CLIENT_SECRET : str = Field(env="SCHWAB_CLIENT_SECRET")
+    
+    SCHWAB_ACCESS_TOKEN : str = Field(env="SCHWAB_ACCESS_TOKEN")
 
+    SCHWAB_API_BASE_URL : str = Field(env="SCHWAB_API_BASE_URL")
+    
+    SCHWAB_API_MARKET_URL : str = Field(env="SCHWAB_API_MARKET_URL")
+    
+    REDIS_URL : str = Field(env="REDIS_URL")
+    
+    GOOGLE_CLIENT_ID : str = Field(env="GOOGLE_CLIENT_ID")
+    
     class Config:
         # Path to the .env file (relative to project root)
         env_file = ".env"

@@ -23,3 +23,5 @@ class TradingAccount(Base):
     updated_at = Column(DateTime, onupdate=func.now())
     user = relationship("User", back_populates="trading_accounts")
     bots = relationship("Bot", back_populates="trading_account")
+    trading_tasks = relationship("TradingTask", back_populates="trading_account")
+    trading_logs = relationship("TradingLog", back_populates="trading_account")

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from app.db.repositories.bot_repository import user_create_bot, user_get_bots, user_get_bot, user_edit_bot, user_get_setting_history
+from app.db.repositories.bot_repository import user_create_bot, user_get_bots, user_get_bot, user_edit_bot, user_get_setting_history, user_get_bots_for_trading_dashboard
 from app.schemas.bot import BotCreate, BotFilter, BotEdit, BotChange
 from app.schemas.bots_setting_history import BotSettingHistoryFilter
 from app.models.bot import Bot
@@ -21,3 +21,6 @@ async def get_bot(db: Session, id: UUID) -> Bot:
 
 async def get_setting_history(db: Session, filter: BotSettingHistoryFilter):
     return await user_get_setting_history(db, filter)
+
+async def get_bots_for_trading_dashboard(db: Session, user_id: UUID):
+    return await user_get_bots_for_trading_dashboard(db, user_id)

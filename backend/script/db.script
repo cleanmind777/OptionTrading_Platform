@@ -77,7 +77,15 @@ CREATE TABLE bots (
     trade_exit JSON,
     trade_stop JSON,
     trade_condition JSON,
-    bot_dependencies JSON
+    bot_dependencies JSON,
+    current_status VARCHAR,
+    current_trading_task_id UUID,
+    total_profit FLOAT DEFAULT 0,
+    win_rate FLOAT DEFAULT 0,
+    win_trades_count INTEGER DEFAULT 0,
+    loss_trades_count INTEGER DEFAULT 0,
+    average_win FLOAT DEFAULT 0,
+    average_loss FLOAT DEFAULT 0
 );
 
 
@@ -125,4 +133,33 @@ CREATE TABLE backtests (
     strategy_id UUID NOT NULL REFERENCES strategies(id),
     bot_id UUID NOT NULL REFERENCES bots(id),
     result JSON DEFAULT '{}'
+);
+
+CREATE TABLE trading_tasks (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    celery_id VARCHAR,
+    user_id UUID NOT NULL REFERENCES users(id),
+    bot_id UUID NOT NULL REFERENCES bots(id),
+    trading_account_id UUID REFERENCES trading_accounts(id),
+    is_active BOOLEAN DEFAULT TRUE,
+    symbol VARCHAR,
+    total_profit FLOAT DEFAULT 0,
+    win_trades_count INTEGER DEFAULT 0,
+    loss_trades_count INTEGER DEFAULT 0,
+    average_win FLOAT DEFAULT 0,
+    average_loss FLOAT DEFAULT 0,
+    start_time TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+    end_time TIMESTAMP WITHOUT TIME ZONE
+);
+
+CREATE TABLE trading_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id),
+    bot_id UUID NOT NULL REFERENCES bots(id),
+    trading_account_id UUID REFERENCES trading_accounts(id),
+    trading_task_id UUID REFERENCES trading_tasks(id),
+    symbol VARCHAR,
+    profit FLOAT DEFAULT 0,
+    win_loss BOOLEAN,
+    trade_time TIMESTAMP WITHOUT TIME ZONE DEFAULT now()
 );

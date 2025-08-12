@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { useAtom } from 'jotai';
 import { userAtom } from '../atoms/userAtom';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import Cookies from 'js-cookie';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -17,29 +18,25 @@ export function LoginPage({ onLogin }: LoginPageProps) {
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     const params = new URLSearchParams();
     params.append('username', email);
     params.append('password', password);
     try {
-      await axios.post(`${BACKEND_URL}/auth/login`, params,
+      const response = await axios.post(
+        `${BACKEND_URL}/auth/login`,
+        params,
         {
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           withCredentials: true,
-        }).then(response => {
-          // console.log('Login successful:', response)
-          // console.log("Cookie", Cookies.get('access_token'))
-          localStorage.setItem("userinfo", JSON.stringify(response.data))
-          setUser(response.data)
-          return true
-        }).catch(error => {
-          // console.log(error)
-          alert("Invalid email or password")
-          return false
-        })
+        }
+      );
+      localStorage.setItem("userinfo", JSON.stringify(response.data));
+      setUser(response.data); // Make sure setUser is in scope!
+      return true;
     } catch (error) {
-      // console.log("error")
-      return false
+      alert("Invalid email or password");
+      return false;
     }
   };
 
@@ -58,49 +55,80 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       // console.error("Login failed:", error);
     }
   };
+  const handleSuccess = async (credentialResponse: any) => {
+    if (!credentialResponse.credential) {
+      console.error("No credential from Google");
+      return;
+    }
 
+    const params = new URLSearchParams();
+    params.append('token', credentialResponse.credential);
+
+    await axios.post(
+      `${BACKEND_URL}/auth/google-login`,
+      params,
+      {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        withCredentials: true, // required so browser stores cookies
+      }
+    ).then(response => {
+      localStorage.setItem("userinfo", JSON.stringify(response.data));
+      setUser(response.data);
+      onLogin();
+      navigate("/account-stats");
+    }).catch(error => {
+      console.error("Google login error", error);
+      alert(error.response.data.detail)
+    }
+    )
+  }
+
+
+
+  const handleError = () => {
+    console.error("Google Login Failed");
+  };
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center py-12 px-4">
-      <div className="max-w-md w-full">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center space-x-3">
-            <div className="relative">
-              <svg className="w-16 h-16" viewBox="0 0 120 120">
-                <circle
-                  cx="60"
-                  cy="60"
-                  r="50"
-                  fill="none"
-                  stroke="#10b981"
-                  strokeWidth="4"
-                  strokeDasharray="20 10"
-                />
-                <g transform="translate(35, 35)">
-                  <rect x="10" y="30" width="8" height="20" fill="#10b981" />
-                  <rect x="20" y="20" width="8" height="30" fill="#10b981" />
-                  <rect x="30" y="10" width="8" height="40" fill="#10b981" />
-                  <rect x="40" y="25" width="8" height="25" fill="#10b981" />
-                </g>
-                <path d="M20 30 L30 20 L25 25 Z" fill="#10b981" />
-                <path d="M100 90 L90 100 L95 95 Z" fill="#10b981" />
-              </svg>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-white">TRADE STEWARD</div>
-              <div className="text-xs text-gray-300 tracking-widest">OPENING YOUR OPTIONS</div>
-            </div>
-          </Link>
-        </div>
+    <div className="min-h-[80vh] bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center px-6 py-10">
+      <div className="max-w-4xl w-full bg-gray-900 bg-opacity-95 rounded-2xl shadow-2xl border border-green-700 flex flex-col md:flex-row overflow-hidden">
+        {/* Left side: Login Form */}
+        <div className="flex-1 p-10 md:p-14 bg-gray-900 bg-opacity-95 flex flex-col justify-center">
+          <div className="mb-10 text-center">
+            <Link to="/" className="inline-flex items-center space-x-3 justify-center">
+              <div className="relative">
+                <svg className="w-16 h-16" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="50"
+                    fill="none"
+                    stroke="#22c55e"
+                    strokeWidth="4"
+                    strokeDasharray="20 10"
+                  />
+                  <g transform="translate(35, 35)">
+                    <rect x="10" y="30" width="8" height="20" fill="#22c55e" />
+                    <rect x="20" y="20" width="8" height="30" fill="#22c55e" />
+                    <rect x="30" y="10" width="8" height="40" fill="#22c55e" />
+                    <rect x="40" y="25" width="8" height="25" fill="#22c55e" />
+                  </g>
+                  <path d="M20 30 L30 20 L25 25 Z" fill="#22c55e" />
+                  <path d="M100 90 L90 100 L95 95 Z" fill="#22c55e" />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-3xl font-extrabold text-white tracking-wide">TRADE STEWARD</h1>
+                <p className="text-sm text-green-400 tracking-widest mt-1">OPENING YOUR OPTIONS</p>
+              </div>
+            </Link>
+          </div>
 
-        {/* Login Form */}
-        <div className="bg-slate-800 p-8 rounded-lg shadow-xl border border-slate-700">
-          <h2 className="text-2xl font-bold text-white mb-2">Welcome Back</h2>
-          <p className="text-gray-300 text-sm mb-6">
+          <h2 className="text-3xl font-extrabold text-green-400 mb-6 text-center md:text-left">Welcome Back</h2>
+          <p className="text-green-300 text-sm mb-8 text-center md:text-left">
             Sign in to access your trading dashboard
           </p>
 
-          <form className="space-y-4" onSubmit={handleSubmit}>
+          <form className="space-y-6" onSubmit={handleSubmit} noValidate>
             <div>
               <label htmlFor="email" className="sr-only">Email Address</label>
               <input
@@ -110,7 +138,8 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:border-blue-500 focus:ring-blue-500"
+                autoComplete="email"
+                className="w-full px-5 py-4 bg-gray-800 border border-green-600 rounded-lg text-white placeholder-green-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
               />
             </div>
 
@@ -123,24 +152,25 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:border-blue-500 focus:ring-blue-500"
+                autoComplete="current-password"
+                className="w-full px-5 py-4 bg-gray-800 border border-green-600 rounded-lg text-white placeholder-green-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
               />
             </div>
 
             <div className="flex items-center justify-between">
-              <label className="flex items-center space-x-2 cursor-pointer">
+              <label className="flex items-center space-x-3 cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 bg-slate-700 border border-slate-600 rounded focus:ring-blue-500"
+                  className="w-5 h-5 text-green-600 bg-gray-800 border border-green-600 rounded focus:ring-green-500"
                 />
-                <span className="text-gray-300 text-sm">Remember me</span>
+                <span className="text-green-300 text-sm font-medium">Remember me</span>
               </label>
 
               <Link
                 to="/forgot-password"
-                className="text-blue-400 hover:text-blue-300 text-sm"
+                className="text-green-400 hover:text-green-300 text-sm font-semibold transition"
               >
                 Forgot password?
               </Link>
@@ -148,31 +178,31 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-800"
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 rounded-lg transition-colors focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-black"
             >
               SIGN IN
             </button>
           </form>
 
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-600"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-slate-800 text-gray-400">
-                  Don't have an account?
-                </span>
-              </div>
-            </div>
-
+          <div className="mt-10 text-center">
+            <p className="text-green-400 font-semibold mb-3">Don't have an account?</p>
             <Link
               to="/register"
-              className="mt-4 w-full bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-4 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-slate-800 inline-flex justify-center"
+              className="inline-block w-full md:w-auto bg-green-700 hover:bg-green-800 text-white font-semibold py-3 px-8 rounded-lg transition-colors focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-black"
             >
               CREATE NEW ACCOUNT
             </Link>
           </div>
+        </div>
+
+        {/* Right side: Google Login */}
+        <div className="w-full md:w-96 bg-gradient-to-tr from-gray-900 via-gray-800 to-gray-900 flex flex-col items-center justify-center p-12 rounded-r-3xl">
+          <h3 className="text-white text-2xl font-semibold mb-8">Or sign in with</h3>
+          <GoogleOAuthProvider clientId="337295711201-qqfpue717gpn9t23kk48b5d15m79tf0l.apps.googleusercontent.com">
+            <div className="w-full flex justify-center">
+              <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
+            </div>
+          </GoogleOAuthProvider>
         </div>
       </div>
     </div>

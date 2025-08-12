@@ -1,0 +1,352 @@
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import LightweightChart from "../../components/LightweightChart";
+import TradingViewWidget from "../../components/TradingViewWidget";
+import SseComponent from "../../components/SseComponent";
+import { Bot } from "../../types/bot";
+import { StockQuoteData } from "../../types/quote"
+import { Strategy } from "../../types/strategy";
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+function BotMonitor() {
+  const { id } = useParams();
+  const [bot, setBot] = useState<Bot | null>(null);
+  const [strategy, setStrategy] = useState<Strategy | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const getBot = async () => {
+    try {
+      const { data } = await axios.get(`${BACKEND_URL}/bot/get_bot`, {
+        params: { id },
+      });
+      setBot(data);
+    } catch (error) {
+      console.error("Error fetching bot data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStrategy = async (strategy_id: string) => {
+    try {
+      const { data } = await axios.get(`${BACKEND_URL}/strategy/get_strategy`, {
+        params: { strategy_id },
+      });
+      setStrategy(data);
+      localStorage.setItem("strategy", JSON.stringify(data));
+    } catch (error) {
+      console.error("Error fetching strategy:", error);
+    }
+  };
+
+  useEffect(() => {
+    getBot();
+  }, [id]);
+
+  useEffect(() => {
+    if (bot) {
+      getStrategy(bot.strategy_id);
+    }
+
+  }, [bot]);
+  useEffect(() => {
+    const eventSource = new EventSource(
+      `${BACKEND_URL}/live-trade/current-price/${strategy?.symbol}`
+    );
+
+    eventSource.onmessage = (event) => {
+      try {
+        const parsed = JSON.parse(event.data);
+        setData(parsed);
+      } catch (err) {
+        console.error("Error parsing SSE data:", err);
+      }
+    };
+
+    eventSource.onerror = (error) => {
+      console.error("EventSource failed:", error);
+      eventSource.close();
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  }, [strategy])
+  const [data, setData] = useState<{ price: number; quote: StockQuoteData } | null>(
+    null
+  );
+
+  // useEffect(() => {
+  //   const eventSource = new EventSource(
+  //     `${BACKEND_URL}/live-trade/current-price/${symbol}`
+  //   );
+
+  //   eventSource.onmessage = (event) => {
+  //     try {
+  //       const parsed = JSON.parse(event.data);
+  //       setData(parsed);
+  //     } catch (err) {
+  //       console.error("Error parsing SSE data:", err);
+  //     }
+  //   };
+
+  //   eventSource.onerror = (error) => {
+  //     console.error("EventSource failed:", error);
+  //     eventSource.close();
+  //   };
+
+  //   return () => {
+  //     eventSource.close();
+  //   };
+  // }, [symbol]);
+  if (loading) {
+    return (
+      <p style={{ color: "#ccc", textAlign: "center", marginTop: "40px" }}>
+        Loading...
+      </p>
+    );
+  }
+  if (!bot) {
+    return (
+      <p style={{ color: "#ff4d4f", textAlign: "center", marginTop: "40px" }}>
+        No data found.
+      </p>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        backgroundColor: "#0D1117",
+        minHeight: "100vh",
+        padding: "20px",
+        color: "#E6EDF3",
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+      }}
+    >
+      {/* Chart Section */}
+      {
+        strategy && (
+          <Card>
+            <TradingViewWidget symbol={strategy?.symbol} />
+          </Card>
+        )
+      }
+
+
+      {/* Bot Info & Live Price */}
+      <Card>
+        <h2 style={{ color: "#4cc9f0", marginBottom: "10px" }}>
+          📊 Bot Details
+        </h2>
+        <Divider />
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+            gap: "18px",
+            alignItems: "flex-start",
+          }}
+        >
+          <InfoRow label="ID" value={id} />
+          <InfoRow label="Name" value={bot.name} />
+
+          {strategy && (
+            <>
+              <InfoRow label="Symbol" value={strategy.symbol} />
+              <InfoRow
+                label="Strategy"
+                value={strategy.name}
+                highlight="#ffaa00"
+              /></>
+          )}
+          <InfoRow
+            label="Status"
+            value={bot.is_active ? "🟢 Active" : "🔴 Stopped"}
+            highlight={bot.is_active ? "#4ade80" : "#ef4444"}
+          />
+
+        </div>
+      </Card>
+      <Card>
+        <h3 style={{ color: "#58a6ff", marginBottom: "12px" }}>
+          💸 Option Data
+        </h3>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
+            gap: "15px",
+          }}
+        >
+          <StatCard
+            label="Current Price"
+            value={`$${data?.price}`}
+            color="#4cafef"
+          />
+          <StatCard
+            label="Bid Price"
+            value={`$${data?.quote.quote.bidPrice.toLocaleString()}`}
+            color="#4ade80"
+          />
+          <StatCard
+            label="Ask Price"
+            value={`$${data?.quote.quote.askPrice.toLocaleString()}`}
+            color="#ef4444"
+          />
+          <StatCard
+            label="Total Volume"
+            value={`${data?.quote.quote.totalVolume.toLocaleString()}`}
+            color="#a3e635"
+          />
+
+        </div>
+      </Card>
+      {/* Stats Section */}
+      <Card>
+        <h3 style={{ color: "#58a6ff", marginBottom: "12px" }}>
+          📈 Performance Stats
+        </h3>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
+            gap: "15px",
+          }}
+        >
+          <StatCard
+            label="Total Profit"
+            value={bot.total_profit}
+            color="#4cafef"
+          />
+          <StatCard
+            label="Win Rate"
+            value={`${bot.win_rate}%`}
+            color="#4ade80"
+          />
+          <StatCard
+            label="Win Trades"
+            value={bot.win_trades_count}
+            color="#22d3ee"
+          />
+          <StatCard
+            label="Loss Trades"
+            value={bot.loss_trades_count}
+            color="#ef4444"
+          />
+          <StatCard
+            label="Average Win"
+            value={bot.average_win}
+            color="#a3e635"
+          />
+          <StatCard
+            label="Average Loss"
+            value={bot.average_loss}
+            color="#f97316"
+          />
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+/* --- Reusable Components --- */
+function Card({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      style={{
+        backgroundColor: "#161B22",
+        borderRadius: "10px",
+        padding: "20px",
+        boxShadow: "0 4px 15px rgba(0,0,0,0.5)",
+        marginBottom: "20px",
+        transition: "transform 0.2s ease-in-out, box-shadow 0.3s ease",
+      }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLElement).style.transform = "scale(1)";
+        (e.currentTarget as HTMLElement).style.boxShadow =
+          "0 6px 20px rgba(0,0,0,0.6)";
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLElement).style.transform = "scale(1)";
+        (e.currentTarget as HTMLElement).style.boxShadow =
+          "0 4px 15px rgba(0,0,0,0.5)";
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function Divider() {
+  return (
+    <hr
+      style={{ border: 0, borderTop: "1px solid #30363D", margin: "10px 0" }}
+    />
+  );
+}
+
+function InfoRow({
+  label,
+  value,
+  highlight,
+}: {
+  label: string;
+  value: any;
+  highlight?: string;
+}) {
+  return (
+    <p style={{ margin: 0, fontSize: "14px" }}>
+      <strong>{label}:</strong>{" "}
+      <span
+        style={{
+          color: highlight || "#E6EDF3",
+          fontWeight: highlight ? "bold" : "normal",
+        }}
+      >
+        {value}
+      </span>
+    </p>
+  );
+}
+
+function StatCard({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: any;
+  color: string;
+}) {
+  return (
+    <div
+      style={{
+        backgroundColor: "#21262D",
+        padding: "15px",
+        borderRadius: "8px",
+        textAlign: "center",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+        transition: "transform 0.2s ease-in-out, background-color 0.2s ease",
+      }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLElement).style.transform = "scale(1.05)";
+        (e.currentTarget as HTMLElement).style.backgroundColor = "#2b3137";
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLElement).style.transform = "scale(1)";
+        (e.currentTarget as HTMLElement).style.backgroundColor = "#21262D";
+      }}
+    >
+      <div style={{ fontSize: "13px", color: "#8B949E", marginBottom: "5px" }}>
+        {label}
+      </div>
+      <div style={{ fontSize: "18px", fontWeight: "bold", color }}>{value}</div>
+    </div>
+  );
+}
+
+export default BotMonitor;

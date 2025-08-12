@@ -291,11 +291,21 @@ class Bot(Base):
         },
         "disabled_bots_shouldbe_ignored" : True
     })
+    current_status = Column(String, nullable=True, default="DISABLED")
+    current_trading_task_id = Column(UUID(as_uuid=True), nullable=True)
+    total_profit = Column(Float, nullable=True, default=0.0)
+    win_rate = Column(Float, nullable=True, default=0.0)
+    win_trades_count = Column(Integer, nullable=True, default=0)
+    loss_trades_count = Column(Integer, nullable=True, default=0)
+    average_win = Column(Float, nullable=True, default=0.0)
+    average_loss = Column(Float, nullable=True, default=0.0)
     user = relationship("User", back_populates="bots")
     strategy = relationship('Strategy', back_populates='bots')
     bot_setting_history = relationship("BotsSettingHistory", back_populates="bot")
     trading_account = relationship("TradingAccount", back_populates="bots")
     backtests = relationship("Backtest", back_populates="bot")
-    
+    trading_tasks = relationship("TradingTask", back_populates="bot")
+    trading_logs = relationship("TradingLog", back_populates="bot")
+
     
     

@@ -81,7 +81,9 @@ function BotMonitor() {
       color: "#00000000",
     });
   }, [strategy]);
+  useEffect(() => {
 
+  }, [lineDataElements])
   // Handle line data elements update
   const handleLineDataUpdate = (elements: LineDataElement[]) => {
     setLineDataElements(elements); // This triggers the update

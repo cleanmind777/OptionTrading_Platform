@@ -19,6 +19,7 @@ const LightweightChart: React.FC<LightweightChartProps> = ({ elements }) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const lineSeriesRefs = useRef<Record<string, ISeriesApi<"Line">>>({});
+  const dataCache = useRef<Record<string, any[]>>({}); // Cache historical data by selectedTicker
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -50,114 +51,91 @@ const LightweightChart: React.FC<LightweightChartProps> = ({ elements }) => {
       chartRef.current?.remove();
       chartRef.current = null;
       lineSeriesRefs.current = {};
+      dataCache.current = {};
     };
   }, []);
 
   useEffect(() => {
     if (!chartRef.current) return;
-    elements.forEach((element) => {
-      const series = lineSeriesRefs.current[element.id];
-      if (series) {
-        series.applyOptions({
-          color: element.settings.color,
-          visible: element.settings.view,
-        });
-      }
-    });
-    // Remove existing series for elements that are no longer in the list
+
+    // Remove series for elements no longer present
     Object.keys(lineSeriesRefs.current).forEach((id) => {
       if (!elements.some((element) => element.id === id)) {
         chartRef.current?.removeSeries(lineSeriesRefs.current[id]);
         delete lineSeriesRefs.current[id];
+        delete dataCache.current[id];
       }
     });
 
-    // Calculate the date range from the elements
-    const dates = elements
-      .map((element) => element.settings.date)
-      .filter((date) => date); // Filter out empty dates
-    const minDate =
-      dates.length > 0
-        ? new Date(Math.min(...dates.map((date) => new Date(date).getTime())))
-        : null;
-    const maxDate =
-      dates.length > 0
-        ? new Date(Math.max(...dates.map((date) => new Date(date).getTime())))
-        : null;
+    const loadHistoricalData = async (element: LineDataElement) => {
+      if (!element.settings.selectedTicker) return;
 
-    // Load historical data for each element
-    const loadHistoricalData = async () => {
-      if (minDate && maxDate) {
-        try {
-          // Fetch stock price data for the date range
-          const stockPriceData = await fetchPolygonBars(
-            elements[0].settings.symbol, // Use the symbol of the first element
-            minDate.toISOString().split("T")[0],
-            maxDate.toISOString().split("T")[0],
-            1,
-            "day"
-          );
-
-          // Create or update a line series for the stock price
-          // let stockPriceSeries = lineSeriesRefs.current["stockPrice"];
-          // if (!stockPriceSeries) {
-          //   stockPriceSeries = chartRef.current!.addSeries(LineSeries, {
-          //     color: "#4cc9f0", // Use a distinct color for the stock price line
-          //     lineWidth: 2,
-          //   });
-          //   lineSeriesRefs.current["stockPrice"] = stockPriceSeries;
-          // }
-
-          // Format the data and set it to the series
-          // const formattedData = stockPriceData.map((dataPoint) => ({
-          //   time: dataPoint.time,
-          //   value: dataPoint.close,
-          // }));
-          // stockPriceSeries.setData(formattedData);
-        } catch (error) {
-          console.error("Failed to load stock price data:", error);
+      if (dataCache.current[element.id]) {
+        const lineSeries = lineSeriesRefs.current[element.id];
+        if (lineSeries) {
+          lineSeries.setData(dataCache.current[element.id]);
         }
+        return;
       }
 
-      for (const element of elements) {
-        if (element.settings.selectedTicker) {
-          try {
-            const historicalData = await fetchTickerHistoricalData(
-              element.settings.selectedTicker
-            );
-
-            // Create or update a line series for this element
-            let lineSeries = lineSeriesRefs.current[element.id];
-            if (!lineSeries) {
-              lineSeries = chartRef.current!.addSeries(LineSeries, {
-                color: element.settings.color,
-                lineWidth: 2,
-              });
-              lineSeriesRefs.current[element.id] = lineSeries;
-            }
-
-            // Format the data and set it to the series
-            const formattedData = historicalData.map((dataPoint: any) => ({
-              time: new Date(dataPoint.t).toISOString().split("T")[0], // Convert timestamp to YYYY-MM-DD
-              value: dataPoint.c, // Use the close price
-            }));
-            lineSeries.setData(formattedData);
-
-            // Toggle visibility based on the view setting
-            lineSeries.applyOptions({
-              visible: element.settings.view,
-            });
-          } catch (error) {
-            console.error(
-              `Failed to load historical data for ticker ${element.settings.selectedTicker}:`,
-              error
-            );
-          }
+      try {
+        const historicalData = await fetchTickerHistoricalData(
+          element.settings.selectedTicker
+        );
+        const formattedData = historicalData.map((dataPoint: any) => ({
+          time: new Date(dataPoint.t).toISOString().split("T")[0],
+          value: dataPoint.c,
+        }));
+        dataCache.current[element.id] = formattedData;
+        const lineSeries = lineSeriesRefs.current[element.id];
+        if (lineSeries) {
+          lineSeries.setData(formattedData);
         }
+      } catch (error) {
+        console.error(
+          `Failed to load historical data for ticker ${element.settings.selectedTicker}:`,
+          error
+        );
       }
     };
 
-    loadHistoricalData();
+    elements.forEach((element) => {
+      let lineSeries = lineSeriesRefs.current[element.id];
+      if (!lineSeries) {
+        lineSeries = chartRef.current!.addSeries(LineSeries, {
+          color: element.settings.color,
+          lineWidth: 2,
+        });
+        lineSeriesRefs.current[element.id] = lineSeries;
+
+        // Load data for new series
+        loadHistoricalData(element);
+      } else {
+        // Update color and visibility immediately
+        lineSeries.applyOptions({
+          color: element.settings.color,
+          visible: element.settings.view,
+        });
+
+        // Load data only if view is enabled and data not cached
+        if (element.settings.view && !dataCache.current[element.id]) {
+          loadHistoricalData(element);
+        }
+      }
+    });
+
+    // Hide series for elements with view === false
+    Object.entries(lineSeriesRefs.current).forEach(([id, series]) => {
+      const element = elements.find((el) => el.id === id);
+      if (element) {
+        series.applyOptions({ visible: element.settings.view });
+      } else {
+        // If element no longer exists, remove series
+        chartRef.current?.removeSeries(series);
+        delete lineSeriesRefs.current[id];
+        delete dataCache.current[id];
+      }
+    });
   }, [elements]);
 
   // Handle window resize

@@ -4,10 +4,13 @@ import axios from "axios";
 import LightweightChart from "../../components/LightweightChart";
 import TradingViewWidget from "../../components/TradingViewWidget";
 import SseComponent from "../../components/SseComponent";
+import LineDataSettings, {
+  LineDataElement,
+} from "../../components/LineDataSettings";
 import { Bot } from "../../types/bot";
-import { StockQuoteData } from "../../types/quote"
+import { StockQuoteData } from "../../types/quote";
 import { Strategy } from "../../types/strategy";
-
+import { ContractLine, StockLine, AllLine } from "../../types/contract";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 function BotMonitor() {
@@ -15,7 +18,17 @@ function BotMonitor() {
   const [bot, setBot] = useState<Bot | null>(null);
   const [strategy, setStrategy] = useState<Strategy | null>(null);
   const [loading, setLoading] = useState(true);
+  const [stockLineData, setStockLineData] = useState<StockLine | null>(null);
+  const [contractLineData, setContractLineData] = useState<ContractLine | null>(
+    null
+  );
 
+  // Line Data Elements state
+  const [lineDataElements, setLineDataElements] = useState<LineDataElement[]>(
+    []
+  );
+
+  // ... existing functions remain unchanged ...
   const getBot = async () => {
     try {
       const { data } = await axios.get(`${BACKEND_URL}/bot/get_bot`, {
@@ -36,6 +49,17 @@ function BotMonitor() {
       });
       setStrategy(data);
       localStorage.setItem("strategy", JSON.stringify(data));
+
+      // Update symbol in line data elements
+      setLineDataElements((prev) =>
+        prev.map((element) => ({
+          ...element,
+          settings: {
+            ...element.settings,
+            symbol: data.symbol,
+          },
+        }))
+      );
     } catch (error) {
       console.error("Error fetching strategy:", error);
     }
@@ -49,58 +73,25 @@ function BotMonitor() {
     if (bot) {
       getStrategy(bot.strategy_id);
     }
-
   }, [bot]);
+
   useEffect(() => {
-    const eventSource = new EventSource(
-      `${BACKEND_URL}/live-trade/current-price/${strategy?.symbol}`
-    );
+    setStockLineData({
+      symbol: strategy?.symbol ?? "",
+      color: "#00000000",
+    });
+  }, [strategy]);
 
-    eventSource.onmessage = (event) => {
-      try {
-        const parsed = JSON.parse(event.data);
-        setData(parsed);
-      } catch (err) {
-        console.error("Error parsing SSE data:", err);
-      }
-    };
+  // Handle line data elements update
+  const handleLineDataUpdate = (elements: LineDataElement[]) => {
+    setLineDataElements(elements); // This triggers the update
+  };
 
-    eventSource.onerror = (error) => {
-      console.error("EventSource failed:", error);
-      eventSource.close();
-    };
+  // Check if any line data element has chart view enabled
+  const shouldShowChart = () => {
+    return lineDataElements.some((element) => element.settings.view);
+  };
 
-    return () => {
-      eventSource.close();
-    };
-  }, [strategy])
-  const [data, setData] = useState<{ price: number; quote: StockQuoteData } | null>(
-    null
-  );
-
-  // useEffect(() => {
-  //   const eventSource = new EventSource(
-  //     `${BACKEND_URL}/live-trade/current-price/${symbol}`
-  //   );
-
-  //   eventSource.onmessage = (event) => {
-  //     try {
-  //       const parsed = JSON.parse(event.data);
-  //       setData(parsed);
-  //     } catch (err) {
-  //       console.error("Error parsing SSE data:", err);
-  //     }
-  //   };
-
-  //   eventSource.onerror = (error) => {
-  //     console.error("EventSource failed:", error);
-  //     eventSource.close();
-  //   };
-
-  //   return () => {
-  //     eventSource.close();
-  //   };
-  // }, [symbol]);
   if (loading) {
     return (
       <p style={{ color: "#ccc", textAlign: "center", marginTop: "40px" }}>
@@ -108,6 +99,7 @@ function BotMonitor() {
       </p>
     );
   }
+
   if (!bot) {
     return (
       <p style={{ color: "#ff4d4f", textAlign: "center", marginTop: "40px" }}>
@@ -126,16 +118,32 @@ function BotMonitor() {
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
       }}
     >
-      {/* Chart Section */}
-      {
-        strategy && (
-          <Card>
-            <TradingViewWidget symbol={strategy?.symbol} />
-          </Card>
-        )
-      }
+      {/* Line Data Settings */}
+      {strategy && (
+        <LineDataSettings
+          symbol={strategy?.symbol}
+          onUpdateLineData={handleLineDataUpdate}
+        />
+      )}
 
+      {/* Chart Section - Show if any element has view enabled */}
+      {strategy && shouldShowChart() && (
+        <Card>
+          <div>
+            <h3 style={{ color: "#4cc9f0", marginBottom: "15px" }}>
+              {lineDataElements.find((e) => e.settings.view)?.settings.title ||
+                "Chart"}
+            </h3>
+            <LightweightChart elements={lineDataElements}></LightweightChart>
+            <div>
+              Active Line Data Elements:{" "}
+              {lineDataElements.filter((e) => e.settings.view).length}
+            </div>
+          </div>
+        </Card>
+      )}
 
+      {/* ... rest of the component remains unchanged ... */}
       {/* Bot Info & Live Price */}
       <Card>
         <h2 style={{ color: "#4cc9f0", marginBottom: "10px" }}>
@@ -161,50 +169,19 @@ function BotMonitor() {
                 label="Strategy"
                 value={strategy.name}
                 highlight="#ffaa00"
-              /></>
+              />
+            </>
           )}
           <InfoRow
             label="Status"
             value={bot.is_active ? "🟢 Active" : "🔴 Stopped"}
             highlight={bot.is_active ? "#4ade80" : "#ef4444"}
           />
-
         </div>
       </Card>
-      <Card>
-        <h3 style={{ color: "#58a6ff", marginBottom: "12px" }}>
-          💸 Option Data
-        </h3>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
-            gap: "15px",
-          }}
-        >
-          <StatCard
-            label="Current Price"
-            value={`$${data?.price}`}
-            color="#4cafef"
-          />
-          <StatCard
-            label="Bid Price"
-            value={`$${data?.quote.quote.bidPrice.toLocaleString()}`}
-            color="#4ade80"
-          />
-          <StatCard
-            label="Ask Price"
-            value={`$${data?.quote.quote.askPrice.toLocaleString()}`}
-            color="#ef4444"
-          />
-          <StatCard
-            label="Total Volume"
-            value={`${data?.quote.quote.totalVolume.toLocaleString()}`}
-            color="#a3e635"
-          />
 
-        </div>
-      </Card>
+      {strategy && <SseComponent symbol={strategy?.symbol}></SseComponent>}
+
       {/* Stats Section */}
       <Card>
         <h3 style={{ color: "#58a6ff", marginBottom: "12px" }}>
@@ -253,7 +230,7 @@ function BotMonitor() {
   );
 }
 
-/* --- Reusable Components --- */
+/* --- Reusable Components (unchanged) --- */
 function Card({ children }: { children: React.ReactNode }) {
   return (
     <div

@@ -6,7 +6,7 @@ import { userAtom } from '../atoms/userAtom';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import Cookies from 'js-cookie';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 interface LoginPageProps {
   onLogin: () => void;
 }
@@ -198,7 +198,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         {/* Right side: Google Login */}
         <div className="w-full md:w-96 bg-gradient-to-tr from-gray-900 via-gray-800 to-gray-900 flex flex-col items-center justify-center p-12 rounded-r-3xl">
           <h3 className="text-white text-2xl font-semibold mb-8">Or sign in with</h3>
-          <GoogleOAuthProvider clientId="337295711201-qqfpue717gpn9t23kk48b5d15m79tf0l.apps.googleusercontent.com">
+          <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
             <div className="w-full flex justify-center">
               <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
             </div>

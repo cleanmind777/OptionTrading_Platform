@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import auth, user,strategy, bot, backtest, schwab_test, live_trade
+from app.api.v1.endpoints import auth, user,strategy, bot, backtest, schwab_test, live_trade, demo
 
 api_router = APIRouter()
 api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
@@ -9,3 +9,4 @@ api_router.include_router(bot.router, prefix="/bot", tags=["bot"])
 api_router.include_router(backtest.router, prefix="/backtest", tags=["backtest"])
 api_router.include_router(schwab_test.router, prefix="/schwab", tags=["schwab"])
 api_router.include_router(live_trade.router, prefix="/live-trade", tags=["live-trade"])
+api_router.include_router(demo.router, prefix="/demo", tags=["demo"])

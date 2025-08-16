@@ -18,6 +18,8 @@ class TradingLog(Base):
     win_loss = Column(Boolean, nullable=True)
     profit = Column(Float, nullable=True, default=0.0)
     time = Column(DateTime, nullable=True, server_default=func.now())
+    current_total_balance = Column(Float, nullable=True, default=100000.0)
+    current_account_balance = Column(Float, nullable=True, default=100000.0)   
     
     user = relationship("User", back_populates="trading_logs")
     bot = relationship("Bot", back_populates="trading_logs")

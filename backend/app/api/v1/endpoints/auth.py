@@ -7,9 +7,19 @@ from datetime import timedelta
 from app.models.user import User
 from uuid import UUID
 
-from app.schemas.user import UserCreate, UserResponse, UserInfo, ForgotPasswordRequest, ResetPasswordRequest
+from app.schemas.user import (
+    UserCreate,
+    UserResponse,
+    UserInfo,
+    ForgotPasswordRequest,
+    ResetPasswordRequest,
+)
 from app.schemas.oauth import TokenData
-from app.services.user_service import register_user, authenticate_user, get_user_by_email
+from app.services.user_service import (
+    register_user,
+    authenticate_user,
+    get_user_by_email,
+)
 from app.dependencies.database import get_db
 from app.core.security import create_access_token
 from app.core.config import settings
@@ -22,12 +32,16 @@ router = APIRouter()
 FRONTEND_URL = settings.FRONTEND_URL
 DOMAIN = settings.DOMAIN
 
-@router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+
+@router.post(
+    "/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED
+)
 def sign_up(user_create: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user_create.email).first()
     if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")  
+        raise HTTPException(status_code=400, detail="Email already registered")
     return register_user(db, user_create)
+
 
 # @router.post("/token", response_model=Token)
 # def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
@@ -39,8 +53,11 @@ def sign_up(user_create: UserCreate, db: Session = Depends(get_db)):
 #     access_token = create_access_token(data={"sub": user.email}, expires_delta=access_token_expires)
 #     return {"access_token": access_token, "token_type": "bearer"}
 
+
 @router.post("/login", response_model=UserInfo)
-def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
+):
     user = authenticate_user(db, form_data.username, form_data.password)
     print(user)
     if user == None:
@@ -56,9 +73,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     userinfo = get_user_by_email(db, user.email)
     # Set JWT in HttpOnly cookie
     user_info_model = UserInfo.from_orm(userinfo)
-    response = JSONResponse(
-        content=jsonable_encoder(user_info_model)
-    )
+    response = JSONResponse(content=jsonable_encoder(user_info_model))
     response.set_cookie(
         key="access_token",
         value=access_token,
@@ -74,9 +89,10 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
         httponly=True,
         secure=False,  # Set to True in production
         samesite="strict",
-        max_age=86400  # 24 hours
+        max_age=86400,  # 24 hours
     )
     return response
+
 
 # Sign out with JWT is stateless; token invalidation requires blacklist (not implemented here)
 @router.post("/signout")
@@ -94,17 +110,19 @@ def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db
     send_reset_email(user.email, reset_link)
     return {"message": "Password reset link sent"}
 
+
 @router.patch("/reset-password/{token}")
-def reset_password_endpoint(token: str, request: ResetPasswordRequest, db: Session = Depends(get_db)):
+def reset_password_endpoint(
+    token: str, request: ResetPasswordRequest, db: Session = Depends(get_db)
+):
     success = reset_password(db, token, request.password)
     if success:
         return {"message": "Password updated"}
     raise HTTPException(status_code=400, detail="Invalid or expired token")
 
+
 @router.post("/google-login")
-async def google_login(
-    token: str = Form(...), db: Session = Depends(get_db)
-):
+async def google_login(token: str = Form(...), db: Session = Depends(get_db)):
     # 1. Verify Google ID token -> extract user details
     user_info = await verify_token(token)  # expects dict with email, name, picture etc.
     email = user_info.get("email")
@@ -144,8 +162,7 @@ async def google_login(
         httponly=True,
         secure=False,  # Set to True in production
         samesite="strict",
-        max_age=86400  # 24 hours
+        max_age=86400,  # 24 hours
     )
 
     return response
-    

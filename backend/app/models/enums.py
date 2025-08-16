@@ -116,6 +116,12 @@ class ExpMonthEnum(str, Enum):
     NOV = "NOV"
     DEC = "DEC"
     ALL = "ALL"
+    
+class TradingAccountTypeEnum(str, Enum):
+    SCHWAB = "SCHWAB"
+    TASTYTRADER = "TASTYTRADER"
+    TRADIER = "TRADIER"
+
 # class SessionEnum(str, Enum):
 #     NORMAL = "NORMAL"
 #     AM = "AM"

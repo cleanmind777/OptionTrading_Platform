@@ -144,7 +144,6 @@ async def user_get_bots(db: Session, bot_filters: BotFilter):
         .options(joinedload(Bot.strategy))
         .filter(Bot.user_id == bot_filters.user_id)
     )
-
     # Filter by is_active if not "All"
     if bot_filters.is_active == "Enabled":
         query = query.filter(Bot.is_active == True)
@@ -190,6 +189,7 @@ async def user_get_bots(db: Session, bot_filters: BotFilter):
 
     result = db.execute(query)
     bots = result.scalars().all()
+    print(bots)
     return bots
 
 

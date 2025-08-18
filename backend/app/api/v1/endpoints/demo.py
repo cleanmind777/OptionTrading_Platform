@@ -31,7 +31,7 @@ async def create_demo_trades(user_id: UUID, db: Session = Depends(get_db)):
     response = await create_demo(db, user_id)
     if not response:
         raise HTTPException(status_code=400, detail="You don't have bot")
-    return response
+    return True
 
 
 @router.delete("/delete")

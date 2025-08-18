@@ -20,6 +20,7 @@ export function AccountSettings() {
   const [phoneNumber, setPhoneNumber] = useState("")
   const [firstName, setFirstName] = useState("");
   const [discord, setDiscord] = useState("")
+  const [demo, setDemo] = useState(false)
   const [accountAccessSettings, setaccountAccessSettings] = useState({});
   const storedUserInfo = localStorage.getItem("userinfo");
   const userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : {
@@ -204,6 +205,7 @@ export function AccountSettings() {
   useEffect(() => {
     // Handle initial page load with hash
     console.log("jotai", userInfo);
+    setDemo(userInfo.demo_status)
     setUserPreferences(userInfo.user_preferences)
     setBotPreferences(userInfo.bot_preferences)
     setFirstName(userInfo.first_name);
@@ -217,6 +219,34 @@ export function AccountSettings() {
     console.log(pauseBots)
 
   }, [firstName, discord, phoneNumber]);
+  const createDemo = async () => {
+    const params = {
+      user_id: userInfo.id
+    }
+    axios
+      .get(`${BACKEND_URL}/demo/create`, { params })
+      .then((response) => {
+        alert("Success")
+      })
+      .catch((error) => {
+        alert(error.response.data.detail)
+        console.error("Error fetching data:", error);
+      });
+  };
+  const deleteDemo = async () => {
+    const params = {
+      user_id: userInfo.id
+    }
+    axios
+      .delete(`${BACKEND_URL}/demo/delete`, { params })
+      .then((response) => {
+        alert("Success")
+      })
+      .catch((error) => {
+        alert(error.detail)
+        console.error("Error fetching data:", error);
+      });
+  };
   return (
     <div className="min-h-screen bg-slate-900">
       {/* Email Change Modal */}
@@ -637,7 +667,89 @@ export function AccountSettings() {
                 </button>
               </div>
             </div>
+
+            <div className="bg-[rgb(15 23 42)] rounded-lg p-6 border border-slate-700">
+              <h2 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 text-blue-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                  />
+                </svg>
+                <span>Demo Trading Accounts & Logs</span>
+              </h2>
+
+              <div className="space-y-4">
+                <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                  <h3 className="text-sm font-medium text-gray-300 mb-2">
+                    Create Demo Trading Accounts & Logs
+                  </h3>
+                  <p className="text-sm text-gray-400 mb-3">
+                    Create the demo trading accounts and logs for performance chart.
+                  </p>
+                  <button
+                    onClick={createDemo}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm flex items-center justify-center space-x-2 transition-all duration-200 transform hover:scale-105"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                      />
+                    </svg>
+                    <span>Create Demo Account</span>
+                  </button>
+                </div>
+
+                <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                  <h3 className="text-sm font-medium text-gray-300 mb-2">
+                    Delete Demo Trading Accounts & Logs
+                  </h3>
+                  <p className="text-sm text-gray-400 mb-3">
+                    Permanently remove your demo account and all associated data.
+                  </p>
+                  <button
+                    onClick={deleteDemo}
+                    className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm flex items-center justify-center space-x-2 transition-all duration-200 transform hover:scale-105"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>
+                    <span>Delete Demo Account</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
           </div>
+
 
           {/* Right Column - Settings & Preferences */}
           <div className="space-y-8">

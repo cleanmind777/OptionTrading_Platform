@@ -60,6 +60,17 @@ export function TradingDashboard() {
         console.error("Error fetching data:", error);
       });
   };
+  const getUserInfo = () => {
+    const params = { user_id: userInfo.id };
+    axios
+      .get(`${BACKEND_URL}/user/me`, { params })
+      .then((response) => {
+        localStorage.setItem("userinfo", JSON.stringify(response.data));
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  };
 
   const getTradingAccounts = () => {
     const params = { user_id: userInfo.id };
@@ -139,6 +150,7 @@ export function TradingDashboard() {
   };
 
   useEffect(() => {
+    getUserInfo();
     getTradingLogs();
     getBotsForTradingDashboard();
     getTradingAccounts();
@@ -147,7 +159,7 @@ export function TradingDashboard() {
   useEffect(() => {
     const todayLog = getTodayTradingLogs(tradingLogs);
     const todayData = calculateTodayMetrics(todayLog);
-    setTodayProfit(todayData.totalProfit - todayData.totalLoss);
+    setTodayProfit(todayData.totalProfit);
   }, [tradingLogs]);
 
   return (
@@ -207,7 +219,13 @@ export function TradingDashboard() {
                 <h3 className="text-gray-300 text-sm font-medium">Total Portfolio Value</h3>
                 <p className="text-3xl font-bold text-white mt-2">{formatCurrency(userInfo.total_balance)}</p>
                 <div className="flex items-center mt-2">
-                  <span className="text-green-400 text-sm">+{formatCurrency(todayProfit)} today</span>
+                  <span
+                    className={`text-sm ${todayProfit >= 0 ? "text-green-400" : "text-red-400"
+                      }`}
+                  >
+                    {todayProfit >= 0 ? "+" : ""}
+                    {formatCurrency(todayProfit)} today
+                  </span>
                 </div>
               </div>
 
@@ -223,12 +241,27 @@ export function TradingDashboard() {
 
               <div className="bg-slate-800 p-6 rounded-lg border border-slate-700 hover:shadow-lg transition-shadow">
                 <h3 className="text-gray-300 text-sm font-medium">Total P&L</h3>
-                <p className="text-3xl font-bold text-green-400 mt-2">
+                <p
+                  className={`text-3xl font-bold mt-2 ${userInfo.total_profit + userInfo.total_loss >= 0
+                    ? "text-green-400"
+                    : "text-red-400"
+                    }`}
+                >
                   {formatCurrency(userInfo.total_profit + userInfo.total_loss)}
                 </p>
                 <div className="flex items-center mt-2">
-                  <span className="text-green-400 text-sm">
-                    +{((userInfo.total_profit / (userInfo.total_profit - userInfo.total_loss)) * 100).toFixed(1)}%
+                  <span
+                    className={`text-sm ${userInfo.total_profit + userInfo.total_loss >= 0
+                      ? "text-green-400"
+                      : "text-red-400"
+                      }`}
+                  >
+                    {userInfo.total_profit + userInfo.total_loss >= 0 ? "+" : ""}
+                    {(
+                      (userInfo.total_profit / (userInfo.total_profit - userInfo.total_loss)) *
+                      100
+                    ).toFixed(1)}
+                    %
                   </span>
                 </div>
               </div>

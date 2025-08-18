@@ -128,7 +128,13 @@ class UserInfo(UserBase):
     group_id: Optional[str] = None
     group_display_name: Optional[str] = None
     group_admin: Optional[bool] = None
-
+    total_balance: Optional[float] = None
+    total_profit: Optional[float] = None
+    total_loss: Optional[float] = None
+    total_wins: Optional[int] = None
+    total_losses: Optional[int] = None
+    win_rate: Optional[float] = None
+    demo_status: Optional[bool] = None
     model_config = {
         "from_attributes": True,  # replaces orm_mode=True
     }

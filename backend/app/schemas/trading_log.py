@@ -5,7 +5,8 @@ from datetime import datetime
 
 
 class TradingLogFilter(BaseModel):
-    user_id: UUID
+    id: Optional[UUID] = None
+    user_id: Optional[UUID] = None
     bot_id: Optional[UUID] = None
     trading_task_id: Optional[UUID] = None
     trading_account_id: Optional[UUID] = None

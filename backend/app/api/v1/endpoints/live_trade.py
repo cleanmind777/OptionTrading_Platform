@@ -4,11 +4,19 @@ from datetime import datetime, date
 from typing import Optional
 import json, asyncio, datetime, random
 from uuid import UUID
+from typing import List
 from celery.result import AsyncResult
 from celery.contrib.abortable import AbortableAsyncResult
 from sqlalchemy.orm import Session
 from app.dependencies.database import get_db
 from celery_app import celery_app
+from app.schemas.trading_log import TradingLogFilter
+from app.schemas.trading_account import (
+    TradingAccountFilter,
+    TradingAccountUpdate,
+    BalanceUpdate,
+    TradingAccountInfo,
+)
 from app.services.bot_service import get_bot
 from app.services.trading_task_serivce import (
     create_trading_task,
@@ -17,6 +25,8 @@ from app.services.trading_task_serivce import (
     add_celery_id_to_trading_task,
     get_active_trading_tasks,
 )
+from app.services.trading_log_serivce import get_trading_logs
+from app.services.trading_account_service import get_trading_accounts
 from app.api.v1.endpoints.schwab import SchwabAccountAPI, SchwabMarketAPI
 
 schwab_account = SchwabAccountAPI()
@@ -114,12 +124,12 @@ async def sse_endpoint(request: Request, symbol: str):
             current_price = price_history[-1]
             current_price += random.random()
             option_data = schwab_market.get_quotes(symbol)
-            option_data = option_data['AAPL']
-            option_data['reference']['description'] = ""
-            option_data['symbol'] = symbol
-            option_data['quote']["askPrice"] += random.random()
-            option_data['quote']["bidPrice"] += random.random()
-            option_data['quote']["totalVolume"] += int(1000 * random.random())
+            option_data = option_data["AAPL"]
+            option_data["reference"]["description"] = ""
+            option_data["symbol"] = symbol
+            option_data["quote"]["askPrice"] += random.random()
+            option_data["quote"]["bidPrice"] += random.random()
+            option_data["quote"]["totalVolume"] += int(1000 * random.random())
             x = 100 * random.random()
             payload = {
                 "quote": option_data,
@@ -134,3 +144,23 @@ async def sse_endpoint(request: Request, symbol: str):
             await asyncio.sleep(1)
 
     return StreamingResponse(event_generator(request), media_type="text/event-stream")
+
+
+@router.get("/trading-logs/")
+def get_Trading_logs(user_id: UUID, db: Session = Depends(get_db)):
+    trading_log_filter = TradingLogFilter(user_id=user_id)
+    return get_trading_logs(db, trading_log_filter)
+
+
+@router.get("/trading-logs/bot")
+def get_Trading_logs(user_id: UUID, bot_id: UUID, db: Session = Depends(get_db)):
+    trading_log_filter = TradingLogFilter(bot_id=bot_id, user_id=user_id)
+    return get_trading_logs(db, trading_log_filter)
+
+
+@router.get("/trading-accounts/")
+def get_Trading_accounts(
+    user_id: UUID, db: Session = Depends(get_db)
+) -> List[TradingAccountInfo]:
+    trading_account_filter = TradingAccountFilter(user_id=user_id)
+    return get_trading_accounts(db, trading_account_filter)

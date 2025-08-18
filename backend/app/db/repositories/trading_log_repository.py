@@ -51,7 +51,9 @@ def user_create_trading_log(db: Session, trading_log_create: TradingLogCreate):
     return db_trading_log
 
 
-def user_get_trading_logs(db: Session, trading_log_filter: TradingLogFilter):
+def user_get_trading_logs(
+    db: Session, trading_log_filter: TradingLogFilter
+) -> list[TradingLog]:
     query = db.query(TradingLog).filter(
         TradingLog.user_id == trading_log_filter.user_id
     )

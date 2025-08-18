@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { StockQuoteData } from "../types/quote";
+import { roundTo } from "../utils/NumberProcess"
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 interface SseComponentProps {

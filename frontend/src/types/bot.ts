@@ -10,13 +10,12 @@ export interface Bot {
   trade_stop: TradeStop;
   trade_condition: TradeCondition;
   bot_dependencies: BotDependencies;
-  total_profit: number,
-  win_rate: number,
-  win_trades_count: number,
-  loss_trades_count: number,
-  average_win: number,
-  average_loss: number,
-  current_trading_task_id: string
+  total_profit: number;
+  total_loss: number;
+  win_rate: number;
+  win_trades_count: number;
+  loss_trades_count: number;
+  current_trading_task_id: string;
 }
 
 export interface TradeEntry {

@@ -20,4 +20,11 @@ export interface UserInfo {
   group_id: string;
   group_display_name: string;
   group_admin: Boolean;
+  total_balance: number;
+  total_profit: number;
+  total_loss: number;
+  total_wins: number;
+  total_losses: BigInt;
+  win_rate: number;
+  demo_status: boolean;
 }

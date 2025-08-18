@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { TradingLog, TradingAccount, TradingLogFilter } from "../../types/trading"
+import { getTradingLogs } from "../../api/trading"
+import { roundTo } from "../../utils/NumberProcess"
+import { transformTradingLogs } from "../../utils/Trading"
+import BotTradingChart from "../../components/BotTradingChart"
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 interface Bot {
@@ -14,14 +20,7 @@ interface Bot {
   account: string;
 }
 
-interface Account {
-  id: string;
-  name: string;
-  broker: string;
-  balance: number;
-  dayPnl: number;
-  dayPnlPercent: number;
-}
+
 
 export function TradingDashboard() {
   const [activeTab, setActiveTab] = useState<
@@ -29,25 +28,6 @@ export function TradingDashboard() {
   >("overview");
   const userInfo = JSON.parse(localStorage.getItem("userinfo")!);
   const navigate = useNavigate();
-  const accounts: Account[] = [
-    {
-      id: "1",
-      name: "Main Trading Account",
-      broker: "Schwab",
-      balance: 125430.5,
-      dayPnl: 2340.25,
-      dayPnlPercent: 1.9,
-    },
-    {
-      id: "2",
-      name: "IRA Account",
-      broker: "TastyTrade",
-      balance: 89250.0,
-      dayPnl: -450.75,
-      dayPnlPercent: -0.5,
-    },
-  ];
-
   // const bots: Bot[] = [
   //   {
   //     id: '1',
@@ -81,6 +61,9 @@ export function TradingDashboard() {
   //   }
   // ]
   const [bots, setBots] = useState<Bot[]>([]);
+  const [tradingLogs, setTradingLogs] = useState<TradingLog[]>([]);
+  const [tradingAccounts, setTradingAccounts] = useState<TradingAccount[]>([])
+  const [todayProfit, setTodayProfit] = useState(0);
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
@@ -99,6 +82,58 @@ export function TradingDashboard() {
       style: "currency",
       currency: "USD",
     }).format(amount);
+  };
+  const getTradingLogs = () => {
+    const params = {
+      user_id: userInfo.id,
+    };
+    axios.get(`${BACKEND_URL}/live-trade/trading-logs`, { params })
+      .then((response) => {
+        setTradingLogs(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+
+  }
+  const getTradingAccounts = () => {
+    const params = {
+      user_id: userInfo.id,
+    };
+    axios.get(`${BACKEND_URL}/live-trade/trading-accounts`, { params })
+      .then((response) => {
+        setTradingAccounts(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+
+  }
+  const getTodayTradingLogs = (logs: TradingLog[]) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return logs.filter(log => {
+      const logDate = new Date(log.time);
+      logDate.setHours(0, 0, 0, 0);
+      return logDate.getTime() === today.getTime();
+    });
+  };
+
+  // Function to calculate aggregate metrics from today's logs
+  const calculateTodayMetrics = (logs: TradingLog[]) => {
+    return logs.reduce((acc, log) => {
+      acc.totalProfit += log.profit ?? 0;
+      acc.totalLoss += log.profit && log.profit < 0 ? log.profit : 0;
+      acc.totalWins += log.profit >= 0 ? 1 : 0;
+      acc.totalLosses += log.profit < 0 ? 1 : 0;
+      return acc;
+    }, {
+      totalProfit: 0,
+      totalLoss: 0,
+      totalWins: 0,
+      totalLosses: 0
+    });
   };
   const getBotsForTradingDashboard = () => {
     const params = {
@@ -146,8 +181,15 @@ export function TradingDashboard() {
       });
   };
   useEffect(() => {
+    getTradingLogs();
     getBotsForTradingDashboard();
+    getTradingAccounts()
   }, []);
+  useEffect(() => {
+    const todayLog = getTodayTradingLogs(tradingLogs);
+    const todayData = calculateTodayMetrics(todayLog);
+    setTodayProfit(todayData.totalProfit - todayData.totalLoss)
+  }, [tradingLogs])
   return (
     <div className="min-h-screen bg-slate-900 py-8">
       <div className="max-w-7xl mx-auto px-6">
@@ -191,11 +233,10 @@ export function TradingDashboard() {
                     tab.key as "overview" | "bots" | "accounts" | "trades"
                   )
                 }
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === tab.key
-                    ? "border-blue-500 text-blue-400"
-                    : "border-transparent text-gray-300 hover:text-white hover:border-gray-300"
-                }`}
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.key
+                  ? "border-blue-500 text-blue-400"
+                  : "border-transparent text-gray-300 hover:text-white hover:border-gray-300"
+                  }`}
               >
                 {tab.label}
               </button>
@@ -214,14 +255,14 @@ export function TradingDashboard() {
                 </h3>
                 <p className="text-3xl font-bold text-white mt-2">
                   {formatCurrency(
-                    accounts.reduce((sum, acc) => sum + acc.balance, 0)
+                    userInfo.total_balance
                   )}
                 </p>
                 <div className="flex items-center mt-2">
                   <span className="text-green-400 text-sm">
                     +
                     {formatCurrency(
-                      accounts.reduce((sum, acc) => sum + acc.dayPnl, 0)
+                      todayProfit
                     )}{" "}
                     today
                   </span>
@@ -245,14 +286,13 @@ export function TradingDashboard() {
               <div className="bg-slate-800 p-6 rounded-lg border border-slate-700">
                 <h3 className="text-gray-300 text-sm font-medium">Total P&L</h3>
                 <p className="text-3xl font-bold text-green-400 mt-2">
-                  {formatCurrency(bots.reduce((sum, bot) => sum + bot.pnl, 0))}
+                  {formatCurrency(userInfo.total_profit + userInfo.total_loss)}
                 </p>
                 <div className="flex items-center mt-2">
                   <span className="text-green-400 text-sm">
                     +
                     {(
-                      (bots.reduce((sum, bot) => sum + bot.pnl, 0) / 50000) *
-                      100
+                      (userInfo.total_profit / (userInfo.total_profit - userInfo.total_loss)) * 100
                     ).toFixed(1)}
                     %
                   </span>
@@ -265,11 +305,7 @@ export function TradingDashboard() {
               <h3 className="text-lg font-semibold text-white mb-4">
                 Portfolio Performance
               </h3>
-              <div className="h-64 bg-slate-700 rounded-lg flex items-center justify-center">
-                <p className="text-gray-400">
-                  Chart visualization would go here
-                </p>
-              </div>
+              <BotTradingChart data={transformTradingLogs(tradingLogs)}></BotTradingChart>
             </div>
           </div>
         )}
@@ -381,7 +417,7 @@ export function TradingDashboard() {
         {/* Accounts Tab */}
         {activeTab === "accounts" && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {accounts.map((account) => (
+            {tradingAccounts.map((account) => (
               <div
                 key={account.id}
                 className="bg-slate-800 p-6 rounded-lg border border-slate-700"
@@ -391,7 +427,7 @@ export function TradingDashboard() {
                     <h3 className="text-lg font-semibold text-white">
                       {account.name}
                     </h3>
-                    <p className="text-gray-400 text-sm">{account.broker}</p>
+                    <p className="text-gray-400 text-sm">{account.type}</p>
                   </div>
                   <div className="flex space-x-2">
                     <button className="text-blue-400 hover:text-blue-300 text-sm">
@@ -407,18 +443,18 @@ export function TradingDashboard() {
                   <div className="flex justify-between">
                     <span className="text-gray-300">Account Balance</span>
                     <span className="text-white font-medium">
-                      {formatCurrency(account.balance)}
+                      {formatCurrency(account.current_balance)}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-300">Today's P&L</span>
                     <span
-                      className={`font-medium ${account.dayPnl >= 0 ? "text-green-400" : "text-red-400"}`}
+                      className={`font-medium ${(account.total_profit + account.total_loss) >= 0 ? "text-green-400" : "text-red-400"}`}
                     >
-                      {account.dayPnl >= 0 ? "+" : ""}
-                      {formatCurrency(account.dayPnl)} (
-                      {account.dayPnlPercent >= 0 ? "+" : ""}
-                      {account.dayPnlPercent}%)
+                      {(account.total_profit + account.total_loss) >= 0 ? "+" : ""}
+                      {formatCurrency(account.total_profit + account.total_loss)} (
+                      {(account.total_profit + account.total_loss) >= 0 ? "+" : ""}
+                      {Math.round(account.win_rate * 10000) / 100}%)
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -445,12 +481,64 @@ export function TradingDashboard() {
             <h3 className="text-lg font-semibold text-white mb-4">
               Recent Trades
             </h3>
-            <div className="text-center text-gray-400 py-12">
-              <p>Trade log functionality coming soon...</p>
-              <p className="text-sm mt-2">
-                This will show detailed trade history and performance metrics
-              </p>
-            </div>
+
+            {tradingLogs.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-slate-700/50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Symbol
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Date & Time
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Profit/Loss
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Win/Loss
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Bot
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-700">
+                    {tradingLogs.map((log) => (
+                      <tr key={log.id} className="hover:bg-slate-700/30">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                          {log.symbol}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                          {new Date(log.time).toLocaleString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`text-sm font-medium ${log.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {formatCurrency(log.profit)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${log.win_loss ? 'text-green-400 bg-green-400/10' : 'text-red-400 bg-red-400/10'}`}>
+                            {log.win_loss ? 'Win' : 'Loss'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                          {bots.find(bot => bot.id === log.bot_id)?.name || 'Unknown Bot'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center text-gray-400 py-12">
+                <p>No trading history found.</p>
+                <p className="text-sm mt-2">
+                  Start trading to see your performance logs here
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>

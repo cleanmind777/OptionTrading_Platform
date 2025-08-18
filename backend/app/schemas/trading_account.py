@@ -23,3 +23,17 @@ class TradingAccountUpdate(BaseModel):
 class BalanceUpdate(BaseModel):
     trading_account_id: UUID
     profit: float
+
+
+class TradingAccountInfo(TradingAccountFilter):
+    id: UUID
+    description: Optional[str] = None
+    is_active: Optional[bool] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    current_balance: Optional[float] = None
+    total_profit: Optional[float] = None
+    total_loss: Optional[float] = None
+    total_wins: Optional[int] = None
+    total_losses: Optional[int] = None
+    win_rate: Optional[float] = None

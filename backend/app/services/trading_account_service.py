@@ -12,8 +12,10 @@ from app.schemas.trading_account import (
     TradingAccountFilter,
     TradingAccountUpdate,
     BalanceUpdate,
+    TradingAccountInfo,
 )
 from uuid import UUID
+from typing import List
 
 
 def get_trading_accounts(db: Session, trading_account_filters: TradingAccountFilter):
@@ -38,3 +40,9 @@ def update_trading_account(db: Session, update: TradingAccountUpdate):
 
 def update_balance(db: Session, update_balance: BalanceUpdate):
     return user_update_balance(db, update_balance)
+
+
+def get_trading_accounts(
+    db: Session, trading_account_filter: TradingAccountFilter
+) -> List[TradingAccountInfo]:
+    return user_get_trading_accounts(db, trading_account_filter)

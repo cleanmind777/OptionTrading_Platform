@@ -31,6 +31,7 @@ def user_get_trading_accounts(
     if trading_account_filter.type:
         query = query.filter(TradingAccount.type == trading_account_filter.type)
 
+    print(query.all())
     return query.all()
 
 

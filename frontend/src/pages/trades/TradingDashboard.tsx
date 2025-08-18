@@ -4,7 +4,7 @@ import axios from "axios";
 import { TradingLog, TradingAccount, TradingLogFilter } from "../../types/trading"
 import { getTradingLogs } from "../../api/trading"
 import { roundTo } from "../../utils/NumberProcess"
-import { transformTradingLogs } from "../../utils/Trading"
+import { transformTradingLogsForUser } from "../../utils/Trading"
 import BotTradingChart from "../../components/BotTradingChart"
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -305,7 +305,7 @@ export function TradingDashboard() {
               <h3 className="text-lg font-semibold text-white mb-4">
                 Portfolio Performance
               </h3>
-              <BotTradingChart data={transformTradingLogs(tradingLogs)}></BotTradingChart>
+              <BotTradingChart data={transformTradingLogsForUser(tradingLogs)}></BotTradingChart>
             </div>
           </div>
         )}

@@ -13,7 +13,7 @@ import { StockQuoteData } from "../../types/quote";
 import { Strategy } from "../../types/strategy";
 import { ContractLine, StockLine, AllLine } from "../../types/contract";
 import { roundTo } from "../../utils/NumberProcess"
-import { transformTradingLogs } from "../../utils/Trading"
+import { transformTradingLogsForBot } from "../../utils/Trading"
 import { TradingLog, TradingChartData } from "../../types/trading"
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -157,7 +157,7 @@ function BotMonitor() {
       {/* Using the transformed trading logs data for the chart */}
       {tradingLogs.length > 0 ? (
         <div style={{ width: '100%', height: '400px' }}>  {/* Full width, fixed height */}
-          <BotTradingChart data={transformTradingLogs(tradingLogs)}></BotTradingChart>
+          <BotTradingChart data={transformTradingLogsForBot(tradingLogs)}></BotTradingChart>
         </div>
       ) : (
         <Card>

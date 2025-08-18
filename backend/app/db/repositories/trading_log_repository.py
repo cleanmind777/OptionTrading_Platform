@@ -29,6 +29,21 @@ def user_create_trading_log(db: Session, trading_log_create: TradingLogCreate):
         time=func.now(),
         current_total_balance=trading_log_create.current_account_balance,
         current_account_balance=trading_log_create.current_account_balance,
+        current_win_rate=trading_log_create.current_win_rate,
+        current_total_profit=trading_log_create.current_total_profit,
+        current_total_loss=trading_log_create.current_total_loss,
+        current_total_wins=trading_log_create.current_total_wins,
+        current_total_losses=trading_log_create.current_total_losses,
+        current_win_rate_for_user=trading_log_create.current_win_rate_for_user,
+        current_total_profit_for_user=trading_log_create.current_total_profit_for_user,
+        current_total_loss_for_user=trading_log_create.current_total_loss_for_user,
+        current_total_wins_for_user=trading_log_create.current_total_wins_for_user,
+        current_total_losses_for_user=trading_log_create.current_total_losses_for_user,
+        current_win_rate_for_account=trading_log_create.current_win_rate_for_account,
+        current_total_profit_for_account=trading_log_create.current_total_profit_for_account,
+        current_total_loss_for_account=trading_log_create.current_total_loss_for_account,
+        current_total_wins_for_account=trading_log_create.current_total_wins_for_account,
+        current_total_losses_for_account=trading_log_create.current_total_losses_for_account,
     )
     db.add(db_trading_log)
     db.commit()
@@ -36,7 +51,9 @@ def user_create_trading_log(db: Session, trading_log_create: TradingLogCreate):
     return db_trading_log
 
 
-def user_get_trading_logs(db: Session, trading_log_filter: TradingLogFilter):
+def user_get_trading_logs(
+    db: Session, trading_log_filter: TradingLogFilter
+) -> list[TradingLog]:
     query = db.query(TradingLog).filter(
         TradingLog.user_id == trading_log_filter.user_id
     )

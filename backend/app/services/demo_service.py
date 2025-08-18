@@ -9,7 +9,11 @@ from app.db.repositories.demo_repository import (
     user_create_demo_trading_account,
     user_add_demo_trading_account_to_bot,
 )
-from app.schemas.trading_log import TradingLogFilter, TradingLogCreate
+from app.schemas.trading_log import (
+    TradingLogFilter,
+    TradingLogCreate,
+    TradingLogCreateLowData,
+)
 from app.schemas.trading_account import BalanceUpdate
 from app.db.repositories.trading_account_repository import user_get_trading_accounts
 from app.services.bot_service import get_bots, get_bot
@@ -52,26 +56,12 @@ def create_demo_accounts(db: Session, user_id: UUID):
 
 async def create_demo_trading_logs_for_bot(db: Session, bot_id: UUID):
     bot = await get_bot(db, bot_id)
-    trading_account = get_trading_account(db, bot.trading_account_id)
-    strategy = get_strategy(db, bot.strategy_id)
     for i in range(0, 10):
         profit = random.uniform(-1000.0, 1000.0)
-        update_balance_data = BalanceUpdate(
-            trading_account_id=trading_account.id, profit=profit
+        trading_log_create_low_data = TradingLogCreateLowData(
+            bot_id=bot_id, profit=profit
         )
-        current_trading_account_balance = update_balance(db, update_balance_data)
-        total_balance = get_total_balance(db, bot.user_id)
-        trading_log_create = TradingLogCreate(
-            user_id=bot.user_id,
-            bot_id=bot_id,
-            trading_account_id=bot.trading_account_id,
-            symbol=strategy.symbol,
-            profit=profit,
-            win_loss=profit >= 0,
-            current_account_balance=current_trading_account_balance,
-            current_total_balance=total_balance,
-        )
-        create_trading_log(db, trading_log_create)
+        await create_trading_log(db, trading_log_create_low_data)
 
     trading_log_filter = TradingLogFilter(user_id=bot.user_id, bot_id=bot_id)
     return get_trading_logs(db, trading_log_filter)

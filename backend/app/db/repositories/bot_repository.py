@@ -19,6 +19,8 @@ from sqlalchemy.future import select
 from datetime import timedelta
 from uuid import UUID
 from app.schemas.bot import BotCreate, BotInfo, BotFilter, BotEdit, BotChange
+from app.schemas.trading_log import TradingLogCreateLowData
+from app.db.repositories.trading_account_repository import user_get_trading_account
 from app.dependencies.database import get_db
 from app.core.security import create_access_token
 from app.core.config import settings
@@ -226,6 +228,7 @@ async def user_get_bots_for_trading_dashboard(db: Session, user_id: UUID):
         .order_by(Bot.name)  # ascending alphabetical
         .all()
     )
+
     bots_for_trading_dashboard = []
     for db_bot in db_bots:
         strategy = db.query(Strategy).filter(Strategy.id == db_bot.strategy_id).first()
@@ -240,6 +243,28 @@ async def user_get_bots_for_trading_dashboard(db: Session, user_id: UUID):
         bot["pnl"] = db_bot.total_profit
         bot["pnlPercent"] = db_bot.win_rate
         bot["trades"] = db_bot.win_trades_count + db_bot.loss_trades_count
-        bot["account"] = "Schwab"
+        if db_bot.trading_account_id:
+            trading_account = user_get_trading_account(db, db_bot.trading_account_id)
+            bot["account"] = trading_account.name
+        else:
+            bot["account"] = "None"
         bots_for_trading_dashboard.append(bot)
     return bots_for_trading_dashboard
+
+
+async def user_update_bot_balance(
+    db: Session, trading_log_create_low_data: TradingLogCreateLowData
+) -> Bot:
+    db_bot = db.query(Bot).filter(Bot.id == trading_log_create_low_data.bot_id).first()
+    if trading_log_create_low_data.profit >= 0:
+        db_bot.total_profit = db_bot.total_profit + trading_log_create_low_data.profit
+        db_bot.win_trades_count += 1
+    else:
+        db_bot.total_loss = db_bot.total_loss + trading_log_create_low_data.profit
+        db_bot.loss_trades_count += 1
+    db_bot.win_rate = db_bot.win_trades_count / (
+        db_bot.win_trades_count + db_bot.loss_trades_count
+    )
+    db.commit()
+    db.refresh(db_bot)
+    return db_bot

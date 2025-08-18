@@ -31,6 +31,7 @@ def user_get_trading_accounts(
     if trading_account_filter.type:
         query = query.filter(TradingAccount.type == trading_account_filter.type)
 
+    print(query.all())
     return query.all()
 
 
@@ -93,7 +94,15 @@ def user_update_balance(
         return None
 
     db_trading_account.current_balance += update_balance.profit
-
+    if update_balance.profit >= 0:
+        db_trading_account.total_profit += update_balance.profit
+        db_trading_account.total_wins += 1
+    else:
+        db_trading_account.total_loss += update_balance.profit
+        db_trading_account.total_losses += 1
+    db_trading_account.win_rate = db_trading_account.total_wins / (
+        db_trading_account.total_wins + db_trading_account.total_losses
+    )
     db.commit()
     db.refresh(db_trading_account)
-    return db_trading_account.current_balance
+    return db_trading_account

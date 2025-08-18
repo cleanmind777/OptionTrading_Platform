@@ -26,7 +26,8 @@ CREATE TABLE users (
     total_loss FLOAT DEFAULT 0,
     total_wins FLOAT DEFAULT 0,
     total_losses FLOAT DEFAULT 0,
-    win_rate FLOAT DEFAULT 1
+    win_rate FLOAT DEFAULT 1,
+    demo_status BOOLEAN DEFAULT FALSE
 );
 
 
@@ -82,7 +83,7 @@ CREATE TABLE bots (
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP,
-    trading_account_id UUID REFERENCES trading_accounts(id),
+    trading_account_id VARCHAR,
     strategy_id UUID NOT NULL REFERENCES strategies(id),
     trade_entry JSON,
     trade_exit JSON,

@@ -5,6 +5,7 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
 from sqlalchemy import cast, JSON
 from sqlalchemy.future import select
+from sqlalchemy import asc
 from uuid import UUID
 
 from app.models.trading_log import TradingLog
@@ -27,7 +28,7 @@ def user_create_trading_log(db: Session, trading_log_create: TradingLogCreate):
         win_loss=trading_log_create.win_loss,
         profit=trading_log_create.profit,
         time=func.now(),
-        current_total_balance=trading_log_create.current_account_balance,
+        current_total_balance=trading_log_create.current_total_balance,
         current_account_balance=trading_log_create.current_account_balance,
         current_win_rate=trading_log_create.current_win_rate,
         current_total_profit=trading_log_create.current_total_profit,
@@ -76,13 +77,43 @@ def user_get_trading_logs(
 
     if trading_log_filter.win_loss != None:
         query = query.filter(TradingLog.win_loss == trading_log_filter.win_loss)
-
+    query = query.order_by(asc(TradingLog.time))
     results = query.all()
     return results
 
 
-def user_get_trading_log(db, trading_log_id: UUID):
+def user_get_trading_log(db: Session, trading_log_id: UUID):
     db_trading_log = (
         db.query(TradingLog).filter(TradingLog.id == trading_log_id).first()
     )
     return db_trading_log
+
+
+async def user_delete_trading_logs(db: Session, trading_log_filter: TradingLogFilter):
+    query = db.query(TradingLog).filter(
+        TradingLog.user_id == trading_log_filter.user_id
+    )
+
+    if trading_log_filter.bot_id:
+        query = query.filter(TradingLog.bot_id == trading_log_filter.bot_id)
+
+    if trading_log_filter.trading_account_id:
+        query = query.filter(
+            TradingLog.trading_account_id == trading_log_filter.trading_account_id
+        )
+
+    if trading_log_filter.trading_task_id:
+        query = query.filter(
+            TradingLog.trading_task_id == trading_log_filter.trading_task_id
+        )
+
+    if trading_log_filter.symbol:
+        query = query.filter(TradingLog.symbol == trading_log_filter.symbol)
+
+    if trading_log_filter.win_loss is not None:
+        query = query.filter(TradingLog.win_loss == trading_log_filter.win_loss)
+
+    # Bulk delete
+    query.delete(synchronize_session=False)
+    db.commit()
+    return True

@@ -7,6 +7,7 @@ from app.db.repositories.trading_account_repository import (
     user_get_total_balance,
     user_update_trading_account,
     user_update_balance,
+    user_delete_trading_account,
 )
 from app.schemas.trading_account import (
     TradingAccountFilter,
@@ -38,11 +39,17 @@ def update_trading_account(db: Session, update: TradingAccountUpdate):
     return user_update_trading_account(db, update)
 
 
-def update_balance(db: Session, update_balance: BalanceUpdate):
-    return user_update_balance(db, update_balance)
+async def update_balance(db: Session, update_balance: BalanceUpdate):
+    return await user_update_balance(db, update_balance)
 
 
 def get_trading_accounts(
     db: Session, trading_account_filter: TradingAccountFilter
 ) -> List[TradingAccountInfo]:
     return user_get_trading_accounts(db, trading_account_filter)
+
+
+async def delete_trading_accounts(
+    db: Session, trading_account_filter: TradingAccountFilter
+):
+    return await user_delete_trading_account(db, trading_account_filter)

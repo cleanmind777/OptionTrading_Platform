@@ -27,8 +27,8 @@ import json
 from uuid import UUID
 
 
-def get_user_info(db: Session, account_id) -> User:
-    return get_user_by_id(db, account_id)
+def get_user_info(db: Session, user_id) -> User:
+    return get_user_by_id(db, user_id)
 
 
 def register_user(db: Session, user_create: UserCreate) -> User:

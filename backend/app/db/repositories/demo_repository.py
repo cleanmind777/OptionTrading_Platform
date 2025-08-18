@@ -15,6 +15,7 @@ from uuid import UUID
 from app.models.trading_account import TradingAccount
 from app.models.trading_log import TradingLog
 from app.models.bot import Bot
+from app.models.user import User
 from app.schemas.demo import DemoTradingAccountCreate
 from app.schemas.trading_account import TradingAccountFilter
 from app.dependencies.database import get_db
@@ -51,3 +52,33 @@ def user_add_demo_trading_account_to_bot(
     db.commit()
     db.refresh(db_bot)
     return db_bot
+
+
+async def user_delete_demo_at_bot(db: Session, user_id: UUID):
+    db_bots = db.query(Bot).filter(Bot.user_id == user_id).all()
+    if not db_bots:
+        return False
+    for bot in db_bots:
+        bot.trading_account_id = None
+        bot.total_profit = 0.0
+        bot.total_loss = 0.0
+        bot.win_rate = 0.0
+        bot.win_trades_count = 0
+        bot.loss_trades_count = 0
+        db.commit()
+        db.refresh(bot)
+    return db_bots
+
+
+async def user_delete_demo_at_user(db: Session, user_id: UUID):
+    db_user = db.query(User).filter(User.id == user_id).first()
+    db_user.total_balance = 0.0
+    db_user.total_profit = 0.0
+    db_user.total_loss = 0.0
+    db_user.total_wins = 0
+    db_user.total_losses = 0
+    db_user.win_rate = 0.0
+    db_user.demo_status = False
+    db.commit()
+    db.refresh(db_user)
+    return db_user

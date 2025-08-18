@@ -151,7 +151,7 @@ CREATE TABLE trading_tasks (
     celery_id VARCHAR,
     user_id UUID NOT NULL REFERENCES users(id),
     bot_id UUID NOT NULL REFERENCES bots(id),
-    trading_account_id UUID REFERENCES trading_accounts(id),
+    trading_account_id VARCHAR,
     is_active BOOLEAN DEFAULT TRUE,
     symbol VARCHAR,
     total_profit FLOAT DEFAULT 0,

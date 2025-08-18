@@ -8,6 +8,8 @@ from app.schemas.bot import BotFilter
 from app.db.repositories.demo_repository import (
     user_create_demo_trading_account,
     user_add_demo_trading_account_to_bot,
+    user_delete_demo_at_bot,
+    user_delete_demo_at_user,
 )
 from app.schemas.trading_log import (
     TradingLogFilter,
@@ -24,11 +26,13 @@ from app.services.trading_account_service import (
     get_total_balance,
     get_current_balance_of_trading_account,
     update_balance,
+    delete_trading_accounts,
 )
 from app.services.trading_log_serivce import (
     create_trading_log,
     get_trading_log,
     get_trading_logs,
+    delete_trading_logs,
 )
 import json, random
 from uuid import UUID
@@ -56,7 +60,7 @@ def create_demo_accounts(db: Session, user_id: UUID):
 
 async def create_demo_trading_logs_for_bot(db: Session, bot_id: UUID):
     bot = await get_bot(db, bot_id)
-    for i in range(0, 10):
+    for i in range(0, 30):
         profit = random.uniform(-1000.0, 1000.0)
         trading_log_create_low_data = TradingLogCreateLowData(
             bot_id=bot_id, profit=profit
@@ -119,3 +123,13 @@ async def create_demo(db: Session, user_id: UUID):
     if not bots:
         return None
     return await create_demo_trading_logs(db, user_id)
+
+
+async def delete_demo(db: Session, user_id: UUID):
+    trading_log_filter = TradingLogFilter(user_id=user_id)
+    await delete_trading_logs(db, trading_log_filter)
+    trading_account_filter = TradingAccountFilter(user_id=user_id)
+    await delete_trading_accounts(db, trading_account_filter)
+    await user_delete_demo_at_user(db, user_id)
+    await user_delete_demo_at_bot(db, user_id)
+    return True

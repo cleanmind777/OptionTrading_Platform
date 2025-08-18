@@ -31,7 +31,6 @@ def user_get_trading_accounts(
     if trading_account_filter.type:
         query = query.filter(TradingAccount.type == trading_account_filter.type)
 
-    print(query.all())
     return query.all()
 
 
@@ -82,7 +81,7 @@ def user_update_trading_account(
     return db_trading_account
 
 
-def user_update_balance(
+async def user_update_balance(
     db: Session, update_balance: BalanceUpdate
 ) -> TradingAccount | None:
     db_trading_account = (
@@ -106,3 +105,22 @@ def user_update_balance(
     db.commit()
     db.refresh(db_trading_account)
     return db_trading_account
+
+
+async def user_delete_trading_account(
+    db: Session, trading_account_filter: TradingAccountFilter
+):
+    query = db.query(TradingAccount).filter(
+        TradingAccount.user_id == trading_account_filter.user_id
+    )
+
+    if trading_account_filter.name:
+        query = query.filter(
+            TradingAccount.name.ilike(f"%{trading_account_filter.name}%")
+        )  # case-insensitive partial match
+
+    if trading_account_filter.type:
+        query = query.filter(TradingAccount.type == trading_account_filter.type)
+    query.delete(synchronize_session=False)
+    db.commit()
+    return True

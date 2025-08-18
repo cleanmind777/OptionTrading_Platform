@@ -3,6 +3,7 @@ from app.db.repositories.trading_log_repository import (
     user_create_trading_log,
     user_get_trading_log,
     user_get_trading_logs,
+    user_delete_trading_logs,
 )
 from app.services.bot_service import get_bots, get_bot, update_bot_balance
 from app.services.strategy_service import get_strategy
@@ -31,7 +32,7 @@ async def create_trading_log(
     update_balance_data = BalanceUpdate(
         trading_account_id=trading_account.id, profit=trading_log_create_low_data.profit
     )
-    updated_trading_account = update_balance(db, update_balance_data)
+    updated_trading_account = await update_balance(db, update_balance_data)
     total_balance = get_total_balance(db, bot.user_id)
     update_trades_data = UpdateTrades(
         user_id=bot.user_id,
@@ -73,3 +74,7 @@ def get_trading_log(db: Session, trading_log_id: UUID):
 
 def get_trading_logs(db: Session, trading_log_filter: TradingLogFilter):
     return user_get_trading_logs(db, trading_log_filter)
+
+
+async def delete_trading_logs(db: Session, trading_log_filter: TradingLogFilter):
+    return await user_delete_trading_logs(db, trading_log_filter)

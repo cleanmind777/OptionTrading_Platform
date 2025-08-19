@@ -28,7 +28,7 @@ from app.services.trading_account_service import (
     update_balance,
     delete_trading_accounts,
 )
-from app.services.trading_log_serivce import (
+from app.services.trading_log_service import (
     create_trading_log,
     get_trading_log,
     get_trading_logs,

@@ -145,7 +145,7 @@ export function MainNavigation({
       name: "STRATEGIES",
       items: [
         { name: "View Strategies", link: "/strategies/view" },
-        { name: "Strategy Performance", link: "/strategies/performance" },
+        // { name: "Strategy Performance", link: "/strategies/performance" },
         // { name: "Strategy Backtesting", link: "/strategies/backtest" },
       ],
     },

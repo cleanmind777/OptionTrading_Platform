@@ -46,6 +46,11 @@ def user_create_trading_log(db: Session, trading_log_create: TradingLogCreate):
         current_total_loss_for_account=trading_log_create.current_total_loss_for_account,
         current_total_wins_for_account=trading_log_create.current_total_wins_for_account,
         current_total_losses_for_account=trading_log_create.current_total_losses_for_account,
+        current_win_rate_for_strategy=trading_log_create.current_win_rate_for_strategy,
+        current_total_profit_for_strategy=trading_log_create.current_total_profit_for_strategy,
+        current_total_loss_for_strategy=trading_log_create.current_total_loss_for_strategy,
+        current_total_wins_for_strategy=trading_log_create.current_total_wins_for_strategy,
+        current_total_losses_for_strategy=trading_log_create.current_total_losses_for_strategy,
     )
     db.add(db_trading_log)
     db.commit()
@@ -64,7 +69,7 @@ def user_get_trading_logs(
         query = query.filter(TradingLog.bot_id == trading_log_filter.bot_id)
 
     if trading_log_filter.strategy_id:
-        query = query.filter(TradingLog.bot_id == trading_log_filter.strategy_id)
+        query = query.filter(TradingLog.strategy_id == trading_log_filter.strategy_id)
 
     if trading_log_filter.trading_account_id:
         query = query.filter(

@@ -158,6 +158,12 @@ def get_Trading_logs(user_id: UUID, bot_id: UUID, db: Session = Depends(get_db))
     return get_trading_logs(db, trading_log_filter)
 
 
+@router.get("/trading-logs/strategy")
+def get_Trading_logs(user_id: UUID, strategy_id: UUID, db: Session = Depends(get_db)):
+    trading_log_filter = TradingLogFilter(strategy_id=strategy_id, user_id=user_id)
+    return get_trading_logs(db, trading_log_filter)
+
+
 @router.get("/trading-accounts/")
 def get_Trading_accounts(
     user_id: UUID, db: Session = Depends(get_db)

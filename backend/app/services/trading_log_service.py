@@ -72,7 +72,7 @@ async def create_trading_log(
         current_total_losses_for_account=updated_trading_account.total_losses,
         current_win_rate_for_strategy=(
             strategy_performance.total_wins
-            / (strategy_performance.total_wins + strategy_performance.total_loss)
+            / (strategy_performance.total_wins + strategy_performance.total_losses)
         ),
         current_total_profit_for_strategy=strategy_performance.total_profit,
         current_total_loss_for_strategy=strategy_performance.total_loss,

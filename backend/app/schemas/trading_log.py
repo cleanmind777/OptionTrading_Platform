@@ -37,6 +37,11 @@ class TradingLogCreate(TradingLogFilter):
     current_total_loss_for_account: Optional[float] = None
     current_total_wins_for_account: Optional[int] = None
     current_total_losses_for_account: Optional[int] = None
+    current_win_rate_for_strategy: Optional[float] = None
+    current_total_profit_for_strategy: Optional[float] = None
+    current_total_loss_for_strategy: Optional[float] = None
+    current_total_wins_for_strategy: Optional[int] = None
+    current_total_losses_for_strategy: Optional[int] = None
 
 
 class TradingLogCreateLowData(BaseModel):

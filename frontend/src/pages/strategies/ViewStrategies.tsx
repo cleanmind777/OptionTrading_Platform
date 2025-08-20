@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom';
+
 import axios from 'axios';
+import { roundTo } from '../../utils/NumberProcess';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -17,6 +20,10 @@ interface Strategy {
   sell_bidless_longs_on_trade_exit: boolean
   efficient_spreads: boolean
   legs: JSON
+  total_profit: number
+  total_loss: number
+  total_wins: number
+  total_losses: number
   // lastTraded: string
   // allTimeCommissions: number
   // ytdCommissions: number
@@ -28,6 +35,7 @@ interface Strategy {
 }
 
 export function ViewStrategies() {
+  const navigate = useNavigate();
   const [hideDisabled, setHideDisabled] = useState(false)
   const [entriesPerPage, setEntriesPerPage] = useState(25)
   const [searchTerm, setSearchTerm] = useState('')
@@ -132,13 +140,16 @@ export function ViewStrategies() {
   const [strategies, setStrategies] = useState<Strategy[]>([])
 
   const filteredStrategies = strategies.filter(strategy => {
-    const matchesSearch = strategy.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      strategy.description.toLowerCase().includes(searchTerm.toLowerCase())
+    const name = strategy.name || ''; // Fallback to empty string if null/undefined
+    const description = strategy.description || ''; // Fallback to empty string if null/undefined
 
-    const matchesHideDisabled = !hideDisabled || strategy.is_active
+    const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      description.toLowerCase().includes(searchTerm.toLowerCase());
 
-    return matchesSearch && matchesHideDisabled
-  })
+    const matchesHideDisabled = !hideDisabled || strategy.is_active;
+
+    return matchesSearch && matchesHideDisabled;
+  });
 
   const totalPages = Math.ceil(filteredStrategies.length / entriesPerPage)
   const startIndex = (currentPage - 1) * entriesPerPage
@@ -266,13 +277,16 @@ export function ViewStrategies() {
               <tbody className="divide-y divide-slate-700">
                 {currentStrategies.length > 0 ? (
                   currentStrategies.map((strategy) => (
-                    <tr key={strategy.id} className="hover:bg-slate-700/30 transition-colors">
+                    <tr
+                      key={strategy.id}
+                      className="hover:bg-slate-700/30 transition-colors cursor-pointer"
+                      onClick={() => navigate(`/strategies/view/${strategy.id}`)}
+                    >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-white">{strategy.name}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${strategy.is_active ? 'bg-green-500' : 'bg-gray-500'
-                          }`}>
+                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${strategy.is_active ? 'bg-green-500' : 'bg-gray-500'}`}>
                           {strategy.is_active && (
                             <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -286,12 +300,10 @@ export function ViewStrategies() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-300">
-                        {/* {strategy.lastTraded} */}
-                        ---
+                        {new Date(strategy.updated_at).toLocaleString()} {/* Convert Date to string */}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-white">
-                        {/* {strategy.tradeCount} */}
-                        ---
+                        {strategy.total_losses + strategy.total_wins}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-orange-400">
                         {/* {formatCurrency(strategy.allTimeCommissions)} */}
@@ -301,11 +313,8 @@ export function ViewStrategies() {
                         {/* {formatCurrency(strategy.ytdCommissions)} */}
                         ---
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center text-sm">
-                        {/* <span className={strategy.allTimeNetPL >= 0 ? 'text-green-400' : 'text-red-400'}>
-                          {formatCurrency(strategy.allTimeNetPL)}
-                        </span> */}
-                        ---
+                      <td className={`px-6 py-4 whitespace-nowrap text-center text-sm ${strategy.total_profit >= 0 - strategy.total_loss ? "text-green-500" : "text-red-500"}`}>
+                        {roundTo(strategy.total_profit + strategy.total_loss, 2)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center text-sm">
                         {/* <span className={strategy.ytdNetPL >= 0 ? 'text-green-400' : 'text-red-400'}>

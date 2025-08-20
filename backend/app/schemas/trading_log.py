@@ -1,17 +1,21 @@
 from pydantic import BaseModel
 from typing import Optional
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, date
 
 
 class TradingLogFilter(BaseModel):
     id: Optional[UUID] = None
     user_id: Optional[UUID] = None
     bot_id: Optional[UUID] = None
+    strategy_id: Optional[UUID] = None
     trading_task_id: Optional[UUID] = None
     trading_account_id: Optional[UUID] = None
     symbol: Optional[str] = None
     win_loss: Optional[bool] = None
+    start_time: Optional[datetime] = None
+    end_time: Optional[datetime] = None
+    limit: Optional[int] = None
 
 
 class TradingLogCreate(TradingLogFilter):
@@ -38,3 +42,18 @@ class TradingLogCreate(TradingLogFilter):
 class TradingLogCreateLowData(BaseModel):
     bot_id: UUID
     profit: float
+
+
+class LogSimple(BaseModel):
+    value: float
+    time: datetime
+
+
+class RecenTrade(BaseModel):
+    time: Optional[datetime] = None
+    # closed_time: Optional[datetime] = None
+    symbol: Optional[str] = None
+    bot: Optional[str] = None
+    strategy: Optional[str] = None
+    pnl: Optional[float] = None
+    # status: Optional[str] = None

@@ -12,12 +12,12 @@ from app.services.trading_account_service import (
     get_total_balance,
     update_balance,
 )
-from app.services.user_service import update_trades
 from app.schemas.trading_log import (
     TradingLogFilter,
     TradingLogCreate,
     TradingLogCreateLowData,
 )
+from app.services.strategy_service import update_balance_of_strategy
 from app.schemas.trading_account import BalanceUpdate
 from app.schemas.user import UpdateTrades
 from uuid import UUID
@@ -26,9 +26,13 @@ from uuid import UUID
 async def create_trading_log(
     db: Session, trading_log_create_low_data: TradingLogCreateLowData
 ):
+    from app.services.user_service import update_trades
+
     bot = await update_bot_balance(db, trading_log_create_low_data)
     trading_account = get_trading_account(db, bot.trading_account_id)
-    strategy = get_strategy(db, bot.strategy_id)
+    strategy_performance = update_balance_of_strategy(
+        db, bot.strategy_id, trading_log_create_low_data.profit
+    )
     update_balance_data = BalanceUpdate(
         trading_account_id=trading_account.id, profit=trading_log_create_low_data.profit
     )
@@ -40,11 +44,13 @@ async def create_trading_log(
         total_balance=total_balance,
     )
     user = update_trades(db, update_trades_data)
+
     trading_log_create = TradingLogCreate(
         user_id=bot.user_id,
         bot_id=bot.id,
+        strategy_id=bot.strategy_id,
         trading_account_id=bot.trading_account_id,
-        symbol=strategy.symbol,
+        symbol=strategy_performance.symbol,
         profit=trading_log_create_low_data.profit,
         win_loss=trading_log_create_low_data.profit >= 0,
         current_account_balance=updated_trading_account.current_balance,
@@ -64,6 +70,14 @@ async def create_trading_log(
         current_total_loss_for_account=updated_trading_account.total_loss,
         current_total_wins_for_account=updated_trading_account.total_wins,
         current_total_losses_for_account=updated_trading_account.total_losses,
+        current_win_rate_for_strategy=(
+            strategy_performance.total_wins
+            / (strategy_performance.total_wins + strategy_performance.total_loss)
+        ),
+        current_total_profit_for_strategy=strategy_performance.total_profit,
+        current_total_loss_for_strategy=strategy_performance.total_loss,
+        current_total_wins_for_strategy=strategy_performance.total_wins,
+        current_total_losses_for_strategy=strategy_performance.total_losses,
     )
     return user_create_trading_log(db, trading_log_create)
 

@@ -240,8 +240,8 @@ async def user_get_bots_for_trading_dashboard(db: Session, user_id: UUID):
         else:
             bot["status"] = "stopped"
         bot["strategy"] = strategy.name
-        bot["pnl"] = db_bot.total_profit
-        bot["pnlPercent"] = db_bot.win_rate
+        bot["pnl"] = db_bot.total_profit + db_bot.total_loss
+        bot["pnlPercent"] = round(db_bot.win_rate * 100, 2)
         bot["trades"] = db_bot.win_trades_count + db_bot.loss_trades_count
         if db_bot.trading_account_id:
             trading_account = user_get_trading_account(db, db_bot.trading_account_id)

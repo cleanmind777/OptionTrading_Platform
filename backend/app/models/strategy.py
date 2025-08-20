@@ -1,4 +1,14 @@
-from sqlalchemy import Column, Integer, String, Boolean, JSON, DateTime, ForeignKey, Float, ARRAY
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Boolean,
+    JSON,
+    DateTime,
+    ForeignKey,
+    Float,
+    ARRAY,
+)
 from typing import List, Dict
 from sqlalchemy.dialects.postgresql import UUID
 from app.db.session import Base
@@ -6,17 +16,24 @@ import uuid
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 import json
-legssample = [{
-        "strike_target_type" : "",
-        "strike_target_value" : [0.0, 0.0, 0.0], # value, min, max
-        "option_type" : None,
-        "long_or_short" : None,
-        "size_ratio" : 1,
-        "days_to_expiration_type" : "Exact",
-        "days_to_expiration_value" : [0.0, 0.0, 0.0], #[Target, min, max]
-        "conflict_resolution" : False,
-        "conflict_resolution_value" : [0,0], #[Towards Underlying Mark, Away From Underlying Mark]
-    }]
+
+legssample = [
+    {
+        "strike_target_type": "",
+        "strike_target_value": [0.0, 0.0, 0.0],  # value, min, max
+        "option_type": None,
+        "long_or_short": None,
+        "size_ratio": 1,
+        "days_to_expiration_type": "Exact",
+        "days_to_expiration_value": [0.0, 0.0, 0.0],  # [Target, min, max]
+        "conflict_resolution": False,
+        "conflict_resolution_value": [
+            0,
+            0,
+        ],  # [Towards Underlying Mark, Away From Underlying Mark]
+    }
+]
+
 
 class Strategy(Base):
     __tablename__ = "strategies"
@@ -36,7 +53,11 @@ class Strategy(Base):
     sell_bidless_longs_on_trade_exit = Column(Boolean, default=False)
     efficient_spreads = Column(Boolean, default=False)
     legs = Column(JSON, nullable=True, default=legssample)
+    total_profit = Column(Float, nullable=True, default=0.0)
+    total_loss = Column(Float, nullable=True, default=0.0)
+    total_wins = Column(Integer, nullable=True, default=0)
+    total_losses = Column(Integer, nullable=True, default=0)
     user = relationship("User", back_populates="strategies")
     bots = relationship("Bot", back_populates="strategy")
     backtests = relationship("Backtest", back_populates="strategy")
-    
+    trading_logs = relationship("TradingLog", back_populates="strategy")

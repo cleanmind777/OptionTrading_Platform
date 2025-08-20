@@ -25,13 +25,21 @@ class TradingLog(Base):
         UUID(as_uuid=True), ForeignKey("trading_accounts.id"), nullable=True
     )
     bot_id = Column(UUID(as_uuid=True), ForeignKey("bots.id"), nullable=False)
+    strategy_id = Column(
+        UUID(as_uuid=True), ForeignKey("strategies.id"), nullable=False
+    )
     trading_task_id = Column(
         UUID(as_uuid=True), ForeignKey("trading_tasks.id"), nullable=True
     )
+    strategy_id = Column(
+        UUID(as_uuid=True), ForeignKey("strategies.id"), nullable=False
+    )
     symbol = Column(String, nullable=True)
+    status = Column(String, nullable=True, default="Open")
     win_loss = Column(Boolean, nullable=True)
     profit = Column(Float, nullable=True, default=0.0)
     time = Column(DateTime, nullable=True, server_default=func.now())
+    closed_time = Column(DateTime, nullable=True)
     current_total_balance = Column(Float, nullable=True, default=100000.0)
     current_account_balance = Column(Float, nullable=True, default=100000.0)
     current_win_rate = Column(Float, nullable=True, default=1)
@@ -49,8 +57,14 @@ class TradingLog(Base):
     current_total_loss_for_account = Column(Float, nullable=True, default=0)
     current_total_wins_for_account = Column(Integer, nullable=True, default=0)
     current_total_losses_for_account = Column(Integer, nullable=True, default=0)
+    current_win_rate_for_strategy = Column(Float, nullable=True, default=1)
+    current_total_profit_for_strategy = Column(Float, nullable=True, default=0)
+    current_total_loss_for_strategy = Column(Float, nullable=True, default=0)
+    current_total_wins_for_strategy = Column(Integer, nullable=True, default=0)
+    current_total_losses_for_strategy = Column(Integer, nullable=True, default=0)
 
     user = relationship("User", back_populates="trading_logs")
     bot = relationship("Bot", back_populates="trading_logs")
+    strategy = relationship("Strategy", back_populates="trading_logs")
     trading_account = relationship("TradingAccount", back_populates="trading_logs")
     trading_task = relationship("TradingTask", back_populates="trading_logs")

@@ -25,6 +25,29 @@ export interface TradingLog {
   current_total_loss_for_account: number;
   current_total_wins_for_account: BigInt;
   current_total_losses_for_account: BigInt;
+  current_win_rate_for_strategy: number;
+  current_total_profit_for_strategy: number;
+  current_total_loss_for_strategy: number;
+  current_total_wins_for_strategy: BigInt;
+  current_total_losses_for_strategy: BigInt;
+}
+
+export interface TradingLogForStrategy {
+  id: string;
+  user_id: string;
+  trading_account_id: string;
+  bot_id: string;
+  trading_task_id: string;
+  symbol: string;
+  win_loss: boolean;
+  profit: number;
+  time: Date;
+  current_total_balance: number;
+  current_win_rate_for_strategy: number;
+  current_total_profit_for_strategy: number;
+  current_total_loss_for_strategy: number;
+  current_total_wins_for_strategy: BigInt;
+  current_total_losses_for_strategy: BigInt;
 }
 
 export interface TradingAccount {
@@ -61,4 +84,19 @@ export interface TradingChartData {
   current_total_loss: number;
   current_total_wins: number;
   current_total_losses: number;
+}
+
+export interface LogSimple {
+  id: string;
+  value: number;
+  time: Date;
+}
+
+export interface RecenTrade {
+  id: string;
+  time: Date;
+  symbol?: string;
+  bot?: string;
+  strategy?: string;
+  pnl?: number;
 }

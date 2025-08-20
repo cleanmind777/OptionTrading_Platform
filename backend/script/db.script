@@ -68,7 +68,11 @@ CREATE TABLE strategies (
     skip_am_expirations BOOLEAN DEFAULT FALSE,
     sell_bidless_longs_on_trade_exit BOOLEAN DEFAULT FALSE,
     efficient_spreads BOOLEAN DEFAULT FALSE,
-    legs JSON
+    legs JSON,
+    total_profit FLOAT DEFAULT 0.0,
+    total_loss FLOAT DEFAULT 0.0,
+    total_wins INTEGER DEFAULT 0,
+    total_losses INTEGER DEFAULT 0
 );
 
 
@@ -166,6 +170,7 @@ CREATE TABLE trading_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id),
     bot_id UUID NOT NULL REFERENCES bots(id),
+    strategy_id UUID NOT NULL REFERENCES strategies(id),
     trading_account_id UUID REFERENCES trading_accounts(id),
     trading_task_id UUID REFERENCES trading_tasks(id),
     symbol VARCHAR,
@@ -188,5 +193,10 @@ CREATE TABLE trading_logs (
     current_total_profit_for_account FLOAT,
     current_total_loss_for_account FLOAT,
     current_total_wins_for_account INTEGER,
-    current_total_losses_for_account INTEGER
+    current_total_losses_for_account INTEGER,
+    current_win_rate_for_strategy FLOAT,
+    current_total_profit_for_strategy FLOAT,
+    current_total_loss_for_strategy FLOAT,
+    current_total_wins_for_strategy INTEGER,
+    current_total_losses_for_strategy INTEGER
 );

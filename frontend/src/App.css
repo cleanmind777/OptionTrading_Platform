@@ -49,3 +49,17 @@ html {
   max-width: 1200px !important;
   color: #000 !important;
 }
+
+.custom-scrollbar::-webkit-scrollbar {
+       width: 8px;
+     }
+     .custom-scrollbar::-webkit-scrollbar-track {
+       background: #1e293b; /* Tailwind's slate-800 */
+     }
+     .custom-scrollbar::-webkit-scrollbar-thumb {
+       background: #475569; /* Tailwind's slate-600 */
+       border-radius: 4px;
+     }
+     .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+       background: #64748b; /* Tailwind's slate-500 */
+     }

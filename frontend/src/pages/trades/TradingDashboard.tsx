@@ -251,13 +251,9 @@ export function TradingDashboard() {
                 </p>
                 <div className="flex items-center mt-2">
                   <span
-                    className={`text-sm ${userInfo.total_profit + userInfo.total_loss >= 0
-                      ? "text-green-400"
-                      : "text-red-400"
-                      }`}
+                    className="text-sm font-medium text-white"
                   >
-                    {userInfo.total_profit + userInfo.total_loss >= 0 ? "+" : ""}
-                    {(
+                    Win Rate {(
                       (userInfo.total_profit / (userInfo.total_profit - userInfo.total_loss)) *
                       100
                     ).toFixed(1)}
@@ -325,11 +321,11 @@ export function TradingDashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{bot.strategy}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-white">{formatCurrency(bot.pnl)}</div>
+                        {/* <div className="text-sm font-medium text-white">{formatCurrency(bot.pnl)}</div> */}
+                        <div className={`text-sm font-medium ${bot.pnl >= 0 ? "text-green-400" : "text-red-400"}`}>{formatCurrency(bot.pnl)}</div>
                         <div
-                          className={`text-sm ${bot.pnlPercent >= 0 ? "text-green-400" : "text-red-400"}`}
+                          className="text-sm font-medium text-white"
                         >
-                          {bot.pnlPercent >= 0 ? "+" : ""}
                           {bot.pnlPercent}%
                         </div>
                       </td>
@@ -392,9 +388,13 @@ export function TradingDashboard() {
                           }`}
                       >
                         {account.total_profit + account.total_loss >= 0 ? "+" : ""}
-                        {formatCurrency(account.total_profit + account.total_loss)} (
-                        {account.total_profit + account.total_loss >= 0 ? "+" : ""}
-                        {Math.round(account.win_rate * 10000) / 100}%)
+                        {formatCurrency(account.total_profit + account.total_loss)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-300">Win Rate</span>
+                      <span className="text-white">
+                        {Math.round(account.win_rate * 10000) / 100}%
                       </span>
                     </div>
                     <div className="flex justify-between">

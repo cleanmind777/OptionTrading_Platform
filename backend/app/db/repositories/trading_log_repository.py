@@ -5,7 +5,7 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
 from sqlalchemy import cast, JSON
 from sqlalchemy.future import select
-from sqlalchemy import asc
+from sqlalchemy import asc, desc
 from uuid import UUID
 
 from app.models.trading_log import TradingLog
@@ -23,6 +23,7 @@ def user_create_trading_log(db: Session, trading_log_create: TradingLogCreate):
         user_id=trading_log_create.user_id,
         trading_account_id=trading_log_create.trading_account_id,
         bot_id=trading_log_create.bot_id,
+        strategy_id=trading_log_create.strategy_id,
         trading_task_id=trading_log_create.trading_task_id,
         symbol=trading_log_create.symbol,
         win_loss=trading_log_create.win_loss,
@@ -45,6 +46,11 @@ def user_create_trading_log(db: Session, trading_log_create: TradingLogCreate):
         current_total_loss_for_account=trading_log_create.current_total_loss_for_account,
         current_total_wins_for_account=trading_log_create.current_total_wins_for_account,
         current_total_losses_for_account=trading_log_create.current_total_losses_for_account,
+        current_win_rate_for_strategy=trading_log_create.current_win_rate_for_strategy,
+        current_total_profit_for_strategy=trading_log_create.current_total_profit_for_strategy,
+        current_total_loss_for_strategy=trading_log_create.current_total_loss_for_strategy,
+        current_total_wins_for_strategy=trading_log_create.current_total_wins_for_strategy,
+        current_total_losses_for_strategy=trading_log_create.current_total_losses_for_strategy,
     )
     db.add(db_trading_log)
     db.commit()
@@ -62,6 +68,9 @@ def user_get_trading_logs(
     if trading_log_filter.bot_id:
         query = query.filter(TradingLog.bot_id == trading_log_filter.bot_id)
 
+    if trading_log_filter.strategy_id:
+        query = query.filter(TradingLog.strategy_id == trading_log_filter.strategy_id)
+
     if trading_log_filter.trading_account_id:
         query = query.filter(
             TradingLog.trading_account_id == trading_log_filter.trading_account_id
@@ -77,7 +86,17 @@ def user_get_trading_logs(
 
     if trading_log_filter.win_loss != None:
         query = query.filter(TradingLog.win_loss == trading_log_filter.win_loss)
-    query = query.order_by(asc(TradingLog.time))
+
+    if trading_log_filter.start_time:
+        query = query.filter(TradingLog.time >= trading_log_filter.start_time)
+
+    if trading_log_filter.end_time:
+        query = query.filter(TradingLog.time <= trading_log_filter.end_time)
+    if trading_log_filter.limit != None:
+        query = query.order_by(desc(TradingLog.time))
+        query = query.limit(trading_log_filter.limit)
+    else:
+        query = query.order_by(asc(TradingLog.time))
     results = query.all()
     return results
 

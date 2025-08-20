@@ -32,6 +32,7 @@ from app.services.user_service import (
     update_bot_preferences,
     update_email,
     update_password,
+    get_account_insights,
 )
 from app.dependencies.database import get_db
 from app.core.config import settings
@@ -42,6 +43,11 @@ router = APIRouter()
 @router.get("/me", response_model=UserInfo, status_code=status.HTTP_201_CREATED)
 def get_User_info(user_id: str, db: Session = Depends(get_db)):
     return get_user_info(db, user_id)
+
+
+@router.get("/account-insights", status_code=status.HTTP_201_CREATED)
+async def get_Account_insights(user_id: str, db: Session = Depends(get_db)):
+    return await get_account_insights(db, user_id)
 
 
 @router.post(

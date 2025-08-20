@@ -40,6 +40,7 @@ import { BotAnalytics } from "./pages/bots/BotAnalytics";
 import { ComprehensiveBotAnalytics } from "./pages/bots/ComprehensiveBotAnalytics";
 import { AdvancedBacktesting } from "./pages/bots/AdvancedBacktesting";
 import { ViewStrategies } from "./pages/strategies/ViewStrategies";
+import { StrategyDetails } from './pages/strategies/StrategyDetails';
 import { VideoVault } from "./pages/support/VideoVault";
 import { DiscordCommunity } from "./pages/support/DiscordCommunity";
 import { AccountVsMarketPerformance } from "./pages/performance/AccountVsMarketPerformance";
@@ -320,10 +321,11 @@ function App() {
               element={<PerformanceVolatility />}
             />
             <Route path="/strategies/view" element={<ViewStrategies />} />
-            <Route
+            {/* <Route
               path="/strategies/performance"
               element={<StrategyPerformance />}
-            />
+            /> */}
+            <Route path="/strategies/view/:strategy_id" element={<StrategyDetails />} />
             <Route
               path="/strategies/backtest"
               element={<AdvancedBacktesting />}

@@ -18,14 +18,14 @@ from app.schemas.trading_account import (
     TradingAccountInfo,
 )
 from app.services.bot_service import get_bot
-from app.services.trading_task_serivce import (
+from app.services.trading_task_service import (
     create_trading_task,
     get_trading_task_status,
     stop_trading_task,
     add_celery_id_to_trading_task,
     get_active_trading_tasks,
 )
-from app.services.trading_log_serivce import get_trading_logs
+from app.services.trading_log_service import get_trading_logs
 from app.services.trading_account_service import get_trading_accounts
 from app.api.v1.endpoints.schwab import SchwabAccountAPI, SchwabMarketAPI
 
@@ -155,6 +155,12 @@ def get_Trading_logs(user_id: UUID, db: Session = Depends(get_db)):
 @router.get("/trading-logs/bot")
 def get_Trading_logs(user_id: UUID, bot_id: UUID, db: Session = Depends(get_db)):
     trading_log_filter = TradingLogFilter(bot_id=bot_id, user_id=user_id)
+    return get_trading_logs(db, trading_log_filter)
+
+
+@router.get("/trading-logs/strategy")
+def get_Trading_logs(user_id: UUID, strategy_id: UUID, db: Session = Depends(get_db)):
+    trading_log_filter = TradingLogFilter(strategy_id=strategy_id, user_id=user_id)
     return get_trading_logs(db, trading_log_filter)
 
 

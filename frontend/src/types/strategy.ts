@@ -23,3 +23,21 @@ export interface Leg {
   conflict_resolution: boolean;
   conflict_resolution_value: [number, number];
 }
+
+export interface StrategyPerformance {
+  strategy_id: string;
+  name: string;
+  symbol: string;
+  total_profit?: number;
+  total_loss?: number;
+  total_wins?: BigInt;
+  total_losses?: BigInt;
+  win_rate?: number;
+}
+
+export interface StrategySimplePerformance {
+  id: string;
+  name: string;
+  pnl: number;
+  win_rate: number;
+}

@@ -4,6 +4,9 @@ from datetime import datetime
 from uuid import UUID
 import json
 
+from app.schemas.trading_log import LogSimple, RecenTrade
+from app.schemas.strategy import StrategySimplePerformance
+
 
 class UserBase(BaseModel):
     email: EmailStr
@@ -152,3 +155,19 @@ class UpdateTrades(BaseModel):
     user_id: UUID
     profit: float
     total_balance: float
+
+
+class AccountInsights(BaseModel):
+    total_balance: Optional[float] = None
+    today_pnl: Optional[float] = None
+    total_pnl: Optional[float] = None
+    total_return: Optional[float] = None
+    active_bots: Optional[int] = None
+    win_rate: Optional[float] = None
+    total_trades: Optional[int] = None
+    user_pnl_logs: Optional[list[LogSimple]] = None
+    strategies: Optional[list[StrategySimplePerformance]] = None
+    average_win: Optional[float] = None
+    average_loss: Optional[float] = None
+    risk_reward_ratio: Optional[float] = None
+    recent_trades: Optional[list[RecenTrade]] = None

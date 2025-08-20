@@ -62,3 +62,18 @@ export interface TradingChartData {
   current_total_wins: number;
   current_total_losses: number;
 }
+
+export interface LogSimple {
+  id: string;
+  value: number;
+  time: Date;
+}
+
+export interface RecenTrade {
+  id: string;
+  time: Date;
+  symbol?: string;
+  bot?: string;
+  strategy?: string;
+  pnl?: number;
+}

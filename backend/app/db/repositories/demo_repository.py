@@ -15,6 +15,7 @@ from uuid import UUID
 from app.models.trading_account import TradingAccount
 from app.models.trading_log import TradingLog
 from app.models.bot import Bot
+from app.models.strategy import Strategy
 from app.models.user import User
 from app.schemas.demo import DemoTradingAccountCreate
 from app.schemas.trading_account import TradingAccountFilter
@@ -82,3 +83,17 @@ async def user_delete_demo_at_user(db: Session, user_id: UUID):
     db.commit()
     db.refresh(db_user)
     return db_user
+
+
+async def user_delete_demo_at_strategy(db: Session, user_id: UUID):
+    db_stratgies = db.query(Strategy).filter(Strategy.user_id == user_id).all()
+    if not db_stratgies:
+        return False
+    for strategy in db_stratgies:
+        strategy.total_profit = 0.0
+        strategy.total_loss = 0.0
+        strategy.total_wins = 0
+        strategy.total_losses = 0
+        db.commit()
+        db.refresh(strategy)
+    return db_stratgies

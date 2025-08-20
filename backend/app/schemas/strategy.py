@@ -40,6 +40,7 @@ class StrategyInfo(StrategyBase):
 
 
 class StrategySimplePerformance(BaseModel):
+    id: UUID
     name: Optional[str] = None
     pnl: Optional[float] = None
     win_rate: Optional[float] = None

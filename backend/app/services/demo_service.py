@@ -10,6 +10,7 @@ from app.db.repositories.demo_repository import (
     user_add_demo_trading_account_to_bot,
     user_delete_demo_at_bot,
     user_delete_demo_at_user,
+    user_delete_demo_at_strategy,
 )
 from app.schemas.trading_log import (
     TradingLogFilter,
@@ -132,4 +133,5 @@ async def delete_demo(db: Session, user_id: UUID):
     await delete_trading_accounts(db, trading_account_filter)
     await user_delete_demo_at_user(db, user_id)
     await user_delete_demo_at_bot(db, user_id)
+    await user_delete_demo_at_strategy(db, user_id)
     return True

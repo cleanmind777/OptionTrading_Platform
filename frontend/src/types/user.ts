@@ -1,3 +1,5 @@
+import { LogSimple, RecenTrade } from "../types/trading";
+import { StrategySimplePerformance } from "../types/strategy";
 export interface UserInfo {
   id: string;
   first_name: string;
@@ -27,4 +29,20 @@ export interface UserInfo {
   total_losses: BigInt;
   win_rate: number;
   demo_status: boolean;
+}
+
+export interface AccountInsights {
+  total_balance?: number;
+  today_pnl?: number;
+  total_pnl?: number;
+  total_return?: number;
+  active_bots?: BigInt;
+  win_rate?: number;
+  total_trades?: BigInt;
+  user_pnl_logs?: [LogSimple];
+  strategies?: [StrategySimplePerformance];
+  average_win?: number;
+  average_loss?: number;
+  risk_reward_ratio?: number;
+  recent_trades?: [RecenTrade];
 }

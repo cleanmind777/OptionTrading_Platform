@@ -45,11 +45,13 @@ class TradingLogCreateLowData(BaseModel):
 
 
 class LogSimple(BaseModel):
+    id: UUID
     value: float
     time: datetime
 
 
 class RecenTrade(BaseModel):
+    id: UUID
     time: Optional[datetime] = None
     # closed_time: Optional[datetime] = None
     symbol: Optional[str] = None

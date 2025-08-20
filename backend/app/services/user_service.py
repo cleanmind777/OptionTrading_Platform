@@ -57,6 +57,7 @@ async def get_account_insights(db: Session, user_id: UUID) -> AccountInsights:
     changed_recent_trades: list[RecenTrade] = []
     for trade in recent_trades:
         changed_recent_trade: RecenTrade = {}
+        changed_recent_trade["id"] = str(trade.id)
         changed_recent_trade["symbol"] = trade.symbol
         changed_recent_trade["time"] = trade.time
         changed_recent_trade["pnl"] = trade.profit
@@ -71,6 +72,7 @@ async def get_account_insights(db: Session, user_id: UUID) -> AccountInsights:
     changed_user_pnl_logs: list[LogSimple] = []
     for log in user_pnl_logs:
         changed_user_pnl_log: LogSimple = {}
+        changed_user_pnl_log["id"] = str(log.id)
         changed_user_pnl_log["value"] = (
             log.current_total_profit + log.current_total_loss
         )
@@ -82,6 +84,7 @@ async def get_account_insights(db: Session, user_id: UUID) -> AccountInsights:
     changed_strategies: list[StrategySimplePerformance] = []
     for strategy in strategies:
         changed_strategy: StrategySimplePerformance = {}
+        changed_strategy["id"] = strategy.id
         changed_strategy["name"] = strategy.name
         changed_strategy["pnl"] = strategy.total_profit + strategy.total_loss
         changed_strategy["win_rate"] = (
@@ -93,7 +96,7 @@ async def get_account_insights(db: Session, user_id: UUID) -> AccountInsights:
     account_insights = AccountInsights(
         total_balance=user.total_balance,
         today_pnl=today_pnl,
-        total_pnl=user.total_profit - user.total_loss,
+        total_pnl=user.total_profit + user.total_loss,
         active_bots=len(active_bots),
         win_rate=user.win_rate,
         total_trades=user.total_wins + user.total_losses,
@@ -101,10 +104,10 @@ async def get_account_insights(db: Session, user_id: UUID) -> AccountInsights:
         strategies=changed_strategies,
         average_win=user.total_profit / user.total_wins if user.total_wins > 0 else 0,
         average_loss=(
-            user.total_losses / user.total_losses if user.total_losses > 0 else 0
+            user.total_loss / user.total_losses if user.total_losses > 0 else 0
         ),
         risk_reward_ratio=round(
-            user.total_profit / user.total_loss if user.total_losses > 0 else 0, 2
+            user.total_wins / user.total_losses if user.total_losses > 0 else 0, 2
         ),
         recent_trades=changed_recent_trades,
     )

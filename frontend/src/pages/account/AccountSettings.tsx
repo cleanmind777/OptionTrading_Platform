@@ -21,6 +21,7 @@ export function AccountSettings() {
   const [firstName, setFirstName] = useState("");
   const [discord, setDiscord] = useState("")
   const [demo, setDemo] = useState(false)
+  const [loading, setLoading] = useState(false); // Add loading state
   const [accountAccessSettings, setaccountAccessSettings] = useState({});
   const storedUserInfo = localStorage.getItem("userinfo");
   const userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : {
@@ -220,6 +221,7 @@ export function AccountSettings() {
 
   }, [firstName, discord, phoneNumber]);
   const createDemo = async () => {
+    setLoading(true); // Start loading
     const params = {
       user_id: userInfo.id
     }
@@ -231,8 +233,13 @@ export function AccountSettings() {
       .catch((error) => {
         alert(error.response.data.detail)
         console.error("Error fetching data:", error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
+
   };
+
   const deleteDemo = async () => {
     const params = {
       user_id: userInfo.id
@@ -249,6 +256,17 @@ export function AccountSettings() {
   };
   return (
     <div className="min-h-screen bg-slate-900">
+      {/* Loading Modal */}
+      {loading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-[#0f172a] rounded-lg p-6 max-w-md w-full mx-4 relative">
+            <div className="flex items-center justify-center space-x-2">
+              <div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent"></div>
+              <span className="text-white">Creating Demo Account...</span>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Email Change Modal */}
       {showEmailModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -697,6 +715,7 @@ export function AccountSettings() {
                   </p>
                   <button
                     onClick={createDemo}
+                    disabled={loading} // Disable button while loading
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm flex items-center justify-center space-x-2 transition-all duration-200 transform hover:scale-105"
                   >
                     <svg

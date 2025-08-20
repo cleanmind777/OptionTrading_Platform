@@ -143,13 +143,15 @@ export function AccountStats() {
                       }}
                       content={({ payload, label }) => (
                         <div className="bg-slate-800 p-3 rounded-lg shadow-lg">
-                          <p className="text-sm text-gray-400">
-                            {new Date(label).toLocaleDateString()} {/* Date */}
-                            <br />
-                            <span className="text-xs text-gray-500">
-                              {new Date(label).toLocaleTimeString()} {/* Time */}
-                            </span>
-                          </p>
+                          {label && ( // Check if label exists
+                            <p className="text-sm text-gray-400">
+                              {new Date(label).toLocaleDateString()} {/* Date */}
+                              <br />
+                              <span className="text-xs text-gray-500">
+                                {new Date(label).toLocaleTimeString()} {/* Time */}
+                              </span>
+                            </p>
+                          )}
                           {payload?.map((entry, index) => (
                             <p key={index} className="text-sm text-white">
                               {`$${entry.value.toFixed(2)}`} {/* P&L Value */}

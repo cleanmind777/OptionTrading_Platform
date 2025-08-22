@@ -6,6 +6,7 @@ from fastapi.encoders import jsonable_encoder
 from datetime import timedelta
 from app.models.user import User
 from uuid import UUID
+import json
 
 from app.schemas.user import (
     UserCreate,
